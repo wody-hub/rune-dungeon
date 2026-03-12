@@ -21,13 +21,29 @@ interface EquipmentItem {
 }
 ```
 
-### 1.2. 결
+### 1.2. 자형
+```typescript
+interface JahyeongItem {
+  id: string;
+  name: string; // 예: "강", "불", "빛"
+  initial: string;
+  medial: string;
+  final?: string;
+  stats: {
+    type: string;
+    value: number;
+  }[];
+  canInscribe: boolean;
+}
+```
+
+### 1.3. 결
 ```typescript
 interface GyeolItem {
   id: string;
   name: string; // 예: "강", "태양", "어둠을 밝히는 불꽃이여"
-  kind: "GLYPH" | "MANTRA" | "INCANTATION";
-  tierName: "씨앗" | "결" | "무늬" | "물결" | "울림" | "숨결" | "빛살" | "여울" | "온결";
+  kind: "LETTER" | "MANTRA" | "INCANTATION";
+  tierName: "씨앗" | "움결" | "무늬" | "물결" | "울림" | "숨결" | "빛살" | "여울" | "온결";
   components: string[];
   stats?: {
     type: string;
@@ -37,7 +53,7 @@ interface GyeolItem {
 }
 ```
 
-### 1.3. 돌
+### 1.4. 돌
 ```typescript
 interface CatalystItem {
   id: string;
@@ -48,7 +64,7 @@ interface CatalystItem {
 }
 ```
 
-### 1.4. 먹
+### 1.5. 먹
 ```typescript
 interface SupportItem {
   id: string;
@@ -64,7 +80,7 @@ interface SupportItem {
   "player": {
     "level": 12,
     "stats": { "str": 10, "dex": 10, "int": 10 },
-    "inventory": ["gyeol_1", "gyeol_2", "stone_1", "ink_1"],
+    "inventory": ["jahyeong_1", "gyeol_1", "stone_1", "ink_1"],
     "equipped": { "weapon": "weapon_1", "armor": "armor_1" }
   },
   "field": {
@@ -89,12 +105,15 @@ interface SupportItem {
 ## 4. 제작 파이프라인
 
 ### 4.1. 조합
-- 재화형 자모 파편을 사용해 글자결 생성
+- 재화형 자모 파편을 사용해 `자형` 생성
 
-### 4.2. 각인
-- 글자결 + `돌` + 선택적 `먹`을 사용해 진언결/언령결 생성
+### 4.2. 결: 글자 각인
+- `자형`에 의미를 새겨 `결: 글자` 생성
 
-### 4.3. 각성
+### 4.3. 각인
+- `자형` 또는 `결: 글자` + `돌` + 선택적 `먹`을 사용해 진언결/언령결 생성
+
+### 4.4. 각성
 - 후반 `천지인` 재료로 낮은 티어 언령결 강화
 
 ## 5. 렌더링 방향
