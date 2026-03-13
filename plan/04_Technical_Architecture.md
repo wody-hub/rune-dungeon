@@ -73,8 +73,24 @@ interface WeaponItem {
   id: string;
   weaponClass: "GREATSWORD" | "BOW" | "STAFF";
   attackSpeed: number;
-  baseDamage: number;
+  minDamage: number;
+  maxDamage: number;
+  damageMultiplier: number;
   procRateBonus?: number; // 느린 무기군 전용 기본 발동 확률 보정
+  defaultIncantationSlots?: number;
+  damageReductionBonus?: number;
+  staggerResistanceBonus?: number;
+  critChanceBonus?: number;
+  critDamageBonus?: number;
+}
+```
+
+```typescript
+interface CombatProfile {
+  baseCritChance: number; // MVP 기본값 0.05
+  baseCritMultiplier: number; // MVP 기본값 1.5
+  attackBonusFromStr: number;
+  defenseFromStr: number;
 }
 ```
 
@@ -226,3 +242,8 @@ interface SpriteSheetAsset {
 - 진언결과 장비는 `언령 피해` 같은 보정값을 제공할 수 있다.
 - 같은 타격에서 여러 언령결이 동시에 발동할 수 있으며, 성공한 언령결은 모두 단일 대상에게 개별 피해를 적용한다.
 - 전투 밸런스는 `개별 언령 기대값`보다 `초당 총 발동 기대값` 기준으로 본다.
+- 기본 기대값 계산식은 `attackSpeed x effectiveProcChance x equippedIncantationCount`로 둔다.
+- 기본 공격 공식은 `random(minDamage, maxDamage) + attackBonus`를 출발값으로 둔다.
+- MVP 기본 치명타는 `critChance 5%`, `critMultiplier 1.5`를 사용한다.
+- 1차 기준 수치는 `GREATSWORD 0.8 / +1%`, `BOW 1.6 / +0%`, `STAFF 1.1 / +3%`를 사용한다.
+- MVP `GREATSWORD`는 `minDamage 12`, `maxDamage 20`, `damageMultiplier 1.45`, `defaultIncantationSlots 2`, `attackSpeed 0.8`, `procRateBonus +1%`를 기본값으로 사용한다.
