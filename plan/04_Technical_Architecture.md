@@ -18,6 +18,10 @@ interface EquipmentItem {
   incantationSlots?: number;
   equippedMantras: string[];
   equippedIncantations: string[];
+  combatModifiers?: {
+    incantationProcChance?: number;
+    incantationDamage?: number;
+  };
 }
 ```
 
@@ -49,7 +53,28 @@ interface GyeolItem {
     type: string;
     value: number;
   }[];
-  skillId?: string;
+  effectId?: string;
+  procMeta?: {
+    baseProcChance?: number;
+    targetRule?: "SINGLE_TARGET";
+    maxProcChance?: number;
+    cheonjiinBonus?: number;
+    allowMultiProcPerHit?: boolean;
+    damageApplication?: "APPLY_ALL_PROCS";
+    visualStacking?: "STACK_ALL_PROCS";
+    guaranteedProcOnWeakness?: boolean;
+    guaranteedProcWeaknessTag?: string;
+  };
+}
+```
+
+```typescript
+interface WeaponItem {
+  id: string;
+  weaponClass: "GREATSWORD" | "BOW" | "STAFF";
+  attackSpeed: number;
+  baseDamage: number;
+  procRateBonus?: number; // 느린 무기군 전용 기본 발동 확률 보정
 }
 ```
 
@@ -74,6 +99,37 @@ interface SupportItem {
 }
 ```
 
+### 1.6. 캐릭터 비주얼 상태
+```typescript
+type Direction8 = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
+type CharacterAction = "IDLE" | "WALK" | "ATTACK" | "HIT" | "DEATH";
+type CombatMode = "NORMAL" | "TRANSFORMED";
+
+interface CharacterVisualState {
+  baseFormTierName: "씨앗" | "움결" | "무늬" | "물결" | "울림" | "숨결" | "빛살" | "여울" | "온결";
+  inElement?: "FIRE" | "WATER" | "EARTH" | "WIND" | "LIGHT" | "DARK";
+  combatMode: CombatMode;
+  direction: Direction8;
+  action: CharacterAction;
+  weaponSpriteKey?: string;
+  armorSpriteKey?: string;
+  auraEffectKey?: string;
+}
+```
+
+### 1.7. 스프라이트 리소스
+```typescript
+interface SpriteSheetAsset {
+  key: string;
+  atlas?: string;
+  frameWidth: number;
+  frameHeight: number;
+  directions: Direction8[];
+  actions: CharacterAction[];
+  framesPerAction: number;
+}
+```
+
 ## 2. 상태 트리 예시
 ```json
 {
@@ -81,7 +137,15 @@ interface SupportItem {
     "level": 12,
     "stats": { "str": 10, "dex": 10, "int": 10 },
     "inventory": ["jahyeong_1", "gyeol_1", "stone_1", "ink_1"],
-    "equipped": { "weapon": "weapon_1", "armor": "armor_1" }
+    "equipped": { "weapon": "weapon_1", "armor": "armor_1" },
+    "visual": {
+      "baseFormTierName": "움결",
+      "inElement": "FIRE",
+      "combatMode": "NORMAL",
+      "direction": "SE",
+      "action": "IDLE",
+      "weaponSpriteKey": "weapon_bronze_sword"
+    }
   },
   "field": {
     "idleRewards": {
@@ -117,7 +181,48 @@ interface SupportItem {
 - 후반 `천지인` 재료로 낮은 티어 언령결 강화
 
 ## 5. 렌더링 방향
-- **Framework:** React Three Fiber
-- **Visual Helper:** `@react-three/drei`
-- **Post Processing:** `Bloom`, `SSAO`
-- **의도:** 어두운 배경 위에 선명한 결 이펙트와 장비 광택 표현
+- **Core Framework:** `Phaser`
+- **View Style:** `2D 쿼터뷰 감성` 또는 `탑다운 기반 대각 이동`
+- **Character Rendering:** `8방향 스프라이트 애니메이션`
+- **Layer Composition:** `기본 몸체 + 무기 + 제한적 방어구 + 속성 오라`
+- **Effects:** Phaser 파티클, additive 블렌드, 색상 오버레이로 결 발광과 변신 위상 표현
+- **의도:** 웹개발자 기준 바이브 코딩으로 빠르게 구현 가능한 구조를 우선 채택하고, 캐릭터/전투/변신의 플레이 검증 속도를 높인다
+
+## 6. 캐릭터 구현 원칙
+
+### 6.1. 방향 및 애니메이션
+- 플레이어와 주요 몬스터는 `8방향` 기준으로 제작한다.
+- 기본 애니메이션 분류는 `idle`, `walk`, `attack`, `hit`, `death`를 사용한다.
+- 단, 첫 MVP는 `idle`, `walk`, `attack`까지만 우선 구현한다.
+- 초기 프레임 기준은 `방향당 4프레임 내외`를 기본값으로 둔다.
+
+### 6.2. 변신 표현
+- 비전투 모드는 현재 장착한 `인` 계열의 `1티어 기본폼`을 사용한다.
+- 전투 모드는 현재 장착한 `인: [티어] [속성]`에 맞는 전투 스프라이트로 교체한다.
+- 상위 티어는 풀 스프라이트 신규 제작만을 의미하지 않는다.
+- 초기 구현에서는 `기본 스프라이트 + 색상 차등 + 오라 + 일부 갑주 오버레이` 조합으로 티어 차이를 표현할 수 있다.
+
+### 6.3. 장비 레이어링
+- 장비는 리니지 스타일처럼 레이어 방식으로 합성한다.
+- 첫 MVP에서는 `무기 레이어`를 최우선으로 구현한다.
+- 방어구는 스탯 중심으로 설계하되, 초반에는 외형 레이어를 최소화한다.
+- 갑주 실루엣 변화는 주요 티어 전환 시점에만 제한적으로 반영한다.
+
+## 7. 아트 생산 파이프라인
+- `무료 에셋 조사 -> AI 생성 -> 수동 보정 -> 스프라이트 시트화 -> Phaser 등록` 순으로 작업한다.
+- AI 생성 결과물은 방향 일관성이 깨질 수 있으므로 그대로 사용하지 않는다.
+- `Aseprite`, `Piskel`, `TexturePacker` 등으로 방향/프레임 정렬과 수동 보정을 수행한다.
+- 파일 네이밍은 `unit_element_tier_action_direction` 규칙을 기본으로 한다.
+
+## 8. MVP 기술 범위
+- 첫 수직 슬라이스는 `플레이어 1종`, `무기 1종`, `속성 1종`, `기본 변신 1종`, `필드 1`, `던전 1`, `보스 1`까지만 다룬다.
+- 첫 구현 목표는 그래픽 완성도가 아니라 `이동`, `공격`, `언령 확률 발동`, `피격`, `변신 on/off`, `결 파밍`, `자형 -> 결: 글자` 루프 검증이다.
+
+## 9. 전투 리소스 정책
+- 전투에 별도의 `마나` 자원은 사용하지 않는다.
+- 언령결은 공격 적중 시 확률적으로 발동하는 장착형 효과다.
+- `언령 발동 확률`은 기본적으로 진언결 중심 특수 옵션이며, 예외적으로 공속이 느린 무기군은 무기 고유 기본 옵션으로만 추가 발동 확률 보정을 가질 수 있다.
+- 장비 옵션 전반이 무분별하게 언령 발동 확률을 제공하는 구조는 사용하지 않는다.
+- 진언결과 장비는 `언령 피해` 같은 보정값을 제공할 수 있다.
+- 같은 타격에서 여러 언령결이 동시에 발동할 수 있으며, 성공한 언령결은 모두 단일 대상에게 개별 피해를 적용한다.
+- 전투 밸런스는 `개별 언령 기대값`보다 `초당 총 발동 기대값` 기준으로 본다.
