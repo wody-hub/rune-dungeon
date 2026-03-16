@@ -91,6 +91,19 @@ interface CombatProfile {
   baseCritMultiplier: number; // MVP 기본값 1.5
   attackBonusFromStr: number;
   defenseFromStr: number;
+  combatFeedbackPriority?: [
+    "ATTACK_MOTION",
+    "HIT_REACTION",
+    "DAMAGE_TEXT",
+    "CRITICAL_EMPHASIS",
+    "INCANTATION_PROC"
+  ];
+  bossStateModifiers?: {
+    incomingDamageMultiplier?: number;
+    weaknessExposeDurationMs?: number;
+    groggyDurationMs?: number;
+    guaranteedIncantationTagOnWeakness?: string;
+  };
 }
 ```
 
@@ -151,7 +164,7 @@ interface SpriteSheetAsset {
 {
   "player": {
     "level": 12,
-    "stats": { "str": 10, "dex": 10, "int": 10 },
+    "stats": { "str": 12, "dex": 10, "int": 10, "vit": 12 },
     "inventory": ["jahyeong_1", "gyeol_1", "stone_1", "ink_1"],
     "equipped": { "weapon": "weapon_1", "armor": "armor_1" },
     "visual": {
@@ -247,3 +260,13 @@ interface SpriteSheetAsset {
 - MVP 기본 치명타는 `critChance 5%`, `critMultiplier 1.5`를 사용한다.
 - 1차 기준 수치는 `GREATSWORD 0.8 / +1%`, `BOW 1.6 / +0%`, `STAFF 1.1 / +3%`를 사용한다.
 - MVP `GREATSWORD`는 `minDamage 12`, `maxDamage 20`, `damageMultiplier 1.45`, `defaultIncantationSlots 2`, `attackSpeed 0.8`, `procRateBonus +1%`를 기본값으로 사용한다.
+- 첫 수직 슬라이스 플레이어 기준값은 `STR 12`, `DEX 10`, `INT 10`, `VIT 12`, `attackBonus +12`, `defense 12`, `maxHp 196`으로 맞춘다.
+- 보스의 `평상시 피해 감소`, `약점 노출`, `그로기`, `약점 상태의 특정 언령 확정 발동` 같은 예외 규칙은 `bossStateModifiers`로 관리한다.
+
+## 10. 전투 피드백 우선순위
+- 부드러움 목표는 대형 파티클보다 `공격 모션`, `피격 반응`, `데미지 숫자`, `치명타 강조`에 우선 배정한다.
+- 기본 타격 피드백은 `공격 모션 재생 -> 타격 시점 히트 스파크 -> 몬스터 플래시/짧은 멈칫 -> 데미지 숫자 출력` 순서로 처리한다.
+- 치명타는 별도 시스템이 아니라 동일 파이프라인에서 `더 큰 숫자`, `더 큰 히트 스파크`, `강한 색상 대비`로 확장한다.
+- 언령 발동은 기본 타격 피드백 뒤에 덧붙는 보조 레이어로 처리하고, 기본 물리 타격 숫자와 히트 이펙트를 가리지 않게 한다.
+- 데미지 숫자와 치명타 표시는 풀링 또는 재사용 가능한 객체 기준으로 설계해 브라우저 렌더링 비용을 낮춘다.
+- 히트 이펙트와 데미지 숫자는 짧게 종료되는 연출을 기본으로 하며, 화면에 오래 누적되는 구조를 피한다.
