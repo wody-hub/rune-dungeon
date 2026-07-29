@@ -1,3 +1,8 @@
+import {
+  toPlayerData as convertPlayerData,
+  toPlayerInventory as convertPlayerInventory,
+} from "../data/player-data.mjs";
+
 export type TierName =
   | "씨앗"
   | "움결"
@@ -112,11 +117,7 @@ export interface LegacyPlayerInventory {
 }
 
 export function toPlayerInventory(inventory: LegacyPlayerInventory): PlayerInventory {
-  return {
-    gold: inventory.gold,
-    eum: Object.entries(inventory.fragments).map(([symbol, quantity]) => ({ symbol, quantity })),
-    items: inventory.items,
-  };
+  return convertPlayerInventory(inventory) as PlayerInventory;
 }
 
 export interface MonsterItem {
@@ -224,4 +225,13 @@ export interface PlayerData {
     action: "IDLE" | "WALK" | "ATTACK" | "HIT" | "DEATH";
     weaponSpriteKey: string;
   };
+}
+
+/** JSON fixture shape retained while the Rust protocol still sends fragments. */
+export type LegacyPlayerData = Omit<PlayerData, "inventory"> & {
+  inventory: LegacyPlayerInventory;
+};
+
+export function toPlayerData(legacy: LegacyPlayerData): PlayerData {
+  return convertPlayerData(legacy) as PlayerData;
 }

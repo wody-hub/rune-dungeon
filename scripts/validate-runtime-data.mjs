@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { toPlayerData } from "../client/src/game/data/player-data.mjs";
 
 const root = new URL("..", import.meta.url).pathname;
 
@@ -46,6 +47,15 @@ function assertRate(value, expected, label) {
 const player = readJson("client/src/game/data/player.json");
 assert.equal(player.inventory.resourceLabel, "음", "player-facing fragment resource name");
 assert.ok(player.inventory.fragments, "legacy fragments wire field must remain available during protocol transition");
+const playerData = toPlayerData(player);
+assert.deepEqual(playerData.inventory.eum, [
+  { symbol: "ㄱ", quantity: 3 },
+  { symbol: "ㅏ", quantity: 2 },
+  { symbol: "ㅇ", quantity: 1 },
+  { symbol: "ㅎ", quantity: 1 },
+  { symbol: "ㅘ", quantity: 1 },
+  { symbol: "ㅂ", quantity: 1 },
+], "legacy fragments convert to player-facing eum stacks");
 const weapons = readJson("client/src/game/data/weapons.json");
 const gyeol = readJson("client/src/game/data/gyeol.json");
 const monsters = readJson("client/src/game/data/monsters.json");
