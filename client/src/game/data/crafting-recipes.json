@@ -5,6 +5,9 @@
       { "kind": "EUM", "symbol": "ㅎ", "quantity": 1 },
       { "kind": "EUM", "symbol": "ㅘ", "quantity": 1 }
     ],
+    "goldCost": 0,
+    "catalystItemIds": [],
+    "allowedSupportItemIds": [],
     "successRate": 1,
     "successOutputId": "jahyeong_hwa_001",
     "failure": { "consumeInputs": false }
@@ -14,6 +17,9 @@
     "inputs": [
       { "kind": "ITEM", "id": "jahyeong_hwa_001", "quantity": 1 }
     ],
+    "goldCost": 0,
+    "catalystItemIds": [],
+    "allowedSupportItemIds": [],
     "successRate": 0.95,
     "successOutputId": "letter_gyeol_hwa_001",
     "failure": { "consumeInputs": true }

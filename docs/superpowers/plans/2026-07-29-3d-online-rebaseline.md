@@ -436,3 +436,133 @@ git add progress.md plan/01_Game_Overview.md plan/04_Technical_Architecture.md \
   scripts/validate-runtime-data.mjs docs/superpowers/plans/2026-07-29-3d-online-rebaseline.md
 git commit -m "docs: define hub and instance world structure"
 ```
+
+### Task 7: Resolve final cross-document and content-contract findings
+
+**Files:**
+- Modify: `progress.md`
+- Modify: `plan/04_Technical_Architecture.md`
+- Modify: `plan/06_Art_Direction.md`
+- Modify: `plan/08_Expanded_Systems.md`
+- Modify: `plan/13_Monster_AI_Design.md`
+- Modify: `plan/16_Character_and_Leveling.md`
+- Modify: `plan/17_MVP_Development_Roadmap.md`
+- Modify: `data/design/README.md`
+- Modify: `docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md`
+- Modify: `client/src/game/types/data.ts`
+- Modify: `client/src/game/data/player.json`
+- Modify: `client/src/game/data/monsters.json`
+- Modify: `client/src/game/data/crafting-recipes.json`
+- Create: `client/src/game/data/world-content.json`
+- Modify: `scripts/validate-runtime-data.mjs`
+
+**Interfaces:**
+- Consumes: the approved 3D online, `음`, hub-and-instance, drop, crafting, and
+  combat decisions.
+- Produces: complete runtime contracts for 3D visual state and world instances,
+  grouped 음 rewards, explicit crafting policy, and per-document regression guards.
+
+- [ ] **Step 1: Add failing assertions for every final-review defect**
+
+Add validation that fails when any of these is absent or stale: 3D model/rig/
+clip visual references; a validated `WorldContent` JSON file; grouped 1–2 and
+2–4 음 rewards; explicit zero-valued crafting gold/catalyst/support policy;
+instance wording in every affected plan; `음` in player-facing resource copy;
+server/shared content ownership; current drop-contract handoff; and elite/boss
+expected-damage assertions.
+
+- [ ] **Step 2: Run the validator to verify it fails**
+
+Run: `node scripts/validate-runtime-data.mjs`
+
+Expected: failure identifying a missing final-contract requirement.
+
+- [ ] **Step 3: Replace 2D visual state with a 3D render contract**
+
+Use this public shape and migrate `player.json` to it:
+
+```ts
+interface CharacterVisualState {
+  baseFormTierName: TierName;
+  inElement?: ElementType;
+  combatMode: "NORMAL" | "TRANSFORMED";
+  orientationRadians: number;
+  modelKey: string;
+  rigKey: string;
+  animationClipKey: "idle" | "walk" | "attack" | "hit" | "death";
+  weaponModelKey?: string;
+  materialVariantKey?: string;
+  auraEffectKey?: string;
+}
+```
+
+Remove `Direction8`, spritesheet/frame-sheet contracts, `weaponSpriteKey`, and
+2D frame references from active runtime types and architecture prose.
+
+- [ ] **Step 4: Add a validated portal-instance world contract**
+
+Create `world-content.json` with a shared Arcadia hub and exactly three
+cooperative instance maps: Dawn Field, Blackheart Mine, and Pencil Knight boss
+room. Each map must declare `id`, `kind`, `maxPlayers`, `spawnPointId`, and
+entry/exit portal links. Arcadia has kind `SHARED_HUB`; the three gameplay maps
+have kind `COOPERATIVE_INSTANCE`; every instance has `maxPlayers: 4`.
+
+- [ ] **Step 5: Encode grouped 음 rewards and explicit crafting policy**
+
+Replace independent one-unit monster 음 entries with an `eumRollGroup` contract:
+
+```ts
+interface EumRollGroup {
+  draws: { min: number; max: number };
+  entries: Array<{ symbol: string; weight: number; quantity: { min: number; max: number } }>;
+}
+```
+
+The slime group draws `1–2`; the elite group draws `2–4`; the boss group draws
+`3–5`. Preserve existing symbol pools. Every recipe declares `goldCost: 0`,
+`catalystItemIds: []`, `allowedSupportItemIds: []`, and an explicit failure
+consumption policy. The first two recipes retain their current success rates and
+outputs.
+
+- [ ] **Step 6: Correct remaining prose and source ownership**
+
+Make every plan describe Arcadia as the only shared hub and all gameplay/farming
+as cooperative instances. Replace player-facing `한글 파편`/resource `파편`
+phrases with `음`; do not rename unrelated physical debris. Define current
+`client/src/game/data` as transitional fixtures and `shared/content` as the
+future server-canonical content source, generated into client display copies.
+Update `progress.md` to say explicit drops and recipes already exist.
+
+- [ ] **Step 7: Add per-document and arithmetic regression checks**
+
+Require the revised hub-instance and `음` wording in every changed plan file.
+Assert expected post-defense values using the current data:
+
+```text
+slime: 41.615
+elite: 37.832
+boss normal phase: 13.005
+```
+
+- [ ] **Step 8: Run the full consistency suite**
+
+Run:
+
+```bash
+git diff --check
+node scripts/validate-runtime-data.mjs
+rg -n 'Direction8|SpriteSheetAsset|weaponSpriteKey|공유 월드|공유 필드|심리스 월드|한글 파편' \
+  progress.md plan data/design client/src/game/types client/src/game/data
+```
+
+Expected: no diff errors, `runtime data OK`, and no active stale visual/world/
+resource references.
+
+- [ ] **Step 9: Commit the final-contract fixes**
+
+```bash
+git add progress.md plan data/design docs/superpowers/specs \
+  client/src/game/types/data.ts client/src/game/data scripts/validate-runtime-data.mjs \
+  docs/superpowers/plans/2026-07-29-3d-online-rebaseline.md
+git commit -m "docs: resolve 3d online contract gaps"
+```

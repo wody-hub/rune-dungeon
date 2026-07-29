@@ -81,24 +81,29 @@ technical labels to collect 음 and make 자형. Tutorial copy explains once tha
 
 ## Runtime Content Schema
 
-The current JSON content remains the authoring source for the first slice. It is
-extended with explicit server-readable structures:
+The current `client/src/game/data` JSON is a 전환용 fixture used to validate the
+first-slice contracts before the server implementation exists. The implementation
+moves canonical content to `shared/content` as the 서버 정본, validates it before
+startup, and 생성 steps produce client display copies from that canonical source:
 
-- `DropTable`: per-entry item/fragment ID, quantity range, probability, and any
-  guaranteed reward.
+- `CharacterVisualState`: orientation in radians plus model, rig, animation clip,
+  optional weapon model, material variant, and aura keys; no sprite/frame contract.
+- `DropTable`: independent gold/item probabilities plus a grouped `eumRollGroup`
+  with draw-count range, symbol weights, and quantity ranges.
 - `CraftingRecipe`: inputs, gold cost, catalyst/support material rules, success
   rate, success output, and failure consumption/result.
-- `WorldContent`: spawn locations, portal links, dungeon boundaries, boss-state
-  transitions, and NPC interaction IDs.
+- `WorldContent`: the Arcadia shared hub and exactly three four-player cooperative
+  instance maps, with spawn locations and validated entry/exit portal links.
 
-All runtime data is validated before the server starts. Client copies are display
-data only; server validation and resolution remain authoritative.
+All runtime data is validated before the server starts. Generated client copies
+are display data only; server validation and resolution remain authoritative.
 
 ## Combat Balance Baseline
 
 The combat formula applies the greatsword damage multiplier before defense. With
-the current Lv.12 test loadout, expected basic-attack damage is about 41.6 against
-the slime, 37.8 against the elite, and 13.0 during the boss's 50% normal phase.
+the current Lv.12 test loadout, expected basic-attack damage is `41.615` against
+the slime, `37.832` against the elite, and `13.005` during the boss's 50% normal
+phase.
 Monster HP and boss state rewards must be recalibrated from this formula, rather
 than from the pre-multiplier `24–32` range.
 
@@ -116,6 +121,10 @@ The next implementation plan establishes the Rust/WebSocket authoritative server
 and the Svelte/Threlte fixed-isometric 3D client together. It begins with guest
 session issuance, intent validation, replicated world state, and a minimal camera
 and rendering path; it does not reintroduce a local-only or 2D client path.
+
+The current fixtures already contain the explicit drop entries, `그룹 음 보상`,
+and the first two `제작 레시피`; these contracts `이미 존재` and are inputs to
+the server content loader, not future design work.
 
 OpenMMO remains an architecture-only reference for boundaries and implementation
 principles. Rune Dungeon does not copy its code, assets, protocol names, or

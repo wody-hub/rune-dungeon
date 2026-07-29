@@ -91,24 +91,59 @@ export interface WeaponItem {
 }
 
 export interface DropEntry {
-  kind: "GOLD" | "EUM" | "ITEM";
+  kind: "GOLD" | "ITEM";
   id?: string;
-  symbol?: string;
   probability: number;
   quantity: { min: number; max: number };
   guaranteed: boolean;
 }
 
+export interface EumRollGroup {
+  draws: { min: number; max: number };
+  entries: Array<{
+    symbol: string;
+    weight: number;
+    quantity: { min: number; max: number };
+  }>;
+}
+
 export interface DropTable {
   entries: DropEntry[];
+  eumRollGroup: EumRollGroup;
 }
 
 export interface CraftingRecipe {
   id: string;
   inputs: Array<{ kind: "GOLD" | "EUM" | "ITEM"; id?: string; symbol?: string; quantity: number }>;
+  goldCost: number;
+  catalystItemIds: string[];
+  allowedSupportItemIds: string[];
   successRate: number;
   successOutputId: string;
   failure: { consumeInputs: boolean; outputId?: string };
+}
+
+export interface WorldPortalLink {
+  id: string;
+  fromMapId: string;
+  toMapId: string;
+  toSpawnPointId: string;
+}
+
+export interface WorldMapContent {
+  id: string;
+  name: string;
+  kind: "SHARED_HUB" | "COOPERATIVE_INSTANCE";
+  maxPlayers: number;
+  spawnPointId: string;
+  entryPortalLinkIds: string[];
+  exitPortalLinkIds: string[];
+}
+
+export interface WorldContent {
+  schemaVersion: "world-content.v1";
+  maps: WorldMapContent[];
+  portalLinks: WorldPortalLink[];
 }
 
 /** Player-facing stack for the collectible resource displayed as 음. */
@@ -204,6 +239,19 @@ export interface TransformationInItem {
   };
 }
 
+export interface CharacterVisualState {
+  baseFormTierName: TierName;
+  inElement?: ElementType;
+  combatMode: "NORMAL" | "TRANSFORMED";
+  orientationRadians: number;
+  modelKey: string;
+  rigKey: string;
+  animationClipKey: "idle" | "walk" | "attack" | "hit" | "death";
+  weaponModelKey?: string;
+  materialVariantKey?: string;
+  auraEffectKey?: string;
+}
+
 export interface PlayerData {
   id: string;
   name: string;
@@ -232,14 +280,7 @@ export interface PlayerData {
     inId: string;
   };
   inventory: PlayerInventory;
-  visual: {
-    baseFormTierName: TierName;
-    inElement: ElementType;
-    combatMode: "NORMAL" | "TRANSFORMED";
-    direction: "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
-    action: "IDLE" | "WALK" | "ATTACK" | "HIT" | "DEATH";
-    weaponSpriteKey: string;
-  };
+  visual: CharacterVisualState;
 }
 
 /** JSON fixture shape retained while the Rust protocol still sends fragments. */

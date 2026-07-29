@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { toPlayerData } from "../client/src/game/data/player-data.mjs";
 
@@ -122,6 +122,7 @@ const incantationIndex = indexById(gyeol.incantationGyeol, "incantationGyeol");
 const consumableIndex = indexById(consumables, "consumables");
 const materialIndex = indexById(materials, "materials");
 const inIndex = indexById(transformationIns, "transformationIns");
+const monsterIndex = indexById(monsters, "monsters");
 const runtimeItemIds = new Set([
   ...jahyeongIndex.keys(),
   ...letterIndex.keys(),
@@ -142,6 +143,101 @@ for (const data of [gyeol, consumables, materials, transformationIns]) {
 }
 
 const typeSource = readText("client/src/game/types/data.ts");
+for (const requiredTerm of [
+  "export interface CharacterVisualState",
+  "orientationRadians: number",
+  "modelKey: string",
+  "rigKey: string",
+  'animationClipKey: "idle" | "walk" | "attack" | "hit" | "death"',
+  "weaponModelKey?: string",
+  "materialVariantKey?: string",
+  "auraEffectKey?: string",
+]) {
+  assert.ok(typeSource.includes(requiredTerm), `3D character visual contract includes ${requiredTerm}`);
+}
+for (const staleTerm of [
+  "Direction8",
+  "SpriteSheetAsset",
+  "weaponSpriteKey",
+  "armorSpriteKey",
+  "frameWidth",
+  "frameHeight",
+  "framesPerAction",
+]) {
+  assert.ok(!typeSource.includes(staleTerm), `runtime types must not include stale 2D visual term ${staleTerm}`);
+}
+assert.equal(typeof player.visual.orientationRadians, "number", "player visual orientationRadians");
+assert.equal(typeof player.visual.modelKey, "string", "player visual modelKey");
+assert.equal(typeof player.visual.rigKey, "string", "player visual rigKey");
+assert.ok(
+  new Set(["idle", "walk", "attack", "hit", "death"]).has(player.visual.animationClipKey),
+  "player visual animationClipKey",
+);
+for (const staleKey of ["direction", "action", "weaponSpriteKey", "armorSpriteKey"]) {
+  assert.equal(player.visual[staleKey], undefined, `player visual must not include ${staleKey}`);
+}
+
+const worldContentPath = "client/src/game/data/world-content.json";
+assert.ok(existsSync(join(root, worldContentPath)), "validated WorldContent fixture must exist");
+const worldContent = readJson(worldContentPath);
+assertNoNulls("world-content.json", worldContent);
+assert.equal(worldContent.schemaVersion, "world-content.v1", "WorldContent schemaVersion");
+assert.ok(Array.isArray(worldContent.maps), "WorldContent maps must be an array");
+assert.ok(Array.isArray(worldContent.portalLinks), "WorldContent portalLinks must be an array");
+const worldMapIndex = indexById(worldContent.maps, "WorldContent maps");
+const portalLinkIndex = indexById(worldContent.portalLinks, "WorldContent portalLinks");
+assert.equal(worldMapIndex.size, 4, "WorldContent must include Arcadia and exactly three gameplay maps");
+const expectedWorldMaps = new Map([
+  ["arcadia", { name: "아르카디아", kind: "SHARED_HUB" }],
+  ["dawn_field", { name: "새벽 들판", kind: "COOPERATIVE_INSTANCE" }],
+  ["blackheart_mine", { name: "흑심 채굴장", kind: "COOPERATIVE_INSTANCE" }],
+  ["pencil_knight_boss_room", { name: "몽당연필 기사단장 보스방", kind: "COOPERATIVE_INSTANCE" }],
+]);
+for (const [id, expected] of expectedWorldMaps) {
+  const map = worldMapIndex.get(id);
+  assert.ok(map, `WorldContent includes ${id}`);
+  assert.equal(map.name, expected.name, `${id} name`);
+  assert.equal(map.kind, expected.kind, `${id} kind`);
+  assertPositiveInteger(map.maxPlayers, `${id} maxPlayers`);
+  assert.equal(typeof map.spawnPointId, "string", `${id} spawnPointId`);
+  assert.ok(Array.isArray(map.entryPortalLinkIds) && map.entryPortalLinkIds.length > 0, `${id} entry portal links`);
+  assert.ok(Array.isArray(map.exitPortalLinkIds) && map.exitPortalLinkIds.length > 0, `${id} exit portal links`);
+  if (map.kind === "COOPERATIVE_INSTANCE") {
+    assert.equal(map.maxPlayers, 4, `${id} cooperative maxPlayers`);
+  }
+}
+assert.equal(
+  worldContent.maps.filter((map) => map.kind === "SHARED_HUB").length,
+  1,
+  "Arcadia must be the only shared hub",
+);
+assert.equal(
+  worldContent.maps.filter((map) => map.kind === "COOPERATIVE_INSTANCE").length,
+  3,
+  "all three gameplay maps must be cooperative instances",
+);
+for (const portal of portalLinkIndex.values()) {
+  const fromMap = worldMapIndex.get(portal.fromMapId);
+  const toMap = worldMapIndex.get(portal.toMapId);
+  assert.ok(fromMap, `${portal.id} fromMapId must reference a world map`);
+  assert.ok(toMap, `${portal.id} toMapId must reference a world map`);
+  assert.equal(portal.toSpawnPointId, toMap.spawnPointId, `${portal.id} target spawn point`);
+  assert.ok(fromMap.exitPortalLinkIds.includes(portal.id), `${portal.id} must be an exit link of ${fromMap.id}`);
+  assert.ok(toMap.entryPortalLinkIds.includes(portal.id), `${portal.id} must be an entry link of ${toMap.id}`);
+}
+for (const map of worldMapIndex.values()) {
+  for (const id of map.entryPortalLinkIds) {
+    const portal = portalLinkIndex.get(id);
+    assert.ok(portal, `${map.id} references unknown entry portal link ${id}`);
+    assert.equal(portal.toMapId, map.id, `${id} must enter ${map.id}`);
+  }
+  for (const id of map.exitPortalLinkIds) {
+    const portal = portalLinkIndex.get(id);
+    assert.ok(portal, `${map.id} references unknown exit portal link ${id}`);
+    assert.equal(portal.fromMapId, map.id, `${id} must exit ${map.id}`);
+  }
+}
+
 const itemKindMatch = typeSource.match(/export type ItemKind = ([^;]+);/s);
 assert.ok(itemKindMatch, "ItemKind union must exist in client/src/game/types/data.ts");
 const declaredItemKinds = new Set([...itemKindMatch[1].matchAll(/"([^"]+)"/g)].map((match) => match[1]));
@@ -280,6 +376,56 @@ for (const path of worldStructureDocumentPaths) {
   }
 }
 
+const finalContractPlanPaths = [
+  "plan/04_Technical_Architecture.md",
+  "plan/06_Art_Direction.md",
+  "plan/08_Expanded_Systems.md",
+  "plan/13_Monster_AI_Design.md",
+  "plan/16_Character_and_Leveling.md",
+  "plan/17_MVP_Development_Roadmap.md",
+];
+for (const path of finalContractPlanPaths) {
+  const source = readText(path);
+  for (const term of ["`아르카디아`만 `공유 마을 허브`", "`음` 파밍", "`포털`", "`협동 인스턴스`"]) {
+    assert.ok(source.includes(term), `${path} must carry the final hub-instance and 음 contract: ${term}`);
+  }
+  for (const staleTerm of ["공유 월드", "공유 필드", "심리스 월드", "한글 파편"]) {
+    assert.ok(!source.includes(staleTerm), `${path} must not contain stale contract term ${staleTerm}`);
+  }
+}
+
+const architectureSource = readText("plan/04_Technical_Architecture.md");
+for (const staleTerm of [
+  "Direction8",
+  "SpriteSheetAsset",
+  "weaponSpriteKey",
+  "armorSpriteKey",
+  "frameWidth",
+  "frameHeight",
+  "framesPerAction",
+]) {
+  assert.ok(!architectureSource.includes(staleTerm), `plan/04 must not include stale 2D visual term ${staleTerm}`);
+}
+
+const dataReadmeSource = readText("data/design/README.md");
+const verticalSliceSpecSource = readText("docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md");
+for (const [path, source] of [
+  ["plan/04_Technical_Architecture.md", architectureSource],
+  ["data/design/README.md", dataReadmeSource],
+  ["docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md", verticalSliceSpecSource],
+]) {
+  for (const term of ["`client/src/game/data`", "전환용 fixture", "`shared/content`", "서버 정본", "생성"]) {
+    assert.ok(source.includes(term), `${path} must define server/shared content ownership: ${term}`);
+  }
+}
+const progressSource = readText("progress.md");
+for (const term of ["명시적 드랍 계약", "그룹 음 보상", "제작 레시피가 이미 존재"]) {
+  assert.ok(progressSource.includes(term), `progress.md must hand off the current drop contract: ${term}`);
+}
+for (const term of ["그룹 음 보상", "제작 레시피", "이미 존재"]) {
+  assert.ok(verticalSliceSpecSource.includes(term), `vertical-slice handoff must describe current content: ${term}`);
+}
+
 const monsterAiDesignSource = readText("plan/13_Monster_AI_Design.md");
 assert.ok(!monsterAiDesignSource.includes("약 `4~5회` 타격"), "plan/13 has no fixed slime kill-count claim");
 assert.ok(!monsterAiDesignSource.includes("약 `10~12회` 타격"), "plan/13 has no fixed elite kill-count claim");
@@ -300,10 +446,16 @@ for (const incantation of incantationIndex.values()) {
 assert.equal(incantationIndex.size, 2, "MVP runtime should include exactly 2 incantations");
 assert.ok(monsters.some((monster) => monster.id === "monster_ink_slime_001"), "monster data includes ink slime");
 assert.ok(monsters.some((monster) => monster.id === "boss_pencil_knight_commander_001"), "monster data includes MVP boss");
+const expectedEumGroups = new Map([
+  ["monster_ink_slime_001", { draws: { min: 1, max: 2 }, symbols: ["ㄱ", "ㅏ", "ㅇ"] }],
+  ["monster_typo_sprite_001", { draws: { min: 2, max: 4 }, symbols: ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ"] }],
+  ["boss_pencil_knight_commander_001", { draws: { min: 3, max: 5 }, symbols: ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ", "ㄷ", "ㅏ", "ㅇ"] }],
+]);
 for (const monster of monsters) {
   assert.ok(Array.isArray(monster.drops.entries), `${monster.id} drops.entries must be an array`);
   for (const [index, entry] of monster.drops.entries.entries()) {
     const label = `${monster.id} drop ${index}`;
+    assert.notEqual(entry.kind, "EUM", `${label} must use the grouped eumRollGroup contract`);
     assertProbability(entry.probability, label);
     assertQuantityRange(entry.quantity, label);
     assert.equal(typeof entry.guaranteed, "boolean", `${label} guaranteed must be a boolean`);
@@ -311,6 +463,24 @@ for (const monster of monsters) {
       assert.equal(entry.probability, 1, `${label} guaranteed drops must have probability 1`);
     }
     assertResourceReference(entry, label, runtimeItemIds);
+  }
+  const expectedGroup = expectedEumGroups.get(monster.id);
+  assert.ok(expectedGroup, `${monster.id} must have an expected 음 group`);
+  const group = monster.drops.eumRollGroup;
+  assert.ok(group && typeof group === "object", `${monster.id} drops.eumRollGroup`);
+  assert.deepEqual(group.draws, expectedGroup.draws, `${monster.id} grouped 음 draws`);
+  assert.ok(Array.isArray(group.entries), `${monster.id} eumRollGroup.entries`);
+  assert.deepEqual(
+    group.entries.map((entry) => entry.symbol),
+    expectedGroup.symbols,
+    `${monster.id} grouped 음 symbol pool`,
+  );
+  for (const [index, entry] of group.entries.entries()) {
+    const label = `${monster.id} eumRollGroup entry ${index}`;
+    assert.ok(runtimeEumSymbols.has(entry.symbol), `${label} symbol`);
+    assert.equal(typeof entry.weight, "number", `${label} weight`);
+    assert.ok(entry.weight > 0, `${label} weight must be positive`);
+    assertQuantityRange(entry.quantity, label);
   }
 }
 
@@ -325,6 +495,9 @@ for (const recipe of craftingRecipes) {
     assertPositiveInteger(input.quantity, `${label} quantity`);
     assertResourceReference(input, label, runtimeItemIds);
   }
+  assert.equal(recipe.goldCost, 0, `${recipe.id} goldCost`);
+  assert.deepEqual(recipe.catalystItemIds, [], `${recipe.id} catalystItemIds`);
+  assert.deepEqual(recipe.allowedSupportItemIds, [], `${recipe.id} allowedSupportItemIds`);
   assertProbability(recipe.successRate, `${recipe.id} successRate`);
   assert.equal(typeof recipe.successOutputId, "string", `${recipe.id} successOutputId must be a string`);
   assert.ok(runtimeItemIds.has(recipe.successOutputId), `${recipe.id} successOutputId must reference a runtime item`);
@@ -335,5 +508,33 @@ for (const recipe of craftingRecipes) {
     assert.ok(runtimeItemIds.has(recipe.failure.outputId), `${recipe.id} failure.outputId must reference a runtime item`);
   }
 }
+
+assert.deepEqual(
+  craftingRecipes.slice(0, 2).map((recipe) => ({
+    id: recipe.id,
+    successRate: recipe.successRate,
+    successOutputId: recipe.successOutputId,
+  })),
+  [
+    { id: "recipe_jahyeong_hwa_001", successRate: 1, successOutputId: "jahyeong_hwa_001" },
+    { id: "recipe_letter_hwa_001", successRate: 0.95, successOutputId: "letter_gyeol_hwa_001" },
+  ],
+  "first two recipes retain approved success rates and outputs",
+);
+
+function expectedDamageAfterDefense(defense, incomingDamageMultiplier = 1) {
+  return expectedPreDefenseDamage * (100 / (100 + defense)) * incomingDamageMultiplier;
+}
+
+const slime = monsterIndex.get("monster_ink_slime_001");
+const elite = monsterIndex.get("monster_typo_sprite_001");
+const boss = monsterIndex.get("boss_pencil_knight_commander_001");
+assert.equal(Number(expectedDamageAfterDefense(slime.baseDefense).toFixed(3)), 41.615, "slime expected post-defense damage");
+assert.equal(Number(expectedDamageAfterDefense(elite.baseDefense).toFixed(3)), 37.832, "elite expected post-defense damage");
+assert.equal(
+  Number(expectedDamageAfterDefense(boss.baseDefense, boss.bossStateModifiers.incomingDamageMultiplier).toFixed(3)),
+  13.005,
+  "boss normal-phase expected post-defense damage",
+);
 
 console.log("runtime data OK");

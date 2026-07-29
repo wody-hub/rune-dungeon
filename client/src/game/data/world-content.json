@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "world-content.v1",
+  "maps": [
+    {
+      "id": "arcadia",
+      "name": "아르카디아",
+      "kind": "SHARED_HUB",
+      "maxPlayers": 40,
+      "spawnPointId": "spawn_arcadia_square",
+      "entryPortalLinkIds": [
+        "portal_dawn_field_to_arcadia",
+        "portal_blackheart_mine_to_arcadia",
+        "portal_boss_room_to_arcadia"
+      ],
+      "exitPortalLinkIds": ["portal_arcadia_to_dawn_field"]
+    },
+    {
+      "id": "dawn_field",
+      "name": "새벽 들판",
+      "kind": "COOPERATIVE_INSTANCE",
+      "maxPlayers": 4,
+      "spawnPointId": "spawn_dawn_field_entry",
+      "entryPortalLinkIds": ["portal_arcadia_to_dawn_field"],
+      "exitPortalLinkIds": [
+        "portal_dawn_field_to_arcadia",
+        "portal_dawn_field_to_blackheart_mine"
+      ]
+    },
+    {
+      "id": "blackheart_mine",
+      "name": "흑심 채굴장",
+      "kind": "COOPERATIVE_INSTANCE",
+      "maxPlayers": 4,
+      "spawnPointId": "spawn_blackheart_mine_entry",
+      "entryPortalLinkIds": ["portal_dawn_field_to_blackheart_mine"],
+      "exitPortalLinkIds": [
+        "portal_blackheart_mine_to_arcadia",
+        "portal_blackheart_mine_to_boss_room"
+      ]
+    },
+    {
+      "id": "pencil_knight_boss_room",
+      "name": "몽당연필 기사단장 보스방",
+      "kind": "COOPERATIVE_INSTANCE",
+      "maxPlayers": 4,
+      "spawnPointId": "spawn_pencil_knight_boss_entry",
+      "entryPortalLinkIds": ["portal_blackheart_mine_to_boss_room"],
+      "exitPortalLinkIds": ["portal_boss_room_to_arcadia"]
+    }
+  ],
+  "portalLinks": [
+    {
+      "id": "portal_arcadia_to_dawn_field",
+      "fromMapId": "arcadia",
+      "toMapId": "dawn_field",
+      "toSpawnPointId": "spawn_dawn_field_entry"
+    },
+    {
+      "id": "portal_dawn_field_to_arcadia",
+      "fromMapId": "dawn_field",
+      "toMapId": "arcadia",
+      "toSpawnPointId": "spawn_arcadia_square"
+    },
+    {
+      "id": "portal_dawn_field_to_blackheart_mine",
+      "fromMapId": "dawn_field",
+      "toMapId": "blackheart_mine",
+      "toSpawnPointId": "spawn_blackheart_mine_entry"
+    },
+    {
+      "id": "portal_blackheart_mine_to_arcadia",
+      "fromMapId": "blackheart_mine",
+      "toMapId": "arcadia",
+      "toSpawnPointId": "spawn_arcadia_square"
+    },
+    {
+      "id": "portal_blackheart_mine_to_boss_room",
+      "fromMapId": "blackheart_mine",
+      "toMapId": "pencil_knight_boss_room",
+      "toSpawnPointId": "spawn_pencil_knight_boss_entry"
+    },
+    {
+      "id": "portal_boss_room_to_arcadia",
+      "fromMapId": "pencil_knight_boss_room",
+      "toMapId": "arcadia",
+      "toSpawnPointId": "spawn_arcadia_square"
+    }
+  ]
+}

@@ -127,29 +127,19 @@ interface SupportItem {
 ### 1.6. 캐릭터 비주얼 상태
 
 ```typescript
-type Direction8 = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
-type CharacterAction = "IDLE" | "WALK" | "ATTACK" | "HIT" | "DEATH";
 type CombatMode = "NORMAL" | "TRANSFORMED";
 
 interface CharacterVisualState {
   baseFormTierName: "씨앗" | "움결" | "무늬" | "물결" | "울림" | "숨결" | "빛살" | "여울" | "온결";
   inElement?: "FIRE" | "WATER" | "EARTH" | "WIND" | "LIGHT" | "DARK";
   combatMode: CombatMode;
-  direction: Direction8;
-  action: CharacterAction;
-  weaponSpriteKey?: string;
-  armorSpriteKey?: string;
+  orientationRadians: number;
+  modelKey: string;
+  rigKey: string;
+  animationClipKey: "idle" | "walk" | "attack" | "hit" | "death";
+  weaponModelKey?: string;
+  materialVariantKey?: string;
   auraEffectKey?: string;
-}
-
-interface SpriteSheetAsset {
-  key: string;
-  atlas?: string;
-  frameWidth: number;
-  frameHeight: number;
-  directions: Direction8[];
-  actions: CharacterAction[];
-  framesPerAction: number;
 }
 ```
 
@@ -174,9 +164,13 @@ interface SpriteSheetAsset {
       "baseFormTierName": "움결",
       "inElement": "FIRE",
       "combatMode": "NORMAL",
-      "direction": "SE",
-      "action": "IDLE",
-      "weaponSpriteKey": "weapon_bronze_sword"
+      "orientationRadians": 0.7853981633974483,
+      "modelKey": "player_base_umgyeol",
+      "rigKey": "humanoid_mvp",
+      "animationClipKey": "idle",
+      "weaponModelKey": "weapon_greatsword_bronze",
+      "materialVariantKey": "fire_normal",
+      "auraEffectKey": "aura_fire_umgyeol"
     }
   },
   "field": {
@@ -220,9 +214,11 @@ interface SpriteSheetAsset {
 - 새 언령결 제작 재료가 아니라, 기존 언령결의 보존 가치를 살리는 강화 축이다.
 
 ### 4.5. 서버 확정 드랍·제작 계약
-- `DropEntry`는 `kind: GOLD | EUM | ITEM`, 대상 `id` 또는 `symbol`, `probability`, 정수 `quantity.min/max`, `guaranteed`를 가진다. 서버는 사망 1회당 각 항목을 독립 판정하고, `guaranteed: true` 항목은 `probability: 1`이어야 한다.
-- `CraftingRecipe`는 입력, `successRate`, 성공 결과 ID, 실패 시 `consumeInputs` 및 선택적 `outputId`를 명시한다. 클라이언트는 제작 의도만 전송하고, 서버가 성공/실패·소모·지급을 모두 확정한다.
+- `DropEntry`는 `GOLD | ITEM`의 대상 ID, `probability`, 정수 `quantity.min/max`, `guaranteed`를 가진다. 서버는 사망 1회당 각 항목을 독립 판정하고, `guaranteed: true` 항목은 `probability: 1`이어야 한다.
+- `음`은 독립 항목이 아니라 `eumRollGroup`의 `draws.min/max` 횟수만큼 가중치 풀에서 뽑는다. 먹물 슬라임은 `1~2회`, 오타 요정은 `2~4회`, 몽당연필 기사단장은 `3~5회` 뽑는다.
+- `CraftingRecipe`는 입력, `goldCost`, 촉매 ID, 허용 보조 재료 ID, `successRate`, 성공 결과 ID, 실패 시 `consumeInputs` 및 선택적 `outputId`를 명시한다. 첫 두 레시피는 골드·촉매·보조 재료가 없음을 `0`과 빈 배열로 명시하며, 클라이언트는 제작 의도만 전송하고 서버가 성공/실패·소모·지급을 모두 확정한다.
 - 첫 레시피는 `음 · ㅎ ×1 + 음 · ㅘ ×1 -> 자형: 화`(성공률 `1`, 실패 시 미소모), `자형: 화 ×1 -> 결: 화`(성공률 `0.95`, 실패 시 소모·출력 없음)이다.
+- `WorldContent`는 맵의 `id`, `kind`, `maxPlayers`, `spawnPointId`와 입·출구 포털 링크를 서버 시작 전에 검증한다. `아르카디아`만 `공유 마을 허브`이며, `음` 파밍을 포함한 모든 게임플레이 구역은 `포털`로 연결되는 최대 4인 `협동 인스턴스`다.
 
 ## 5. 구현 기술 스택
 - **Client:** `Svelte + TypeScript + Vite + Three.js/Threlte`
@@ -235,6 +231,8 @@ interface SpriteSheetAsset {
 - **확장 방향:** 이후 `PWA`, 모바일 래핑, 데스크탑 패키징 확장 가능
 
 첫 구현은 온라인 고정 아이소메트릭 3D 수직 슬라이스다. 게스트 닉네임으로 접속하면 서버가 플레이어 ID와 세션 정체성을 발급한다. 서버는 플레이어 위치, 전투, 몬스터 상태, 드랍, 인벤토리, 제작 결과, 변신과 진행을 권위적으로 확정한다. 클라이언트는 이동 방향, 기본 공격, 습득, 제작, 변신 토글 같은 의도만 보낸다.
+
+현재 `client/src/game/data`는 수직 슬라이스 계약을 검증하는 전환용 fixture다. 서버 구현 단계에서는 `shared/content`를 서버 정본으로 두고, 검증된 콘텐츠에서 클라이언트 표시용 사본을 생성한다.
 
 클라이언트는 즉시 되돌릴 수 있는 바라보기·공격 선딜·로컬 이펙트만 예측할 수 있다. 어떤 요청도 HP, 인벤토리 수량, 드랍 결과, 제작 결과, 최종 위치를 직접 설정할 수 없다. `localStorage`는 그래픽·입력·UI 환경설정만 저장하며 게임 진행의 진실로 사용하지 않는다.
 
@@ -356,6 +354,7 @@ shared/
 - `content/`: DropTable, CraftingRecipe, WorldContent를 포함한 시작 전 데이터 검증
 - `persistence/`: 서버 소유 진행 저장과 재접속 복원
 - `shared/`: 프로토콜과 클라이언트/서버가 공유하는 결정적 규칙
+- 구현 단계의 `shared/content`는 서버 정본 콘텐츠를 보관하고, 현재 `client/src/game/data` 전환용 fixture와 같은 표시용 JSON은 정본에서 생성한다.
 
 ### 11.4. MVP 시작 권장 범위
 - 첫 구현은 클라이언트와 서버를 함께 시작한다.
@@ -424,9 +423,13 @@ shared/
     "baseFormTierName": "움결",
     "inElement": "FIRE",
     "combatMode": "NORMAL",
-    "direction": "SE",
-    "action": "IDLE",
-    "weaponSpriteKey": "weapon_greatsword_bronze"
+    "orientationRadians": 0.7853981633974483,
+    "modelKey": "player_base_umgyeol",
+    "rigKey": "humanoid_mvp",
+    "animationClipKey": "idle",
+    "weaponModelKey": "weapon_greatsword_bronze",
+    "materialVariantKey": "fire_normal",
+    "auraEffectKey": "aura_fire_umgyeol"
   }
 }
 ```
@@ -470,11 +473,16 @@ shared/
     "staggerResistance": 0.0,
     "drops": {
       "entries": [
-        { "kind": "GOLD", "probability": 1, "quantity": { "min": 5, "max": 10 }, "guaranteed": true },
-        { "kind": "EUM", "symbol": "ㄱ", "probability": 0.3333333333333333, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅏ", "probability": 0.3333333333333333, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅇ", "probability": 0.3333333333333333, "quantity": { "min": 1, "max": 1 }, "guaranteed": false }
-      ]
+        { "kind": "GOLD", "probability": 1, "quantity": { "min": 5, "max": 10 }, "guaranteed": true }
+      ],
+      "eumRollGroup": {
+        "draws": { "min": 1, "max": 2 },
+        "entries": [
+          { "symbol": "ㄱ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅏ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅇ", "weight": 1, "quantity": { "min": 1, "max": 1 } }
+        ]
+      }
     }
   },
   {
@@ -497,13 +505,18 @@ shared/
     "drops": {
       "entries": [
         { "kind": "GOLD", "probability": 1, "quantity": { "min": 12, "max": 20 }, "guaranteed": true },
-        { "kind": "EUM", "symbol": "ㅎ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅘ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅂ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅜ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㄹ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
         { "kind": "ITEM", "id": "stone_inscribe_mantra_001", "probability": 0.25, "quantity": { "min": 1, "max": 1 }, "guaranteed": false }
-      ]
+      ],
+      "eumRollGroup": {
+        "draws": { "min": 2, "max": 4 },
+        "entries": [
+          { "symbol": "ㅎ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅘ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅂ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅜ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㄹ", "weight": 1, "quantity": { "min": 1, "max": 1 } }
+        ]
+      }
     }
   }
 ]
@@ -537,17 +550,22 @@ shared/
     "drops": {
       "entries": [
         { "kind": "GOLD", "probability": 1, "quantity": { "min": 80, "max": 120 }, "guaranteed": true },
-        { "kind": "EUM", "symbol": "ㅎ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅘ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅂ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅜ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㄹ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㄷ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅏ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
-        { "kind": "EUM", "symbol": "ㅇ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
         { "kind": "ITEM", "id": "stone_inscribe_mantra_001", "probability": 0.5, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
         { "kind": "ITEM", "id": "letter_gyeol_hwa_001", "probability": 0.25, "quantity": { "min": 1, "max": 1 }, "guaranteed": false }
-      ]
+      ],
+      "eumRollGroup": {
+        "draws": { "min": 3, "max": 5 },
+        "entries": [
+          { "symbol": "ㅎ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅘ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅂ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅜ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㄹ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㄷ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅏ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
+          { "symbol": "ㅇ", "weight": 1, "quantity": { "min": 1, "max": 1 } }
+        ]
+      }
     }
   }
 ]
