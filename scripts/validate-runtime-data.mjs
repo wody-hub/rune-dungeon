@@ -213,6 +213,34 @@ assertRate(mvpWeapon.attackSpeed, 0.8, "MVP greatsword attackSpeed");
 assertRate(mvpWeapon.procRateBonus, 0.01, "MVP greatsword procRateBonus");
 assert.equal(mvpWeapon.defaultIncantationSlots, 2, "MVP greatsword incantation slots");
 
+const averageWeaponRoll = (mvpWeapon.minDamage + mvpWeapon.maxDamage) / 2;
+const averageBaseDamage =
+  (averageWeaponRoll + player.combatProfile.attackBonusFromStr) * mvpWeapon.damageMultiplier;
+const expectedCritMultiplier =
+  1 + player.combatProfile.baseCritChance * (player.combatProfile.baseCritMultiplier - 1);
+const expectedPreDefenseDamage = averageBaseDamage * expectedCritMultiplier;
+
+assert.equal(Number(expectedPreDefenseDamage.toFixed(3)), 41.615, "MVP expected pre-defense damage");
+
+const combatDocuments = [
+  "plan/03_Item_and_Equipment.md",
+  "plan/13_Monster_AI_Design.md",
+  "plan/16_Character_and_Leveling.md",
+  "plan/17_MVP_Development_Roadmap.md",
+].map(readText).join("\n");
+assert.ok(
+  combatDocuments.includes("`24~32`는 무기 공격력 굴림과 STR 보너스를 더한 뒤, 무기 피해 계수를 적용하기 전 범위"),
+  "combat documents define 24~32 as the pre-multiplier range",
+);
+assert.ok(
+  combatDocuments.includes("`34.8~46.4`는 대검 피해 계수를 적용한 비치명타 방어력 계산 전 범위"),
+  "combat documents define 34.8~46.4 as the non-critical pre-defense range",
+);
+assert.ok(
+  combatDocuments.includes("평균 기대 피해 `41.615`"),
+  "combat documents state formula-derived expected damage",
+);
+
 for (const incantation of incantationIndex.values()) {
   assert.equal(incantation.kind, "INCANTATION", `${incantation.id} kind`);
   assert.equal(incantation.procMeta.targetRule, "SINGLE_TARGET", `${incantation.id} targetRule`);
