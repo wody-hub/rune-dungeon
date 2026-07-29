@@ -11,6 +11,12 @@ Last updated: 2026-07-03
 - `scratchpad/policies/`는 상위 정책 결정과 과거 검토 기록이다.
 - `scratchpad/design-drafts/`는 상세 설계 초안이며, `plan/`에 반영되기 전까지는 확정 기준이 아니다.
 
+## 외부 참고 소스
+- OpenMMO 참고 저장소 로컬 경로: `/Users/j.jaeyo/Project/ETC/OpenMMO`
+- 원격 주소: `https://github.com/wody-hub/OpenMMO.git`
+- 이 저장소는 Rune Dungeon의 3D 온라인 월드 구현을 위한 구조 참고용이다. 특히 `client/`의 Svelte + Three.js/Threlte 구조, `server/`의 Rust + WebSocket 서버 권위 구조, `shared/`의 공통 게임 규칙 구조를 참고한다.
+- OpenMMO는 PolyForm Noncommercial 라이선스이므로 코드·에셋을 직접 복사하거나 Rune Dungeon에 포함하지 않는다. 구조와 구현 원칙만 참고해 독자 구현한다.
+
 ## 현재 제품 방향
 - 제품 방향은 `하이브리드 액션 수집 RPG`다.
 - 메인 플레이 축은 `자동/방치 성장`이다.
