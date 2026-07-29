@@ -1,0 +1,533 @@
+{
+  "schemaVersion": "gyeol-balance.v1",
+  "sourceDocument": "plan/09_Data_Sheet_Runes.md",
+  "lastUpdated": "2026-07-03",
+  "tierOrder": [
+    "씨앗",
+    "움결",
+    "무늬",
+    "물결",
+    "울림",
+    "숨결",
+    "빛살",
+    "여울",
+    "온결"
+  ],
+  "procPolicy": {
+    "targetRule": "SINGLE_TARGET",
+    "triggerRule": "ON_BASIC_ATTACK_HIT",
+    "rollRule": "PER_HIT_INDEPENDENT",
+    "hasInternalCooldown": false,
+    "earlyTierNames": ["움결", "무늬", "물결", "울림"],
+    "earlyBaseProcChance": 0.03,
+    "highBaseProcChance": 0.01,
+    "maxProcChance": 0.2,
+    "procChanceSources": [
+      "INCANTATION_BASE",
+      "WEAPON_PROC_RATE_BONUS",
+      "LIMITED_MANTRA_OPTION",
+      "CHEONJIIN_LATE_GAME"
+    ],
+    "mvpExcludedSources": ["INT_DIRECT_PROC_CHANCE"]
+  },
+  "items": {
+    "jahyeong": [
+      {
+        "id": "jahyeong_hwa_001",
+        "nameKo": "자형: 화",
+        "kind": "JAHYEONG",
+        "tierName": "씨앗",
+        "successRate": 1,
+        "stats": [
+          { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.03, "sourceTextKo": "속성 공격력 +3%" },
+          { "type": "DAMAGE_PERCENT", "value": 0.01, "sourceTextKo": "데미지 +1%" }
+        ]
+      },
+      {
+        "id": "jahyeong_gang_001",
+        "nameKo": "자형: 강",
+        "kind": "JAHYEONG",
+        "tierName": "움결",
+        "successRate": 1,
+        "stats": [
+          { "type": "CRIT_CHANCE", "value": 0.01, "sourceTextKo": "치명타 확률 +1%" },
+          { "type": "ATTACK_FLAT", "value": 1, "sourceTextKo": "공격력 +1" }
+        ]
+      },
+      {
+        "id": "jahyeong_gak_001",
+        "nameKo": "자형: 각",
+        "kind": "JAHYEONG",
+        "tierName": "무늬",
+        "successRate": 1,
+        "stats": [
+          { "type": "CRIT_CHANCE", "value": 0.01, "sourceTextKo": "치명타 확률 +1%" },
+          { "type": "CRIT_DAMAGE", "value": 0.03, "sourceTextKo": "치명타 피해 +3%" }
+        ]
+      },
+      {
+        "id": "jahyeong_bit_001",
+        "nameKo": "자형: 빛",
+        "kind": "JAHYEONG",
+        "tierName": "무늬",
+        "successRate": 1,
+        "stats": [
+          { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.03, "sourceTextKo": "속성 공격력 +3%" },
+          { "type": "MOVE_SPEED", "value": 0.02, "sourceTextKo": "이동 속도 +2%" }
+        ]
+      },
+      {
+        "id": "jahyeong_gyeok_001",
+        "nameKo": "자형: 격",
+        "kind": "JAHYEONG",
+        "tierName": "물결",
+        "successRate": 1,
+        "stats": [
+          { "type": "CRIT_DAMAGE", "value": 0.04, "sourceTextKo": "치명타 피해 +4%" },
+          { "type": "ATTACK_FLAT", "value": 2, "sourceTextKo": "공격력 +2" }
+        ]
+      },
+      {
+        "id": "jahyeong_bul_001",
+        "nameKo": "자형: 불",
+        "kind": "JAHYEONG",
+        "tierName": "울림",
+        "successRate": 1,
+        "stats": [
+          { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.1, "sourceTextKo": "속성 공격력 +10%" },
+          { "type": "DAMAGE_PERCENT", "value": 0.04, "sourceTextKo": "데미지 +4%" }
+        ]
+      },
+      {
+        "id": "jahyeong_ddang_001",
+        "nameKo": "자형: 땅",
+        "kind": "JAHYEONG",
+        "tierName": "빛살",
+        "successRate": 1,
+        "stats": [
+          { "type": "STUN_DURATION_TAKEN_REDUCTION", "value": 0.08, "sourceTextKo": "받는 스턴 시간 감소 +8%" },
+          { "type": "STUN_CHANCE_TAKEN_REDUCTION", "value": 0.05, "sourceTextKo": "받는 스턴 확률 감소 +5%" }
+        ]
+      }
+    ],
+    "letterGyeol": [
+      {
+        "id": "letter_gyeol_hwa_001",
+        "nameKo": "결: 화",
+        "kind": "LETTER",
+        "successRate": 0.95,
+        "roleKo": "속성 입문형",
+        "stats": [
+          { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.05, "sourceTextKo": "속성 공격력 +5%" },
+          { "type": "DAMAGE_PERCENT", "value": 0.02, "sourceTextKo": "데미지 +2%" }
+        ]
+      },
+      {
+        "id": "letter_gyeol_gang_001",
+        "nameKo": "결: 강",
+        "kind": "LETTER",
+        "successRate": 0.85,
+        "roleKo": "공격형",
+        "stats": [
+          { "type": "ATTACK_FLAT", "value": 4, "sourceTextKo": "공격력 +4" },
+          { "type": "DEFENSE_FLAT", "value": 3, "sourceTextKo": "방어력 +3" }
+        ]
+      },
+      {
+        "id": "letter_gyeol_bit_001",
+        "nameKo": "결: 빛",
+        "kind": "LETTER",
+        "successRate": 0.65,
+        "roleKo": "가속형",
+        "stats": [
+          { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.04, "sourceTextKo": "속성 공격력 +4%" },
+          { "type": "MOVE_SPEED", "value": 0.03, "sourceTextKo": "이동 속도 +3%" }
+        ]
+      },
+      {
+        "id": "letter_gyeol_bul_001",
+        "nameKo": "결: 불",
+        "kind": "LETTER",
+        "successRate": 0.35,
+        "roleKo": "상위 속성형",
+        "stats": [
+          { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.25, "sourceTextKo": "속성 공격력 +25%" },
+          { "type": "DAMAGE_PERCENT", "value": 0.1, "sourceTextKo": "데미지 +10%" }
+        ]
+      },
+      {
+        "id": "letter_gyeol_ddang_001",
+        "nameKo": "결: 땅",
+        "kind": "LETTER",
+        "successRate": 0.12,
+        "roleKo": "PvP 대응형",
+        "stats": [
+          { "type": "STUN_DURATION_TAKEN_REDUCTION", "value": 0.12, "sourceTextKo": "받는 스턴 시간 감소 +12%" },
+          { "type": "STUN_CHANCE_TAKEN_REDUCTION", "value": 0.08, "sourceTextKo": "받는 스턴 확률 감소 +8%" }
+        ]
+      }
+    ],
+    "mantraGyeol": [
+      {
+        "id": "mantra_ganghwa_001",
+        "nameKo": "결: 강화",
+        "kind": "MANTRA",
+        "tierName": "움결",
+        "successRate": 0.85,
+        "roleKo": "공격형",
+        "stats": [
+          { "type": "CRIT_CHANCE", "value": 0.03, "sourceTextKo": "치명타 확률 +3%" },
+          { "type": "CRIT_DAMAGE", "value": 0.1, "sourceTextKo": "치명타 피해 +10%" }
+        ]
+      },
+      {
+        "id": "mantra_sinsok_001",
+        "nameKo": "결: 신속",
+        "kind": "MANTRA",
+        "tierName": "움결",
+        "successRate": 0.85,
+        "roleKo": "속도형",
+        "stats": [
+          { "type": "MOVE_SPEED", "value": null, "sourceTextKo": "이동 속도 증가" },
+          { "type": "ATTACK_SPEED", "value": null, "sourceTextKo": "공격 속도 증가" }
+        ],
+        "needsNumericTuning": true
+      },
+      {
+        "id": "mantra_yeri_001",
+        "nameKo": "결: 예리",
+        "kind": "MANTRA",
+        "tierName": "무늬",
+        "successRate": 0.65,
+        "roleKo": "공격형",
+        "stats": [
+          { "type": "CRIT_CHANCE", "value": 0.04, "sourceTextKo": "치명타 확률 +4%" },
+          { "type": "ATTACK_FLAT", "value": 4, "sourceTextKo": "공격력 +4" }
+        ]
+      },
+      {
+        "id": "mantra_cheolbyeok_001",
+        "nameKo": "결: 철벽",
+        "kind": "MANTRA",
+        "tierName": "무늬",
+        "successRate": 0.65,
+        "roleKo": "생존형",
+        "stats": [
+          { "type": "STUN_DURATION_TAKEN_REDUCTION", "value": null, "sourceTextKo": "받는 스턴 시간 감소" },
+          { "type": "STUN_CHANCE_TAKEN_REDUCTION", "value": null, "sourceTextKo": "받는 스턴 확률 감소" }
+        ],
+        "needsNumericTuning": true
+      },
+      {
+        "id": "mantra_chamgyeok_001",
+        "nameKo": "결: 참격",
+        "kind": "MANTRA",
+        "tierName": "물결",
+        "successRate": 0.4,
+        "roleKo": "공격형",
+        "stats": [
+          { "type": "CRIT_DAMAGE", "value": 0.18, "sourceTextKo": "치명타 피해 +18%" },
+          { "type": "DAMAGE_PERCENT", "value": 0.06, "sourceTextKo": "데미지 +6%" }
+        ]
+      },
+      {
+        "id": "mantra_piljung_001",
+        "nameKo": "결: 필중",
+        "kind": "MANTRA",
+        "tierName": "울림",
+        "successRate": 0.22,
+        "roleKo": "공격형",
+        "stats": [
+          { "type": "CRIT_CHANCE", "value": 0.05, "sourceTextKo": "치명타 확률 +5%" },
+          { "type": "CRIT_DAMAGE", "value": 0.15, "sourceTextKo": "치명타 피해 +15%" }
+        ]
+      },
+      {
+        "id": "mantra_taeyang_001",
+        "nameKo": "결: 태양",
+        "kind": "MANTRA",
+        "tierName": "숨결",
+        "successRate": 0.22,
+        "roleKo": "속성형",
+        "stats": [
+          { "type": "ELEMENT_ATTACK_PERCENT", "value": null, "sourceTextKo": "속성 공격력 증가" },
+          { "type": "FIRE_INCANTATION_PROC_CHANCE", "value": 0.01, "sourceTextKo": "화염 언령 발동 확률 +1%" }
+        ],
+        "needsNumericTuning": true
+      },
+      {
+        "id": "mantra_mugeuk_001",
+        "nameKo": "결: 무극",
+        "kind": "MANTRA",
+        "tierName": "온결",
+        "successRate": 0.03,
+        "roleKo": "특수형",
+        "stats": [
+          { "type": "INCANTATION_PROC_CHANCE", "value": 0.02, "sourceTextKo": "언령 발동 확률 +2%" },
+          { "type": "CRIT_CHANCE", "value": null, "sourceTextKo": "치명타 확률 상승" },
+          { "type": "CRIT_DAMAGE", "value": null, "sourceTextKo": "치명타 피해 상승" }
+        ],
+        "needsNumericTuning": true
+      }
+    ],
+    "incantationGyeol": [
+      {
+        "id": "incantation_fire_light_path_001",
+        "nameKo": "결: 앞을 밝혀라",
+        "kind": "INCANTATION",
+        "tierName": "움결",
+        "successRate": 0.75,
+        "roleKo": "기본형",
+        "element": "FIRE",
+        "effectId": "fire_line_small_001",
+        "procMeta": {
+          "baseProcChance": 0.03,
+          "targetRule": "SINGLE_TARGET",
+          "maxProcChance": 0.2,
+          "allowMultiProcPerHit": true,
+          "damageApplication": "APPLY_ALL_PROCS",
+          "visualStacking": "STACK_ALL_PROCS"
+        },
+        "effectTextKo": "기본 공격 적중 시 주 대상 1체를 향한 화염 직선 타격 발동"
+      },
+      {
+        "id": "incantation_fire_spread_001",
+        "nameKo": "결: 불길아 번져라",
+        "kind": "INCANTATION",
+        "tierName": "움결",
+        "successRate": 0.75,
+        "roleKo": "응용형",
+        "element": "FIRE",
+        "effectId": "fire_hit_small_001",
+        "procMeta": {
+          "baseProcChance": 0.03,
+          "targetRule": "SINGLE_TARGET",
+          "maxProcChance": 0.2,
+          "allowMultiProcPerHit": true,
+          "damageApplication": "APPLY_ALL_PROCS",
+          "visualStacking": "STACK_ALL_PROCS"
+        },
+        "effectTextKo": "기본 공격 적중 시 주 대상 1체에 소형 화염 타격 발동"
+      },
+      {
+        "id": "incantation_fire_gather_001",
+        "nameKo": "결: 불꽃이여 모여라",
+        "kind": "INCANTATION",
+        "tierName": "무늬",
+        "successRate": 0.55,
+        "roleKo": "추격형",
+        "element": "FIRE",
+        "effectId": "fire_hit_focused_001",
+        "procMeta": {
+          "baseProcChance": 0.03,
+          "targetRule": "SINGLE_TARGET",
+          "maxProcChance": 0.2,
+          "allowMultiProcPerHit": true,
+          "damageApplication": "APPLY_ALL_PROCS",
+          "visualStacking": "STACK_ALL_PROCS"
+        },
+        "effectTextKo": "기본 공격 적중 시 주 대상 1체에 응축 화염 타격 발동"
+      },
+      {
+        "id": "incantation_fire_pierce_darkness_001",
+        "nameKo": "결: 어둠을 밝히는 불꽃이여",
+        "kind": "INCANTATION",
+        "tierName": "물결",
+        "successRate": 0.4,
+        "roleKo": "중급형",
+        "element": "FIRE",
+        "effectId": "fire_pierce_strong_001",
+        "procMeta": {
+          "baseProcChance": 0.03,
+          "targetRule": "SINGLE_TARGET",
+          "maxProcChance": 0.2,
+          "allowMultiProcPerHit": true,
+          "damageApplication": "APPLY_ALL_PROCS",
+          "visualStacking": "STACK_ALL_PROCS"
+        },
+        "effectTextKo": "기본 공격 적중 시 주 대상 1체를 꿰뚫는 강한 화염 타격 발동"
+      },
+      {
+        "id": "incantation_lightning_pierce_point_001",
+        "nameKo": "결: 하늘의 벼락이여 한 점을 꿰뚫어라",
+        "kind": "INCANTATION",
+        "tierName": "빛살",
+        "successRate": 0.1,
+        "roleKo": "엔드형",
+        "element": "LIGHTNING",
+        "effectId": "lightning_focus_drop_001",
+        "procMeta": {
+          "baseProcChance": 0.01,
+          "targetRule": "SINGLE_TARGET",
+          "maxProcChance": 0.2,
+          "allowMultiProcPerHit": true,
+          "damageApplication": "APPLY_ALL_PROCS",
+          "visualStacking": "STACK_ALL_PROCS"
+        },
+        "effectTextKo": "기본 공격 적중 시 주 대상 1체에 번개/빛 계열 집중 낙뢰 발동"
+      },
+      {
+        "id": "incantation_cheonjiyin_unity_001",
+        "nameKo": "결: 하늘과 땅과 사람이 하나 되어 빛나리",
+        "kind": "INCANTATION",
+        "tierName": "온결",
+        "successRate": 0.02,
+        "roleKo": "궁극형",
+        "element": "LIGHT",
+        "effectId": "light_final_single_target_001",
+        "procMeta": {
+          "baseProcChance": 0.01,
+          "targetRule": "SINGLE_TARGET",
+          "maxProcChance": 0.2,
+          "allowMultiProcPerHit": true,
+          "damageApplication": "APPLY_ALL_PROCS",
+          "visualStacking": "STACK_ALL_PROCS"
+        },
+        "effectTextKo": "기본 공격 적중 시 단일 대상 종결 속성 타격 발동"
+      }
+    ],
+    "materials": [
+      {
+        "id": "ink_protect_001",
+        "nameKo": "먹: 지킴",
+        "category": "INK",
+        "supportType": "PROTECT",
+        "roleKo": "실패 시 핵심 재료 보존"
+      },
+      {
+        "id": "ink_buffer_001",
+        "nameKo": "먹: 남김",
+        "category": "INK",
+        "supportType": "BUFFER",
+        "roleKo": "실패 손실 완화"
+      },
+      {
+        "id": "ink_boost_001",
+        "nameKo": "먹: 돋움",
+        "category": "INK",
+        "supportType": "BOOST",
+        "roleKo": "성공률 증가"
+      },
+      {
+        "id": "stone_inscribe_mantra_001",
+        "nameKo": "돌: 새김",
+        "category": "STONE",
+        "catalystType": "MANTRA",
+        "roleKo": "진언결 각인 필수"
+      },
+      {
+        "id": "stone_open_speech_001",
+        "nameKo": "돌: 말문",
+        "category": "STONE",
+        "catalystType": "INCANTATION",
+        "roleKo": "언령결 각인 필수"
+      },
+      {
+        "id": "stone_indwell_001",
+        "nameKo": "돌: 깃듦",
+        "category": "STONE",
+        "catalystType": "ADVANCED",
+        "roleKo": "고티어 결 각인 보조"
+      }
+    ]
+  },
+  "criticalLineup": [
+    {
+      "tierName": "움결",
+      "itemId": "jahyeong_gang_001",
+      "itemKind": "JAHYEONG",
+      "critRoleKo": "치명타 확률 +1%",
+      "designIntentKo": "초반 입문용 치확"
+    },
+    {
+      "tierName": "무늬",
+      "itemId": "jahyeong_gak_001",
+      "itemKind": "JAHYEONG",
+      "critRoleKo": "치명타 확률 +1%, 치명타 피해 +3%",
+      "designIntentKo": "자형 단계의 가벼운 치명 혼합"
+    },
+    {
+      "tierName": "물결",
+      "itemId": "jahyeong_gyeok_001",
+      "itemKind": "JAHYEONG",
+      "critRoleKo": "치명타 피해 +4%",
+      "designIntentKo": "치피 입문용"
+    },
+    {
+      "tierName": "움결",
+      "itemId": "mantra_ganghwa_001",
+      "itemKind": "MANTRA",
+      "critRoleKo": "치명타 확률 +3%, 치명타 피해 +10%",
+      "designIntentKo": "초반 대표 치명 세팅"
+    },
+    {
+      "tierName": "무늬",
+      "itemId": "mantra_yeri_001",
+      "itemKind": "MANTRA",
+      "critRoleKo": "치명타 확률 +4%, 공격력 +4",
+      "designIntentKo": "치확 중심 중반 세팅"
+    },
+    {
+      "tierName": "물결",
+      "itemId": "mantra_chamgyeok_001",
+      "itemKind": "MANTRA",
+      "critRoleKo": "치명타 피해 +18%, 데미지 +6%",
+      "designIntentKo": "치피 중심 중반 세팅"
+    },
+    {
+      "tierName": "울림",
+      "itemId": "mantra_piljung_001",
+      "itemKind": "MANTRA",
+      "critRoleKo": "치명타 확률 +5%, 치명타 피해 +15%",
+      "designIntentKo": "상위 혼합형 세팅"
+    },
+    {
+      "tierName": "온결",
+      "itemId": "mantra_mugeuk_001",
+      "itemKind": "MANTRA",
+      "critRoleKo": "언령 발동 확률 +2%, 치명타 확률/피해 동시 상승",
+      "designIntentKo": "종결 특수형 세팅"
+    }
+  ],
+  "weaponProcBaselines": [
+    {
+      "weaponClass": "GREATSWORD",
+      "labelKo": "대검계열",
+      "attacksPerSecond": 0.8,
+      "procRateBonus": 0.01,
+      "effectiveProcChance": {
+        "earlyTier": 0.04,
+        "highTier": 0.02
+      },
+      "designIntentKo": "느린 대신 방어 보상과 한 방 위력"
+    },
+    {
+      "weaponClass": "BOW",
+      "labelKo": "활계열",
+      "attacksPerSecond": 1.6,
+      "procRateBonus": 0,
+      "effectiveProcChance": {
+        "earlyTier": 0.03,
+        "highTier": 0.01
+      },
+      "designIntentKo": "빠른 타격 빈도로 발동 기회 확보"
+    },
+    {
+      "weaponClass": "STAFF",
+      "labelKo": "지팡이계열",
+      "attacksPerSecond": 1.1,
+      "procRateBonus": 0.03,
+      "effectiveProcChance": {
+        "earlyTier": 0.06,
+        "highTier": 0.04
+      },
+      "designIntentKo": "중거리 안정성과 높은 언령 발동률"
+    }
+  ],
+  "implementationNotesKo": [
+    "확률 값은 UI 표기용 퍼센트가 아니라 계산용 소수로 저장한다.",
+    "MVP 기준 INT는 언령 발동 확률을 직접 올리지 않는다.",
+    "needsNumericTuning이 true인 항목은 효과 방향만 확정되고 수치가 아직 미확정이다.",
+    "언령결 발동은 내부 쿨다운 없이 기본 공격 적중마다 독립 판정한다."
+  ]
+}

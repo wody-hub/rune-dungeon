@@ -1,0 +1,21 @@
+[
+  {
+    "id": "weapon_greatsword_mvp_001",
+    "name": "낡은 양손검",
+    "weaponClass": "GREATSWORD",
+    "attackSpeed": 0.8,
+    "minDamage": 12,
+    "maxDamage": 20,
+    "damageMultiplier": 1.45,
+    "procRateBonus": 0.01,
+    "defaultIncantationSlots": 2,
+    "damageReductionBonus": 0.08,
+    "staggerResistanceBonus": 0.15,
+    "attackMotionMs": 1250,
+    "hitFrameMs": 320,
+    "recoveryMs": 930,
+    "rangePx": 56,
+    "hitboxWidthPx": 32,
+    "hitStunMs": 220
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ink_protect_001",
+    "name": "먹: 지킴",
+    "kind": "MATERIAL",
+    "category": "INK",
+    "supportType": "PROTECT",
+    "role": "실패 시 핵심 재료 보존"
+  },
+  {
+    "id": "ink_buffer_001",
+    "name": "먹: 남김",
+    "kind": "MATERIAL",
+    "category": "INK",
+    "supportType": "BUFFER",
+    "role": "실패 손실 완화"
+  },
+  {
+    "id": "ink_boost_001",
+    "name": "먹: 돋움",
+    "kind": "MATERIAL",
+    "category": "INK",
+    "supportType": "BOOST",
+    "role": "성공률 증가"
+  },
+  {
+    "id": "stone_inscribe_mantra_001",
+    "name": "돌: 새김",
+    "kind": "MATERIAL",
+    "category": "STONE",
+    "catalystType": "MANTRA",
+    "role": "진언결 각인 필수"
+  },
+  {
+    "id": "stone_open_speech_001",
+    "name": "돌: 말문",
+    "kind": "MATERIAL",
+    "category": "STONE",
+    "catalystType": "INCANTATION",
+    "role": "언령결 각인 필수"
+  },
+  {
+    "id": "stone_indwell_001",
+    "name": "돌: 깃듦",
+    "kind": "MATERIAL",
+    "category": "STONE",
+    "catalystType": "ADVANCED",
+    "role": "고티어 결 각인 보조"
+  }
+]

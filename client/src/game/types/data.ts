@@ -1,0 +1,203 @@
+export type TierName =
+  | "씨앗"
+  | "움결"
+  | "무늬"
+  | "물결"
+  | "울림"
+  | "숨결"
+  | "빛살"
+  | "여울"
+  | "온결";
+
+export type ElementType = "FIRE" | "WATER" | "EARTH" | "WIND" | "LIGHT" | "DARK";
+export type ItemKind = "JAHYEONG" | "LETTER" | "MANTRA" | "INCANTATION" | "CONSUMABLE" | "MATERIAL" | "IN";
+export type WeaponClass = "GREATSWORD" | "BOW" | "STAFF";
+export type MonsterRank = "NORMAL" | "ELITE" | "BOSS";
+
+export interface StatModifier {
+  type: string;
+  value: number;
+}
+
+export interface ProcMeta {
+  baseProcChance: number;
+  targetRule: "SINGLE_TARGET";
+  maxProcChance: number;
+  hasInternalCooldown: boolean;
+  allowMultiProcPerHit: boolean;
+  damageApplication: "APPLY_ALL_PROCS";
+  visualStacking: "STACK_ALL_PROCS";
+}
+
+export interface JahyeongItem {
+  id: string;
+  name: string;
+  kind: "JAHYEONG";
+  tierName: TierName;
+  initial: string;
+  medial: string;
+  final?: string;
+  successRate: number;
+  stats: StatModifier[];
+  canInscribe: boolean;
+}
+
+export interface GyeolItem {
+  id: string;
+  name: string;
+  kind: "LETTER" | "MANTRA" | "INCANTATION";
+  tierName: TierName;
+  components: string[];
+  successRate: number;
+  role: string;
+  stats?: StatModifier[];
+  element?: ElementType;
+  effectId?: string;
+  procMeta?: ProcMeta;
+}
+
+export interface GyeolData {
+  schemaVersion: "runtime-gyeol.v1";
+  sourceDesignData: string;
+  jahyeong: JahyeongItem[];
+  letterGyeol: GyeolItem[];
+  mantraGyeol: GyeolItem[];
+  incantationGyeol: GyeolItem[];
+}
+
+export interface WeaponItem {
+  id: string;
+  name: string;
+  weaponClass: WeaponClass;
+  attackSpeed: number;
+  minDamage: number;
+  maxDamage: number;
+  damageMultiplier: number;
+  procRateBonus: number;
+  defaultIncantationSlots: number;
+  damageReductionBonus: number;
+  staggerResistanceBonus: number;
+  attackMotionMs: number;
+  hitFrameMs: number;
+  recoveryMs: number;
+  rangePx: number;
+  hitboxWidthPx: number;
+  hitStunMs: number;
+}
+
+export interface DropTable {
+  gold: [number, number];
+  fragments: string[];
+  items?: string[];
+}
+
+export interface MonsterItem {
+  id: string;
+  name: string;
+  rank: MonsterRank;
+  maxHp: number;
+  baseDefense: number;
+  baseDamage: number;
+  moveSpeed: number;
+  aggroRange: number;
+  attackRange: number;
+  attackMotionMs: number;
+  hitFrameMs: number;
+  hitStunMs: number;
+  staggerResistance: number;
+  statusEffect?: {
+    type: "CONFUSION";
+    durationMs: number;
+  };
+  bossStateModifiers?: {
+    incomingDamageMultiplier: number;
+    weaknessExposeDurationMs: number;
+    groggyDurationMs: number;
+    groggyDefenseOverride: number;
+    guaranteedIncantationTagOnWeakness: ElementType;
+  };
+  drops: DropTable;
+}
+
+export interface ConsumableItem {
+  id: string;
+  name: string;
+  kind: "CONSUMABLE";
+  effect:
+    | { type: "HEAL_PERCENT"; value: number; cooldownMs: number }
+    | {
+        type: "BUFF";
+        durationMs: number;
+        damageBonus?: number;
+        elementDamageBonus?: number;
+        attackSpeedBonus?: number;
+        moveSpeedBonus?: number;
+        cooldownMs: number;
+      }
+    | { type: "RETURN"; channelingMs: number; usableInCombat: boolean };
+}
+
+export interface MaterialItem {
+  id: string;
+  name: string;
+  kind: "MATERIAL";
+  category: "INK" | "STONE";
+  supportType?: "PROTECT" | "BUFFER" | "BOOST";
+  catalystType?: "MANTRA" | "INCANTATION" | "ADVANCED";
+  role: string;
+}
+
+export interface TransformationInItem {
+  id: string;
+  name: string;
+  kind: "IN";
+  tierName: TierName;
+  element: ElementType;
+  combatMode: "TRANSFORMED";
+  visual: {
+    baseFormTierName: TierName;
+    auraEffectKey: string;
+  };
+}
+
+export interface PlayerData {
+  id: string;
+  name: string;
+  level: number;
+  stats: {
+    str: number;
+    dex: number;
+    int: number;
+    vit: number;
+  };
+  combatProfile: {
+    baseCritChance: number;
+    baseCritMultiplier: number;
+    attackBonusFromStr: number;
+    defenseFromStr: number;
+    combatFeedbackPriority: string[];
+  };
+  hp: {
+    max: number;
+    current: number;
+  };
+  equipped: {
+    weaponId: string;
+    mantraIds: string[];
+    incantationIds: string[];
+    inId: string;
+  };
+  inventory: {
+    gold: number;
+    fragments: Record<string, number>;
+    items: string[];
+  };
+  visual: {
+    baseFormTierName: TierName;
+    inElement: ElementType;
+    combatMode: "NORMAL" | "TRANSFORMED";
+    direction: "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
+    action: "IDLE" | "WALK" | "ATTACK" | "HIT" | "DEATH";
+    weaponSpriteKey: string;
+  };
+}

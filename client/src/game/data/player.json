@@ -1,0 +1,60 @@
+{
+  "id": "player_mvp_001",
+  "name": "Aram Wanderer",
+  "level": 12,
+  "stats": {
+    "str": 12,
+    "dex": 10,
+    "int": 10,
+    "vit": 12
+  },
+  "combatProfile": {
+    "baseCritChance": 0.05,
+    "baseCritMultiplier": 1.5,
+    "attackBonusFromStr": 12,
+    "defenseFromStr": 12,
+    "combatFeedbackPriority": [
+      "ATTACK_MOTION",
+      "HIT_REACTION",
+      "DAMAGE_TEXT",
+      "CRITICAL_EMPHASIS",
+      "INCANTATION_PROC"
+    ]
+  },
+  "hp": {
+    "max": 196,
+    "current": 196
+  },
+  "equipped": {
+    "weaponId": "weapon_greatsword_mvp_001",
+    "mantraIds": ["mantra_ganghwa_001", "jahyeong_gang_001"],
+    "incantationIds": ["incantation_fire_light_path_001", "incantation_fire_spread_001"],
+    "inId": "in_fire_001"
+  },
+  "inventory": {
+    "gold": 100,
+    "fragments": {
+      "ㄱ": 3,
+      "ㅏ": 2,
+      "ㅇ": 1,
+      "ㅎ": 1,
+      "ㅘ": 1,
+      "ㅂ": 1
+    },
+    "items": [
+      "potion_sum_mul_001",
+      "potion_gyeol_bul_001",
+      "potion_jil_sum_001",
+      "potion_gwiro_gyeol_001",
+      "letter_gyeol_hwa_001"
+    ]
+  },
+  "visual": {
+    "baseFormTierName": "움결",
+    "inElement": "FIRE",
+    "combatMode": "NORMAL",
+    "direction": "SE",
+    "action": "IDLE",
+    "weaponSpriteKey": "weapon_greatsword_bronze"
+  }
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "monster_ink_slime_001",
+    "name": "먹물 슬라임",
+    "rank": "NORMAL",
+    "maxHp": 140,
+    "baseDefense": 0,
+    "baseDamage": 18,
+    "moveSpeed": 42,
+    "aggroRange": 180,
+    "attackRange": 28,
+    "attackMotionMs": 1400,
+    "hitFrameMs": 420,
+    "hitStunMs": 260,
+    "staggerResistance": 0,
+    "drops": {
+      "gold": [5, 10],
+      "fragments": ["ㄱ", "ㅏ", "ㅇ"]
+    }
+  },
+  {
+    "id": "monster_typo_sprite_001",
+    "name": "오타 요정",
+    "rank": "ELITE",
+    "maxHp": 320,
+    "baseDefense": 10,
+    "baseDamage": 28,
+    "moveSpeed": 68,
+    "aggroRange": 240,
+    "attackRange": 220,
+    "attackMotionMs": 1050,
+    "hitFrameMs": 260,
+    "hitStunMs": 140,
+    "staggerResistance": 0.2,
+    "statusEffect": {
+      "type": "CONFUSION",
+      "durationMs": 2000
+    },
+    "drops": {
+      "gold": [12, 20],
+      "fragments": ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ"],
+      "items": ["stone_inscribe_mantra_001"]
+    }
+  },
+  {
+    "id": "boss_pencil_knight_commander_001",
+    "name": "몽당연필 기사단장",
+    "rank": "BOSS",
+    "maxHp": 2200,
+    "baseDefense": 60,
+    "baseDamage": 42,
+    "moveSpeed": 38,
+    "aggroRange": 260,
+    "attackRange": 44,
+    "attackMotionMs": 1800,
+    "hitFrameMs": 620,
+    "hitStunMs": 80,
+    "staggerResistance": 0.6,
+    "bossStateModifiers": {
+      "incomingDamageMultiplier": 0.5,
+      "weaknessExposeDurationMs": 4000,
+      "groggyDurationMs": 10000,
+      "groggyDefenseOverride": 0,
+      "guaranteedIncantationTagOnWeakness": "FIRE"
+    },
+    "drops": {
+      "gold": [80, 120],
+      "fragments": ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ", "ㄷ", "ㅏ", "ㅇ"],
+      "items": ["stone_inscribe_mantra_001", "letter_gyeol_hwa_001"]
+    }
+  }
+]

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "runtime-gyeol.v1",
+  "sourceDesignData": "data/design/gyeol-balance.json",
+  "jahyeong": [
+    {
+      "id": "jahyeong_hwa_001",
+      "name": "자형: 화",
+      "kind": "JAHYEONG",
+      "tierName": "씨앗",
+      "initial": "ㅎ",
+      "medial": "ㅘ",
+      "successRate": 1,
+      "stats": [
+        { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.03 },
+        { "type": "DAMAGE_PERCENT", "value": 0.01 }
+      ],
+      "canInscribe": true
+    },
+    {
+      "id": "jahyeong_gang_001",
+      "name": "자형: 강",
+      "kind": "JAHYEONG",
+      "tierName": "움결",
+      "initial": "ㄱ",
+      "medial": "ㅏ",
+      "final": "ㅇ",
+      "successRate": 1,
+      "stats": [
+        { "type": "CRIT_CHANCE", "value": 0.01 },
+        { "type": "ATTACK_FLAT", "value": 1 }
+      ],
+      "canInscribe": true
+    }
+  ],
+  "letterGyeol": [
+    {
+      "id": "letter_gyeol_hwa_001",
+      "name": "결: 화",
+      "kind": "LETTER",
+      "tierName": "씨앗",
+      "components": ["jahyeong_hwa_001"],
+      "successRate": 0.95,
+      "role": "속성 입문형",
+      "stats": [
+        { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.05 },
+        { "type": "DAMAGE_PERCENT", "value": 0.02 }
+      ],
+      "element": "FIRE"
+    },
+    {
+      "id": "letter_gyeol_gang_001",
+      "name": "결: 강",
+      "kind": "LETTER",
+      "tierName": "움결",
+      "components": ["jahyeong_gang_001"],
+      "successRate": 0.85,
+      "role": "공격형",
+      "stats": [
+        { "type": "ATTACK_FLAT", "value": 4 },
+        { "type": "DEFENSE_FLAT", "value": 3 }
+      ]
+    }
+  ],
+  "mantraGyeol": [
+    {
+      "id": "mantra_ganghwa_001",
+      "name": "결: 강화",
+      "kind": "MANTRA",
+      "tierName": "움결",
+      "components": ["letter_gyeol_gang_001", "letter_gyeol_hwa_001"],
+      "successRate": 0.85,
+      "role": "공격형",
+      "stats": [
+        { "type": "CRIT_CHANCE", "value": 0.03 },
+        { "type": "CRIT_DAMAGE", "value": 0.1 }
+      ]
+    }
+  ],
+  "incantationGyeol": [
+    {
+      "id": "incantation_fire_light_path_001",
+      "name": "결: 앞을 밝혀라",
+      "kind": "INCANTATION",
+      "tierName": "움결",
+      "components": ["앞", "을", "밝", "혀", "라"],
+      "successRate": 0.75,
+      "role": "기본형",
+      "element": "FIRE",
+      "effectId": "fire_line_small_001",
+      "procMeta": {
+        "baseProcChance": 0.03,
+        "targetRule": "SINGLE_TARGET",
+        "maxProcChance": 0.2,
+        "hasInternalCooldown": false,
+        "allowMultiProcPerHit": true,
+        "damageApplication": "APPLY_ALL_PROCS",
+        "visualStacking": "STACK_ALL_PROCS"
+      }
+    },
+    {
+      "id": "incantation_fire_spread_001",
+      "name": "결: 불길아 번져라",
+      "kind": "INCANTATION",
+      "tierName": "움결",
+      "components": ["불", "길", "아", "번", "져", "라"],
+      "successRate": 0.75,
+      "role": "응용형",
+      "element": "FIRE",
+      "effectId": "fire_hit_small_001",
+      "procMeta": {
+        "baseProcChance": 0.03,
+        "targetRule": "SINGLE_TARGET",
+        "maxProcChance": 0.2,
+        "hasInternalCooldown": false,
+        "allowMultiProcPerHit": true,
+        "damageApplication": "APPLY_ALL_PROCS",
+        "visualStacking": "STACK_ALL_PROCS"
+      }
+    }
+  ]
+}

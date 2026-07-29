@@ -1,0 +1,46 @@
+[
+  {
+    "id": "potion_sum_mul_001",
+    "name": "숨물",
+    "kind": "CONSUMABLE",
+    "effect": {
+      "type": "HEAL_PERCENT",
+      "value": 0.3,
+      "cooldownMs": 12000
+    }
+  },
+  {
+    "id": "potion_gyeol_bul_001",
+    "name": "결불",
+    "kind": "CONSUMABLE",
+    "effect": {
+      "type": "BUFF",
+      "durationMs": 12000,
+      "damageBonus": 0.1,
+      "elementDamageBonus": 0.1,
+      "cooldownMs": 30000
+    }
+  },
+  {
+    "id": "potion_jil_sum_001",
+    "name": "질숨",
+    "kind": "CONSUMABLE",
+    "effect": {
+      "type": "BUFF",
+      "durationMs": 10000,
+      "attackSpeedBonus": 0.12,
+      "moveSpeedBonus": 0.1,
+      "cooldownMs": 30000
+    }
+  },
+  {
+    "id": "potion_gwiro_gyeol_001",
+    "name": "귀로결",
+    "kind": "CONSUMABLE",
+    "effect": {
+      "type": "RETURN",
+      "channelingMs": 3000,
+      "usableInCombat": false
+    }
+  }
+]

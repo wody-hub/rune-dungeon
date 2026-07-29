@@ -1,0 +1,14 @@
+[
+  {
+    "id": "in_fire_001",
+    "name": "인: 움결 화",
+    "kind": "IN",
+    "tierName": "움결",
+    "element": "FIRE",
+    "combatMode": "TRANSFORMED",
+    "visual": {
+      "baseFormTierName": "움결",
+      "auraEffectKey": "aura_fire_ungyeol_001"
+    }
+  }
+]
