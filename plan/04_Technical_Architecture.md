@@ -220,37 +220,36 @@ interface SpriteSheetAsset {
 - 새 언령결 제작 재료가 아니라, 기존 언령결의 보존 가치를 살리는 강화 축이다.
 
 ## 5. 구현 기술 스택
-- **Language:** `TypeScript`
-- **Build Tool:** `Vite`
-- **Game Engine:** `Phaser 3`
-- **Data Format:** 초기 수직 슬라이스는 `로컬 JSON`
+- **Client:** `Svelte + TypeScript + Vite + Three.js/Threlte`
+- **Server:** `Rust + WebSocket`
+- **Shared Rules:** 프로토콜 메시지와 결정적 게임 규칙 타입은 공유 Rust crate로 정의하며, 클라이언트 표시/예측에 필요한 범위만 브라우저에서 사용한다.
+- **Data Format:** 런타임 콘텐츠는 서버 시작 전에 검증하는 JSON이다.
 - **Hangul Library:** `hangul-js`
-- **Persistence:** 초기 수직 슬라이스는 `localStorage` 또는 매우 얇은 저장 계층
+- **Persistence:** 서버가 영속 상태를 소유하며, 개발용 저장소는 단순 파일 또는 SQLite로 시작할 수 있다.
 - **Primary Target:** `웹 브라우저`
 - **확장 방향:** 이후 `PWA`, 모바일 래핑, 데스크탑 패키징 확장 가능
 
-첫 구현은 서버 없이 클라이언트 중심 단일 실행형으로 시작한다. 서버는 `멀티플레이`, `계정`, `동기화`, `경제 검증`, `치트 방어`, `라이브 운영`이 필요해지는 시점에 도입한다.
+첫 구현은 온라인 고정 아이소메트릭 3D 수직 슬라이스다. 게스트 닉네임으로 접속하면 서버가 플레이어 ID와 세션 정체성을 발급한다. 서버는 플레이어 위치, 전투, 몬스터 상태, 드랍, 인벤토리, 제작 결과, 변신과 진행을 권위적으로 확정한다. 클라이언트는 이동 방향, 기본 공격, 습득, 제작, 변신 토글 같은 의도만 보낸다.
 
-서버 도입 시 1차 확정 스택은 `Java + Spring Boot + JPA + QueryDSL`, 데이터베이스는 `PostgreSQL`을 기준으로 둔다.
+클라이언트는 즉시 되돌릴 수 있는 바라보기·공격 선딜·로컬 이펙트만 예측할 수 있다. 어떤 요청도 HP, 인벤토리 수량, 드랍 결과, 제작 결과, 최종 위치를 직접 설정할 수 없다. `localStorage`는 그래픽·입력·UI 환경설정만 저장하며 게임 진행의 진실로 사용하지 않는다.
 
 ## 6. 렌더링 방향
-- **Core Framework:** `Phaser 3`
-- **View Style:** `2D 쿼터뷰 감성` 또는 `탑다운 기반 대각 이동`
-- **Character Rendering:** `8방향 스프라이트 애니메이션`
-- **Layer Composition:** `기본 몸체 + 무기 + 제한적 방어구 + 속성 오라`
-- **Effects:** Phaser 파티클, additive 블렌드, 색상 오버레이로 결 발광과 변신 위상을 표현한다.
+- **Core Framework:** `Three.js/Threlte`
+- **View Style:** 제한된 줌을 가진 고정 아이소메트릭 3D 카메라; 자유 카메라는 제공하지 않는다.
+- **Character Rendering:** 저폴리 3D 모델, 리그 애니메이션, 무기 메시와 속성 오라/VFX 조합
+- **Layer Composition:** `기본 메시 + 무기 메시 + 제한적 방어구 메시 + 속성 오라`
+- **Effects:** emissive 머티리얼, 절제된 블룸, 파티클과 색상 오버레이로 결 발광과 변신 위상을 표현한다.
 
 ## 7. 캐릭터 구현 원칙
-- 플레이어와 주요 몬스터는 `8방향` 기준으로 제작한다.
+- 플레이어와 주요 몬스터는 고정 카메라에서 식별되는 3D 실루엣 기준으로 제작한다.
 - 기본 애니메이션 분류는 `idle`, `walk`, `attack`, `hit`, `death`를 사용한다.
 - 첫 수직 슬라이스는 `idle`, `walk`, `attack`까지만 우선 구현한다.
-- 초기 프레임 기준은 `방향당 4프레임 내외`를 기본값으로 둔다.
-- 전투 모드는 현재 장착한 `인: [티어] [속성]`에 맞는 전투 스프라이트 또는 오라로 구분한다.
-- 첫 MVP는 `기본 몸체 + 무기 + 오라`만으로도 충분하다.
+- 전투 모드는 현재 장착한 `인: [티어] [속성]`에 맞는 전투 메시 또는 오라로 구분한다.
+- 첫 MVP는 `기본 메시 + 무기 메시 + 오라`만으로도 충분하다.
 
 ## 8. MVP 기술 범위
 - 첫 수직 슬라이스는 `플레이어 1종`, `무기 1종`, `속성 1종`, `기본 변신 1종`, `필드 1`, `던전 1`, `보스 1`까지만 다룬다.
-- 첫 구현 목표는 그래픽 완성도가 아니라 `이동`, `공격`, `언령 확률 발동`, `피격`, `변신 on/off`, `결 파밍`, `자형 -> 결: 글자` 루프 검증이다.
+- 첫 구현 목표는 그래픽 완성도만이 아니라, 공유 월드의 서버 권위 `이동`, `공격`, `언령 확률 발동`, `피격`, `변신 on/off`, `결 파밍`, `자형 -> 결: 글자` 루프 검증이다.
 
 ## 9. 전투 리소스 정책
 - 전투에 별도의 `마나` 자원은 사용하지 않는다.
@@ -282,11 +281,12 @@ interface SpriteSheetAsset {
 rune-dungeon/
   client/
   server/
+  shared/
   docs/
 ```
 
-- `client/`는 `TypeScript + Vite + Phaser 3` 게임 클라이언트를 둔다.
-- `server/`는 이후 확장용 `Spring Boot + JPA + QueryDSL` 백엔드를 둔다.
+- `client/`는 `Svelte + TypeScript + Vite + Three.js/Threlte` 게임 클라이언트를 둔다.
+- `server/`는 현재 수직 슬라이스를 위한 `Rust + WebSocket` 권위 서버를 둔다.
 - 현재 `plan/` 문서는 계속 루트에 유지하고, 구현 시작 후 보조 문서는 `docs/`로 분리할 수 있다.
 
 ### 11.2. 클라이언트 구조 초안
@@ -296,29 +296,29 @@ client/
   public/
   src/
     main.ts
-    game/
-      config/
-      scenes/
-      entities/
-      systems/
+    lib/
+      rendering/
+      world/
+      network/
+      state/
       ui/
       data/
       utils/
       constants/
       types/
     assets/
-      sprites/
-      tiles/
+      models/
+      materials/
       effects/
       audio/
 ```
 
-- `config/`: Phaser 설정, 해상도, 입력, 공통 게임 옵션
-- `scenes/`: `TitleScene`, `TownScene`, `FieldScene`, `DungeonScene`, `BossScene`
-- `entities/`: `Player`, `Monster`, `Boss`, `DropItem`
-- `systems/`: `CombatSystem`, `DropSystem`, `CraftSystem`, `TransformSystem`, `SaveSystem`
+- `rendering/`: Threlte 루트, 고정 카메라, 월드 메시와 시각 효과
+- `world/`: 마을, 필드, 던전, 보스방의 표시 상태와 포탈 UI
+- `network/`: WebSocket 연결, 의도 전송, 서버 이벤트 수신
+- `state/`: 복제된 서버 상태와 즉시 되돌릴 수 있는 시각 예측
 - `ui/`: HUD, 인벤토리, 장착창, 제작 UI, 보스 체력 UI
-- `data/`: MVP용 로컬 JSON 로더와 샘플 데이터
+- `data/`: 서버 검증 콘텐츠의 표시용 사본과 타입
 - `utils/`: 공용 계산 로직, 한글 조합 보조 함수, 수치 계산 보조
 - `constants/`: 티어명, 속성명, 무기군, 공통 키값
 - `types/`: 클라이언트 전용 타입 정의
@@ -327,37 +327,33 @@ client/
 
 ```text
 server/
-  src/main/java/.../runedungeon/
-    common/
-    auth/
-    player/
-    inventory/
-    equipment/
+  Cargo.toml
+  src/
+    main.rs
+    session/
+    world/
     combat/
-    dungeon/
-    drop/
-    craft/
-    admin/
-  src/main/resources/
-    application.yml
-  src/test/java/.../runedungeon/
+    inventory/
+    crafting/
+    content/
+    persistence/
+shared/
+  Cargo.toml
+  src/
+    protocol.rs
+    rules.rs
 ```
 
-- `common/`: 공통 설정, 예외, 응답 포맷, 유틸
-- `auth/`: 계정, 인증, 토큰
-- `player/`: 플레이어 기본 정보와 저장 상태
-- `inventory/`: 인벤토리, 자모 파편, 소모품
-- `equipment/`: 장비, 자형, 결, 진언결, 언령결 장착
-- `combat/`: 전투 결과 저장, 피해 로그, 보스 상태 예외 처리
-- `dungeon/`: 던전 입장, 진행 상태, 결과 정산
-- `drop/`: 드랍 검증과 지급
-- `craft/`: `자형 -> 결: 글자 -> 진언결/언령결` 제작 처리
-- `admin/`: 운영툴, 보상 지급, 밸런스 데이터 조회
+- `session/`: 게스트 닉네임, 서버 발급 플레이어 ID, WebSocket 세션
+- `world/`: 권위 위치, 가시 영역, 포탈과 던전 경계
+- `combat/`, `inventory/`, `crafting/`: 의도 검증과 상태 전이
+- `content/`: DropTable, CraftingRecipe, WorldContent를 포함한 시작 전 데이터 검증
+- `persistence/`: 서버 소유 진행 저장과 재접속 복원
+- `shared/`: 프로토콜과 클라이언트/서버가 공유하는 결정적 규칙
 
 ### 11.4. MVP 시작 권장 범위
-- 첫 구현은 `client/`만 먼저 시작한다.
-- `server/`는 폴더만 잡거나 별도 저장소로 분리할 수 있지만, 실제 구현은 수직 슬라이스 검증 후 시작한다.
-- `client/src/game/scenes`, `entities`, `systems`, `data`, `ui` 5개 축만 먼저 살아 있으면 수직 슬라이스 검증이 가능하다.
+- 첫 구현은 클라이언트와 서버를 함께 시작한다.
+- `client/src/lib/rendering`, `world`, `network`, `state`, `ui`와 `server/src/session`, `world`, `combat`, `inventory`, `crafting`이 함께 살아 있어야 수직 슬라이스를 검증할 수 있다.
 
 ## 12. MVP 데이터 JSON 샘플
 
@@ -687,6 +683,8 @@ server/
 ```
 
 ## 13. 전투 처리 순서
+
+아래 전투 처리 순서는 서버가 권위적으로 실행하고, 관련 상태 변화와 전투 피드백 이벤트를 연결된 클라이언트에 방송한다. 클라이언트는 서버 승인 전 최종 피해, HP, 드랍, 인벤토리를 확정하지 않는다.
 
 | 단계 | 처리 내용 | 메모 |
 | :--- | :--- | :--- |

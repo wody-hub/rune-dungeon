@@ -90,6 +90,26 @@ for (const kind of runtimeItemKinds) {
 }
 
 const planSource = readText("plan/04_Technical_Architecture.md");
+const sourceDocuments = [
+  "progress.md",
+  "plan/01_Game_Overview.md",
+  "plan/04_Technical_Architecture.md",
+  "plan/06_Art_Direction.md",
+  "plan/16_Character_and_Leveling.md",
+  "plan/17_MVP_Development_Roadmap.md",
+]
+  .map(readText)
+  .join("\n");
+
+for (const stalePhrase of [
+  "Game Engine:** `Phaser 3`",
+  "첫 구현은 서버 없이",
+  "2D 스프라이트 기반",
+  "3D 카메라와 3D 캐릭터 파이프라인",
+]) {
+  assert.ok(!sourceDocuments.includes(stalePhrase), `stale implementation baseline: ${stalePhrase}`);
+}
+
 const runtimeDataSource = [
   "client/src/game/data/player.json",
   "client/src/game/data/weapons.json",
