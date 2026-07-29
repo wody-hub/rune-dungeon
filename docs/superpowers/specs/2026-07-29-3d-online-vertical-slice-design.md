@@ -60,6 +60,18 @@ crafting outcomes, or final position.
   weapon bonus, narrow mantra bonuses, and later 천지인 bonuses.
 - `INT` does not directly add proc chance in the first slice.
 
+## Player-Facing Terminology
+
+The player-facing name for every consonant and vowel collection resource is
+`음` (Eum). UI, dialogue, rewards, and item labels use `음` consistently, for
+example `음 · ㄱ ×3` and `음 · ㅏ ×2`. `음 조각` may describe an individual
+world drop in prose, but it is not a separate inventory category.
+
+The game keeps consonant, vowel, initial, medial, and final classifications only
+inside combination rules and runtime data. Players do not need to learn those
+technical labels to collect 음 and make 자형. Tutorial copy explains once that
+음 is the scattered power from which Hangul forms can be assembled.
+
 ## Runtime Content Schema
 
 The current JSON content remains the authoring source for the first slice. It is
