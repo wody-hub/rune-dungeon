@@ -44,6 +44,8 @@ function assertRate(value, expected, label) {
 }
 
 const player = readJson("client/src/game/data/player.json");
+assert.equal(player.inventory.resourceLabel, "음", "player-facing fragment resource name");
+assert.ok(player.inventory.fragments, "legacy fragments wire field must remain available during protocol transition");
 const weapons = readJson("client/src/game/data/weapons.json");
 const gyeol = readJson("client/src/game/data/gyeol.json");
 const monsters = readJson("client/src/game/data/monsters.json");

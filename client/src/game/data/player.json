@@ -33,6 +33,7 @@
   },
   "inventory": {
     "gold": 100,
+    "resourceLabel": "음",
     "fragments": {
       "ㄱ": 3,
       "ㅏ": 2,

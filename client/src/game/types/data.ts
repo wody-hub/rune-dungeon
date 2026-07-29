@@ -91,6 +91,34 @@ export interface DropTable {
   items?: string[];
 }
 
+/** Player-facing stack for the collectible resource displayed as 음. */
+export interface EumStack {
+  symbol: string;
+  quantity: number;
+}
+
+export interface PlayerInventory {
+  gold: number;
+  eum: EumStack[];
+  items: string[];
+}
+
+/** Stable runtime wire representation retained until the protocol rename. */
+export interface LegacyPlayerInventory {
+  gold: number;
+  resourceLabel: "음";
+  fragments: Record<string, number>;
+  items: string[];
+}
+
+export function toPlayerInventory(inventory: LegacyPlayerInventory): PlayerInventory {
+  return {
+    gold: inventory.gold,
+    eum: Object.entries(inventory.fragments).map(([symbol, quantity]) => ({ symbol, quantity })),
+    items: inventory.items,
+  };
+}
+
 export interface MonsterItem {
   id: string;
   name: string;
@@ -187,11 +215,7 @@ export interface PlayerData {
     incantationIds: string[];
     inId: string;
   };
-  inventory: {
-    gold: number;
-    fragments: Record<string, number>;
-    items: string[];
-  };
+  inventory: PlayerInventory;
   visual: {
     baseFormTierName: TierName;
     inElement: ElementType;
