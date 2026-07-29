@@ -251,6 +251,35 @@ for (const [path, requiredPhrases] of Object.entries(combatDocumentRequirements)
   }
 }
 
+const worldStructureDocumentPaths = [
+  "progress.md",
+  "plan/01_Game_Overview.md",
+  "plan/04_Technical_Architecture.md",
+  "plan/14_Story_and_World_Lore.md",
+  "plan/17_MVP_Development_Roadmap.md",
+  "docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md",
+];
+const requiredWorldStructureTerms = ["공유 마을 허브", "협동 인스턴스", "포털"];
+const retiredWorldStructureTerms = [
+  "공유 필드",
+  "공유 월드",
+  "심리스 월드",
+  "심리스 오픈월드",
+  "shared field",
+  "shared channel",
+  "seamless world",
+];
+
+for (const path of worldStructureDocumentPaths) {
+  const source = readText(path);
+  for (const term of requiredWorldStructureTerms) {
+    assert.ok(source.includes(term), `${path} must define ${term}`);
+  }
+  for (const term of retiredWorldStructureTerms) {
+    assert.ok(!source.includes(term), `${path} must not promise ${term}`);
+  }
+}
+
 const monsterAiDesignSource = readText("plan/13_Monster_AI_Design.md");
 assert.ok(!monsterAiDesignSource.includes("약 `4~5회` 타격"), "plan/13 has no fixed slime kill-count claim");
 assert.ok(!monsterAiDesignSource.includes("약 `10~12회` 타격"), "plan/13 has no fixed elite kill-count claim");

@@ -369,3 +369,70 @@ reference. Remove the Vite + Phaser next-session recommendation.
 git add progress.md docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md
 git commit -m "docs: finalize 3d online design baseline"
 ```
+
+### Task 6: Record the hub-and-instance world structure
+
+**Files:**
+- Modify: `progress.md`
+- Modify: `plan/01_Game_Overview.md`
+- Modify: `plan/04_Technical_Architecture.md`
+- Modify: `plan/14_Story_and_World_Lore.md`
+- Modify: `plan/17_MVP_Development_Roadmap.md`
+- Modify: `docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md`
+
+**Interfaces:**
+- Consumes: the approved 3D online architecture and portal transition rules.
+- Produces: a world model in which the town is the only shared hub and every
+  gameplay area is an independently created cooperative instance.
+
+- [ ] **Step 1: Add a failing world-structure guard**
+
+Add validation that fails if an authoritative document calls the first-slice
+field a shared world, promises a seamless world, or lacks all three terms:
+`공유 마을 허브`, `협동 인스턴스`, and `포털`.
+
+- [ ] **Step 2: Run the guard to verify it fails**
+
+Run: `node scripts/validate-runtime-data.mjs`
+
+Expected: failure because the current first-slice documents still describe a
+shared field rather than an instance.
+
+- [ ] **Step 3: Rewrite the world model consistently**
+
+Apply these exact rules:
+
+```text
+공유 공간: 아르카디아 마을 허브만 공유한다.
+게임플레이: 새벽 들판, 흑심 채굴장, 보스방은 입장 시 생성되는 협동 인스턴스다.
+입장: 같은 파티 또는 초대된 게스트가 같은 인스턴스에 들어간다.
+이동: 심리스 월드가 아니라 마을·구역 포털과 입장 트리거를 통해 다음 구역으로 이동한다.
+확장: 이후 지역도 각 지역 허브와 필드/던전 인스턴스를 포털 네트워크로 연결한다.
+```
+
+Do not describe the first-slice field as a shared channel or a seamless open
+field. Retain the existing Arcadia-to-field-to-dungeon-to-boss route.
+
+- [ ] **Step 4: Run the world-structure and runtime checks**
+
+Run:
+
+```bash
+node scripts/validate-runtime-data.mjs
+rg -n '공유 필드|심리스 월드|shared field' progress.md plan/01_Game_Overview.md \
+  plan/04_Technical_Architecture.md plan/14_Story_and_World_Lore.md \
+  plan/17_MVP_Development_Roadmap.md docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md
+```
+
+Expected: `runtime data OK`; the search returns no active first-slice shared
+field or seamless-world promise.
+
+- [ ] **Step 5: Commit the recorded world structure**
+
+```bash
+git add progress.md plan/01_Game_Overview.md plan/04_Technical_Architecture.md \
+  plan/14_Story_and_World_Lore.md plan/17_MVP_Development_Roadmap.md \
+  docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md \
+  scripts/validate-runtime-data.mjs docs/superpowers/plans/2026-07-29-3d-online-rebaseline.md
+git commit -m "docs: define hub and instance world structure"
+```

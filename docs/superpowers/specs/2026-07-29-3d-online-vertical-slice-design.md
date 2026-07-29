@@ -8,9 +8,16 @@ baseline is historical context only and is not an implementation option.
 
 ## Product Boundary
 
-The first playable online slice contains one shared `아르카디아` town, one field,
-one compact dungeon, and one boss encounter. Players can see one another, move,
-fight monsters, receive drops, craft and equip 결, transform, and return to town.
+The first playable online slice contains one `공유 마을 허브`, `아르카디아`,
+and three `협동 인스턴스`: `새벽 들판`, a compact `흑심 채굴장`, and its
+boss room.
+Only the town is shared. The server creates each gameplay instance on entry for
+the same party or invited guests, while other groups receive separate instances.
+Town and zone `포털` plus entry triggers preserve the route from Arcadia to field,
+dungeon, boss room, and back to Arcadia; the slice does not use a continuous world.
+
+Later regions follow the same portal network: each region hub connects its field
+and dungeon instances without reclassifying the first-slice field as a multiplayer hub.
 
 The slice does not include procedural world generation, housing, trading, parties,
 guilds, AI agents, offline rewards, automatic hunting, or a production economy.
