@@ -222,23 +222,41 @@ const expectedPreDefenseDamage = averageBaseDamage * expectedCritMultiplier;
 
 assert.equal(Number(expectedPreDefenseDamage.toFixed(3)), 41.615, "MVP expected pre-defense damage");
 
-const combatDocuments = [
-  "plan/03_Item_and_Equipment.md",
-  "plan/13_Monster_AI_Design.md",
-  "plan/16_Character_and_Leveling.md",
-  "plan/17_MVP_Development_Roadmap.md",
-].map(readText).join("\n");
+const combatDocumentRequirements = {
+  "plan/03_Item_and_Equipment.md": [
+    "`24~32`는 무기 공격력 굴림과 STR 보너스를 더한 뒤, 무기 피해 계수를 적용하기 전 범위",
+    "`34.8~46.4`는 대검 피해 계수를 적용한 비치명타 방어력 계산 전 범위",
+    "평균 기대 피해 `41.615`",
+  ],
+  "plan/13_Monster_AI_Design.md": [
+    "`24~32`는 무기 공격력 굴림과 STR 보너스를 더한 피해 계수 적용 전 범위",
+    "`34.8~46.4`는 비치명타 방어력 계산 전 범위",
+    "평균 기대 피해 `41.615`",
+  ],
+  "plan/16_Character_and_Leveling.md": [
+    "대검 `24~32`는 무기 공격력 굴림과 STR 보너스를 더한 피해 계수 적용 전 범위",
+    "비치명타 방어력 계산 전 범위는 `34.8~46.4`",
+    "평균 기대 피해는 방어력 적용 전 `41.615`",
+  ],
+  "plan/17_MVP_Development_Roadmap.md": [
+    "대검의 `24~32`는 무기 공격력 굴림과 STR 보너스를 더한 피해 계수 적용 전 범위",
+    "비치명타 방어력 계산 전 범위는 `34.8~46.4`",
+    "평균 기대 피해 `41.615`",
+  ],
+};
+for (const [path, requiredPhrases] of Object.entries(combatDocumentRequirements)) {
+  const source = readText(path);
+  for (const phrase of requiredPhrases) {
+    assert.ok(source.includes(phrase), `${path} contains combat baseline: ${phrase}`);
+  }
+}
+
+const monsterAiDesignSource = readText("plan/13_Monster_AI_Design.md");
+assert.ok(!monsterAiDesignSource.includes("약 `4~5회` 타격"), "plan/13 has no fixed slime kill-count claim");
+assert.ok(!monsterAiDesignSource.includes("약 `10~12회` 타격"), "plan/13 has no fixed elite kill-count claim");
 assert.ok(
-  combatDocuments.includes("`24~32`는 무기 공격력 굴림과 STR 보너스를 더한 뒤, 무기 피해 계수를 적용하기 전 범위"),
-  "combat documents define 24~32 as the pre-multiplier range",
-);
-assert.ok(
-  combatDocuments.includes("`34.8~46.4`는 대검 피해 계수를 적용한 비치명타 방어력 계산 전 범위"),
-  "combat documents define 34.8~46.4 as the non-critical pre-defense range",
-);
-assert.ok(
-  combatDocuments.includes("평균 기대 피해 `41.615`"),
-  "combat documents state formula-derived expected damage",
+  monsterAiDesignSource.includes("첫 서버 전투 테스트의 관측 처치 시간을 바탕으로 플레이테스트 보정한다"),
+  "plan/13 requires boss playtest calibration",
 );
 
 for (const incantation of incantationIndex.values()) {
