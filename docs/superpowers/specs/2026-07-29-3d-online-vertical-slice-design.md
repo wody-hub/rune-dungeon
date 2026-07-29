@@ -3,8 +3,8 @@
 ## Decision
 
 Rune Dungeon begins as an online, fixed-isometric 3D vertical slice. It retains
-the existing `아르카디아` gameplay loop, but replaces the previous Phaser 2D,
-local-only implementation baseline.
+the existing `아르카디아` gameplay loop. The former Phaser 2D, local-only
+baseline is historical context only and is not an implementation option.
 
 ## Product Boundary
 
@@ -102,6 +102,17 @@ the Svelte/Three client, Rust WebSocket server, shared protocol, and testing
 boundaries. Its PolyForm Noncommercial license prohibits copying its code, assets,
 or derivative implementation into Rune Dungeon. Rune Dungeon implements its own
 code, assets, protocol names, and content.
+
+## Implementation Handoff
+
+The next implementation plan establishes the Rust/WebSocket authoritative server
+and the Svelte/Threlte fixed-isometric 3D client together. It begins with guest
+session issuance, intent validation, replicated world state, and a minimal camera
+and rendering path; it does not reintroduce a local-only or 2D client path.
+
+OpenMMO remains an architecture-only reference for boundaries and implementation
+principles. Rune Dungeon does not copy its code, assets, protocol names, or
+content.
 
 ## Verification Criteria
 
