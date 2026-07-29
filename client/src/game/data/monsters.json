@@ -19,6 +19,7 @@
       ],
       "eumRollGroup": {
         "draws": { "min": 1, "max": 2 },
+        "allowDuplicateSymbols": false,
         "entries": [
           { "symbol": "ㄱ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
           { "symbol": "ㅏ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
@@ -52,6 +53,7 @@
       ],
       "eumRollGroup": {
         "draws": { "min": 2, "max": 4 },
+        "allowDuplicateSymbols": false,
         "entries": [
           { "symbol": "ㅎ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
           { "symbol": "ㅘ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
@@ -91,6 +93,7 @@
       ],
       "eumRollGroup": {
         "draws": { "min": 3, "max": 5 },
+        "allowDuplicateSymbols": false,
         "entries": [
           { "symbol": "ㅎ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
           { "symbol": "ㅘ", "weight": 1, "quantity": { "min": 1, "max": 1 } },

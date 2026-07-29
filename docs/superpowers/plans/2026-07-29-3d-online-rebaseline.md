@@ -566,3 +566,70 @@ git add progress.md plan data/design docs/superpowers/specs \
   docs/superpowers/plans/2026-07-29-3d-online-rebaseline.md
 git commit -m "docs: resolve 3d online contract gaps"
 ```
+
+### Task 8: Finalize grouped 음 reward semantics
+
+**Files:**
+- Modify: `plan/03_Item_and_Equipment.md`
+- Modify: `plan/14_Story_and_World_Lore.md`
+- Modify: `client/src/game/types/data.ts`
+- Modify: `client/src/game/data/monsters.json`
+- Modify: `scripts/validate-runtime-data.mjs`
+- Modify: `docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md`
+- Modify: `docs/superpowers/plans/2026-07-29-3d-online-rebaseline.md`
+
+**Interfaces:**
+- Consumes: `EumRollGroup` and the first-slice grouped draw ranges.
+- Produces: unambiguous replacement semantics and matching authoritative prose.
+
+- [ ] **Step 1: Add failing grouped-reward assertions**
+
+Require every `EumRollGroup` to declare `allowDuplicateSymbols`. Require the
+slime group to use `draws 1–2`, equal weights, and `allowDuplicateSymbols: false`.
+Require plan 03 to describe grouped weighted draws rather than independent `1/3`
+rolls. Require plan 14's inventory resource category to use `음`.
+
+- [ ] **Step 2: Run the validator to verify it fails**
+
+Run: `node scripts/validate-runtime-data.mjs`
+
+Expected: failure because the current grouped-roll contract lacks replacement
+semantics and the documents contain stale copy.
+
+- [ ] **Step 3: Define no-replacement grouped draws**
+
+Use this exact field:
+
+```ts
+allowDuplicateSymbols: boolean;
+```
+
+Set it to `false` for every current group. Each draw removes the selected entry
+from that reward's remaining weighted pool, so a single monster reward cannot
+contain the same 음 symbol twice. Keep slime `1–2`, elite `2–4`, and boss `3–5`.
+
+- [ ] **Step 4: Align all prose and the design specification**
+
+Replace the independent-roll description in plan 03 with the grouped weighted,
+without-replacement rule. Replace plan 14's player inventory category `파편` with
+`음`. Add the same no-replacement rule to the design specification.
+
+- [ ] **Step 5: Run final checks and commit**
+
+Run:
+
+```bash
+git diff --check
+node scripts/validate-runtime-data.mjs
+rg -n '독립.*1/3|인벤토리.*파편' plan/03_Item_and_Equipment.md plan/14_Story_and_World_Lore.md
+```
+
+Expected: no diff errors, `runtime data OK`, and no stale reward/category text.
+
+```bash
+git add plan/03_Item_and_Equipment.md plan/14_Story_and_World_Lore.md \
+  client/src/game/types/data.ts client/src/game/data/monsters.json \
+  scripts/validate-runtime-data.mjs docs/superpowers/specs \
+  docs/superpowers/plans/2026-07-29-3d-online-rebaseline.md
+git commit -m "docs: define grouped eum reward semantics"
+```

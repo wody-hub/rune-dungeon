@@ -89,7 +89,9 @@ startup, and 생성 steps produce client display copies from that canonical sour
 - `CharacterVisualState`: orientation in radians plus model, rig, animation clip,
   optional weapon model, material variant, and aura keys; no sprite/frame contract.
 - `DropTable`: independent gold/item probabilities plus a grouped `eumRollGroup`
-  with draw-count range, symbol weights, and quantity ranges.
+  with draw-count range, symbol weights, and quantity ranges. Current groups set
+  `allowDuplicateSymbols: false`: each weighted draw removes its selected symbol
+  from the remaining pool, so symbols are drawn 중복 없이 within one reward.
 - `CraftingRecipe`: inputs, gold cost, catalyst/support material rules, success
   rate, success output, and failure consumption/result.
 - `WorldContent`: the Arcadia shared hub and exactly three four-player cooperative

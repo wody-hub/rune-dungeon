@@ -100,6 +100,7 @@ export interface DropEntry {
 
 export interface EumRollGroup {
   draws: { min: number; max: number };
+  allowDuplicateSymbols: boolean;
   entries: Array<{
     symbol: string;
     weight: number;

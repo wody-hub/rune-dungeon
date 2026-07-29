@@ -409,6 +409,28 @@ for (const staleTerm of [
 
 const dataReadmeSource = readText("data/design/README.md");
 const verticalSliceSpecSource = readText("docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md");
+const itemEquipmentPlanSource = readText("plan/03_Item_and_Equipment.md");
+const storyPlanSource = readText("plan/14_Story_and_World_Lore.md");
+assert.ok(
+  itemEquipmentPlanSource.includes("가중치로 뽑고"),
+  "plan/03 must describe grouped weighted 음 draws",
+);
+assert.ok(
+  itemEquipmentPlanSource.includes("중복 없이"),
+  "plan/03 must describe grouped 음 draws without replacement",
+);
+assert.ok(
+  !itemEquipmentPlanSource.includes("각각 확률 `1/3`"),
+  "plan/03 must not describe independent 1/3 음 rolls",
+);
+assert.ok(
+  storyPlanSource.includes("인벤토리의 수집 재화 분류는 `음`"),
+  "plan/14 must use 음 as the player inventory resource category",
+);
+assert.ok(
+  verticalSliceSpecSource.includes("중복 없이"),
+  "vertical-slice spec must describe grouped 음 draws without replacement",
+);
 for (const [path, source] of [
   ["plan/04_Technical_Architecture.md", architectureSource],
   ["data/design/README.md", dataReadmeSource],
@@ -447,9 +469,9 @@ assert.equal(incantationIndex.size, 2, "MVP runtime should include exactly 2 inc
 assert.ok(monsters.some((monster) => monster.id === "monster_ink_slime_001"), "monster data includes ink slime");
 assert.ok(monsters.some((monster) => monster.id === "boss_pencil_knight_commander_001"), "monster data includes MVP boss");
 const expectedEumGroups = new Map([
-  ["monster_ink_slime_001", { draws: { min: 1, max: 2 }, symbols: ["ㄱ", "ㅏ", "ㅇ"] }],
-  ["monster_typo_sprite_001", { draws: { min: 2, max: 4 }, symbols: ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ"] }],
-  ["boss_pencil_knight_commander_001", { draws: { min: 3, max: 5 }, symbols: ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ", "ㄷ", "ㅏ", "ㅇ"] }],
+  ["monster_ink_slime_001", { draws: { min: 1, max: 2 }, symbols: ["ㄱ", "ㅏ", "ㅇ"], allowDuplicateSymbols: false }],
+  ["monster_typo_sprite_001", { draws: { min: 2, max: 4 }, symbols: ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ"], allowDuplicateSymbols: false }],
+  ["boss_pencil_knight_commander_001", { draws: { min: 3, max: 5 }, symbols: ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ", "ㄷ", "ㅏ", "ㅇ"], allowDuplicateSymbols: false }],
 ]);
 for (const monster of monsters) {
   assert.ok(Array.isArray(monster.drops.entries), `${monster.id} drops.entries must be an array`);
@@ -469,6 +491,7 @@ for (const monster of monsters) {
   const group = monster.drops.eumRollGroup;
   assert.ok(group && typeof group === "object", `${monster.id} drops.eumRollGroup`);
   assert.deepEqual(group.draws, expectedGroup.draws, `${monster.id} grouped 음 draws`);
+  assert.equal(group.allowDuplicateSymbols, expectedGroup.allowDuplicateSymbols, `${monster.id} grouped 음 replacement policy`);
   assert.ok(Array.isArray(group.entries), `${monster.id} eumRollGroup.entries`);
   assert.deepEqual(
     group.entries.map((entry) => entry.symbol),
@@ -481,6 +504,9 @@ for (const monster of monsters) {
     assert.equal(typeof entry.weight, "number", `${label} weight`);
     assert.ok(entry.weight > 0, `${label} weight must be positive`);
     assertQuantityRange(entry.quantity, label);
+  }
+  if (monster.id === "monster_ink_slime_001") {
+    assert.deepEqual(group.entries.map((entry) => entry.weight), [1, 1, 1], "ink slime grouped 음 weights");
   }
 }
 
