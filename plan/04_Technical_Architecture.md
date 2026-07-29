@@ -219,6 +219,11 @@ interface SpriteSheetAsset {
 - 후반 `천지인` 재료는 낮은 티어 언령결을 강화한다.
 - 새 언령결 제작 재료가 아니라, 기존 언령결의 보존 가치를 살리는 강화 축이다.
 
+### 4.5. 서버 확정 드랍·제작 계약
+- `DropEntry`는 `kind: GOLD | EUM | ITEM`, 대상 `id` 또는 `symbol`, `probability`, 정수 `quantity.min/max`, `guaranteed`를 가진다. 서버는 사망 1회당 각 항목을 독립 판정하고, `guaranteed: true` 항목은 `probability: 1`이어야 한다.
+- `CraftingRecipe`는 입력, `successRate`, 성공 결과 ID, 실패 시 `consumeInputs` 및 선택적 `outputId`를 명시한다. 클라이언트는 제작 의도만 전송하고, 서버가 성공/실패·소모·지급을 모두 확정한다.
+- 첫 레시피는 `음 · ㅎ ×1 + 음 · ㅘ ×1 -> 자형: 화`(성공률 `1`, 실패 시 미소모), `자형: 화 ×1 -> 결: 화`(성공률 `0.95`, 실패 시 소모·출력 없음)이다.
+
 ## 5. 구현 기술 스택
 - **Client:** `Svelte + TypeScript + Vite + Three.js/Threlte`
 - **Server:** `Rust + WebSocket`
@@ -463,8 +468,12 @@ shared/
     "hitStunMs": 260,
     "staggerResistance": 0.0,
     "drops": {
-      "gold": [5, 10],
-      "fragments": ["ㄱ", "ㅏ", "ㅇ"]
+      "entries": [
+        { "kind": "GOLD", "probability": 1, "quantity": { "min": 5, "max": 10 }, "guaranteed": true },
+        { "kind": "EUM", "symbol": "ㄱ", "probability": 0.3333333333333333, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅏ", "probability": 0.3333333333333333, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅇ", "probability": 0.3333333333333333, "quantity": { "min": 1, "max": 1 }, "guaranteed": false }
+      ]
     }
   },
   {
@@ -485,9 +494,15 @@ shared/
       "durationMs": 2000
     },
     "drops": {
-      "gold": [12, 20],
-      "fragments": ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ"],
-      "items": ["stone_inscribe_mantra_001"]
+      "entries": [
+        { "kind": "GOLD", "probability": 1, "quantity": { "min": 12, "max": 20 }, "guaranteed": true },
+        { "kind": "EUM", "symbol": "ㅎ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅘ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅂ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅜ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㄹ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "ITEM", "id": "stone_inscribe_mantra_001", "probability": 0.25, "quantity": { "min": 1, "max": 1 }, "guaranteed": false }
+      ]
     }
   }
 ]
@@ -519,9 +534,19 @@ shared/
       "guaranteedIncantationTagOnWeakness": "FIRE"
     },
     "drops": {
-      "gold": [80, 120],
-      "fragments": ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ", "ㄷ", "ㅏ", "ㅇ"],
-      "items": ["stone_inscribe_mantra_001", "letter_gyeol_hwa_001"]
+      "entries": [
+        { "kind": "GOLD", "probability": 1, "quantity": { "min": 80, "max": 120 }, "guaranteed": true },
+        { "kind": "EUM", "symbol": "ㅎ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅘ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅂ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅜ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㄹ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㄷ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅏ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅇ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "ITEM", "id": "stone_inscribe_mantra_001", "probability": 0.5, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "ITEM", "id": "letter_gyeol_hwa_001", "probability": 0.25, "quantity": { "min": 1, "max": 1 }, "guaranteed": false }
+      ]
     }
   }
 ]

@@ -90,10 +90,25 @@ export interface WeaponItem {
   hitStunMs: number;
 }
 
+export interface DropEntry {
+  kind: "GOLD" | "EUM" | "ITEM";
+  id?: string;
+  symbol?: string;
+  probability: number;
+  quantity: { min: number; max: number };
+  guaranteed: boolean;
+}
+
 export interface DropTable {
-  gold: [number, number];
-  fragments: string[];
-  items?: string[];
+  entries: DropEntry[];
+}
+
+export interface CraftingRecipe {
+  id: string;
+  inputs: Array<{ kind: "GOLD" | "EUM" | "ITEM"; id?: string; symbol?: string; quantity: number }>;
+  successRate: number;
+  successOutputId: string;
+  failure: { consumeInputs: boolean; outputId?: string };
 }
 
 /** Player-facing stack for the collectible resource displayed as 음. */

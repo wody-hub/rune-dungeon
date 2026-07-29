@@ -44,6 +44,43 @@ function assertRate(value, expected, label) {
   assert.equal(value, expected, `${label} expected ${expected}, got ${value}`);
 }
 
+const runtimeEumSymbols = new Set(["ㄱ", "ㅏ", "ㅇ", "ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ", "ㄷ"]);
+const resourceKinds = new Set(["GOLD", "EUM", "ITEM"]);
+
+function assertProbability(value, label) {
+  assert.equal(typeof value, "number", `${label} probability must be a number`);
+  assert.ok(value > 0 && value <= 1, `${label} probability must be in (0, 1]`);
+}
+
+function assertPositiveInteger(value, label) {
+  assert.ok(Number.isInteger(value) && value > 0, `${label} must be a positive integer`);
+}
+
+function assertQuantityRange(quantity, label) {
+  assert.ok(quantity && typeof quantity === "object", `${label} quantity must be an object`);
+  assertPositiveInteger(quantity.min, `${label} quantity.min`);
+  assertPositiveInteger(quantity.max, `${label} quantity.max`);
+  assert.ok(quantity.min <= quantity.max, `${label} quantity.min must be <= quantity.max`);
+}
+
+function assertResourceReference(resource, label, runtimeItemIds) {
+  assert.ok(resourceKinds.has(resource.kind), `${label} has an invalid kind`);
+  if (resource.kind === "GOLD") {
+    assert.equal(resource.id, undefined, `${label} GOLD must not include id`);
+    assert.equal(resource.symbol, undefined, `${label} GOLD must not include symbol`);
+    return;
+  }
+  if (resource.kind === "EUM") {
+    assert.equal(resource.id, undefined, `${label} EUM must not include id`);
+    assert.equal(typeof resource.symbol, "string", `${label} EUM must include symbol`);
+    assert.ok(runtimeEumSymbols.has(resource.symbol), `${label} references an invalid 음 symbol ${resource.symbol}`);
+    return;
+  }
+  assert.equal(resource.symbol, undefined, `${label} ITEM must not include symbol`);
+  assert.equal(typeof resource.id, "string", `${label} ITEM must include id`);
+  assert.ok(runtimeItemIds.has(resource.id), `${label} references an invalid item ${resource.id}`);
+}
+
 const player = readJson("client/src/game/data/player.json");
 assert.equal(player.inventory.resourceLabel, "음", "player-facing fragment resource name");
 assert.ok(player.inventory.fragments, "legacy fragments wire field must remain available during protocol transition");
@@ -59,6 +96,7 @@ assert.deepEqual(playerData.inventory.eum, [
 const weapons = readJson("client/src/game/data/weapons.json");
 const gyeol = readJson("client/src/game/data/gyeol.json");
 const monsters = readJson("client/src/game/data/monsters.json");
+const craftingRecipes = readJson("client/src/game/data/crafting-recipes.json");
 const consumables = readJson("client/src/game/data/consumables.json");
 const materials = readJson("client/src/game/data/materials.json");
 const transformationIns = readJson("client/src/game/data/transformation-ins.json");
@@ -68,6 +106,7 @@ for (const [file, data] of [
   ["weapons.json", weapons],
   ["gyeol.json", gyeol],
   ["monsters.json", monsters],
+  ["crafting-recipes.json", craftingRecipes],
   ["consumables.json", consumables],
   ["materials.json", materials],
   ["transformation-ins.json", transformationIns],
@@ -83,6 +122,15 @@ const incantationIndex = indexById(gyeol.incantationGyeol, "incantationGyeol");
 const consumableIndex = indexById(consumables, "consumables");
 const materialIndex = indexById(materials, "materials");
 const inIndex = indexById(transformationIns, "transformationIns");
+const runtimeItemIds = new Set([
+  ...jahyeongIndex.keys(),
+  ...letterIndex.keys(),
+  ...mantraIndex.keys(),
+  ...incantationIndex.keys(),
+  ...consumableIndex.keys(),
+  ...materialIndex.keys(),
+  ...inIndex.keys(),
+]);
 const runtimeItemKinds = new Set();
 
 for (const data of [gyeol, consumables, materials, transformationIns]) {
@@ -178,14 +226,38 @@ assert.equal(incantationIndex.size, 2, "MVP runtime should include exactly 2 inc
 assert.ok(monsters.some((monster) => monster.id === "monster_ink_slime_001"), "monster data includes ink slime");
 assert.ok(monsters.some((monster) => monster.id === "boss_pencil_knight_commander_001"), "monster data includes MVP boss");
 for (const monster of monsters) {
-  for (const id of monster.drops.items ?? []) {
-    const found =
-      materialIndex.has(id) ||
-      letterIndex.has(id) ||
-      mantraIndex.has(id) ||
-      incantationIndex.has(id) ||
-      consumableIndex.has(id);
-    assert.ok(found, `${monster.id} drop item ${id} must reference runtime item data`);
+  assert.ok(Array.isArray(monster.drops.entries), `${monster.id} drops.entries must be an array`);
+  for (const [index, entry] of monster.drops.entries.entries()) {
+    const label = `${monster.id} drop ${index}`;
+    assertProbability(entry.probability, label);
+    assertQuantityRange(entry.quantity, label);
+    assert.equal(typeof entry.guaranteed, "boolean", `${label} guaranteed must be a boolean`);
+    if (entry.guaranteed) {
+      assert.equal(entry.probability, 1, `${label} guaranteed drops must have probability 1`);
+    }
+    assertResourceReference(entry, label, runtimeItemIds);
+  }
+}
+
+const recipeIds = new Set();
+for (const recipe of craftingRecipes) {
+  assert.equal(typeof recipe.id, "string", "crafting recipe must include id");
+  assert.ok(!recipeIds.has(recipe.id), `crafting recipes has duplicate id ${recipe.id}`);
+  recipeIds.add(recipe.id);
+  assert.ok(Array.isArray(recipe.inputs) && recipe.inputs.length > 0, `${recipe.id} must have inputs`);
+  for (const [index, input] of recipe.inputs.entries()) {
+    const label = `${recipe.id} input ${index}`;
+    assertPositiveInteger(input.quantity, `${label} quantity`);
+    assertResourceReference(input, label, runtimeItemIds);
+  }
+  assertProbability(recipe.successRate, `${recipe.id} successRate`);
+  assert.equal(typeof recipe.successOutputId, "string", `${recipe.id} successOutputId must be a string`);
+  assert.ok(runtimeItemIds.has(recipe.successOutputId), `${recipe.id} successOutputId must reference a runtime item`);
+  assert.ok(recipe.failure && typeof recipe.failure === "object", `${recipe.id} failure must be an object`);
+  assert.equal(typeof recipe.failure.consumeInputs, "boolean", `${recipe.id} failure.consumeInputs must be a boolean`);
+  if (recipe.failure.outputId !== undefined) {
+    assert.equal(typeof recipe.failure.outputId, "string", `${recipe.id} failure.outputId must be a string`);
+    assert.ok(runtimeItemIds.has(recipe.failure.outputId), `${recipe.id} failure.outputId must reference a runtime item`);
   }
 }
 

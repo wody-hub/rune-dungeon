@@ -1,0 +1,21 @@
+[
+  {
+    "id": "recipe_jahyeong_hwa_001",
+    "inputs": [
+      { "kind": "EUM", "symbol": "ㅎ", "quantity": 1 },
+      { "kind": "EUM", "symbol": "ㅘ", "quantity": 1 }
+    ],
+    "successRate": 1,
+    "successOutputId": "jahyeong_hwa_001",
+    "failure": { "consumeInputs": false }
+  },
+  {
+    "id": "recipe_letter_hwa_001",
+    "inputs": [
+      { "kind": "ITEM", "id": "jahyeong_hwa_001", "quantity": 1 }
+    ],
+    "successRate": 0.95,
+    "successOutputId": "letter_gyeol_hwa_001",
+    "failure": { "consumeInputs": true }
+  }
+]

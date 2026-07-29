@@ -14,8 +14,12 @@
     "hitStunMs": 260,
     "staggerResistance": 0,
     "drops": {
-      "gold": [5, 10],
-      "fragments": ["ㄱ", "ㅏ", "ㅇ"]
+      "entries": [
+        { "kind": "GOLD", "probability": 1, "quantity": { "min": 5, "max": 10 }, "guaranteed": true },
+        { "kind": "EUM", "symbol": "ㄱ", "probability": 0.3333333333333333, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅏ", "probability": 0.3333333333333333, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅇ", "probability": 0.3333333333333333, "quantity": { "min": 1, "max": 1 }, "guaranteed": false }
+      ]
     }
   },
   {
@@ -37,9 +41,15 @@
       "durationMs": 2000
     },
     "drops": {
-      "gold": [12, 20],
-      "fragments": ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ"],
-      "items": ["stone_inscribe_mantra_001"]
+      "entries": [
+        { "kind": "GOLD", "probability": 1, "quantity": { "min": 12, "max": 20 }, "guaranteed": true },
+        { "kind": "EUM", "symbol": "ㅎ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅘ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅂ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅜ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㄹ", "probability": 0.2, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "ITEM", "id": "stone_inscribe_mantra_001", "probability": 0.25, "quantity": { "min": 1, "max": 1 }, "guaranteed": false }
+      ]
     }
   },
   {
@@ -64,9 +74,19 @@
       "guaranteedIncantationTagOnWeakness": "FIRE"
     },
     "drops": {
-      "gold": [80, 120],
-      "fragments": ["ㅎ", "ㅘ", "ㅂ", "ㅜ", "ㄹ", "ㄷ", "ㅏ", "ㅇ"],
-      "items": ["stone_inscribe_mantra_001", "letter_gyeol_hwa_001"]
+      "entries": [
+        { "kind": "GOLD", "probability": 1, "quantity": { "min": 80, "max": 120 }, "guaranteed": true },
+        { "kind": "EUM", "symbol": "ㅎ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅘ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅂ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅜ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㄹ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㄷ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅏ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "EUM", "symbol": "ㅇ", "probability": 0.125, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "ITEM", "id": "stone_inscribe_mantra_001", "probability": 0.5, "quantity": { "min": 1, "max": 1 }, "guaranteed": false },
+        { "kind": "ITEM", "id": "letter_gyeol_hwa_001", "probability": 0.25, "quantity": { "min": 1, "max": 1 }, "guaranteed": false }
+      ]
     }
   }
 ]

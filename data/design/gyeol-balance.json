@@ -30,6 +30,18 @@
     ],
     "mvpExcludedSources": ["INT_DIRECT_PROC_CHANCE"]
   },
+  "serverResolvedRules": {
+    "playerVisibleResource": "음",
+    "dropEntry": {
+      "probabilityRange": "(0, 1]",
+      "quantityRange": "positive integer min <= max",
+      "guaranteedRule": "guaranteed entries use probability 1"
+    },
+    "crafting": {
+      "jahyeongHwa": { "successRate": 1, "failure": "inputs are not consumed" },
+      "letterHwa": { "successRate": 0.95, "failure": "inputs are consumed and no output is granted" }
+    }
+  },
   "items": {
     "jahyeong": [
       {
