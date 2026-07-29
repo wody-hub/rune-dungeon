@@ -215,7 +215,7 @@ interface CharacterVisualState {
 
 ### 4.5. 서버 확정 드랍·제작 계약
 - `DropEntry`는 `GOLD | ITEM`의 대상 ID, `probability`, 정수 `quantity.min/max`, `guaranteed`를 가진다. 서버는 사망 1회당 각 항목을 독립 판정하고, `guaranteed: true` 항목은 `probability: 1`이어야 한다.
-- `음`은 독립 항목이 아니라 `eumRollGroup`의 `draws.min/max` 횟수만큼 가중치 풀에서 뽑는다. 먹물 슬라임은 `1~2회`, 오타 요정은 `2~4회`, 몽당연필 기사단장은 `3~5회` 뽑는다.
+- `음`은 독립 항목이 아니라 `eumRollGroup`의 `draws.min/max` 횟수만큼 가중치 풀에서 뽑는다. 현재 모든 그룹은 `allowDuplicateSymbols: false`이며, 각 선택 뒤에는 뽑힌 기호를 남은 가중치 풀에서 제거하므로 한 보상에서 같은 음 기호가 중복되지 않는다. 먹물 슬라임은 `1~2회`, 오타 요정은 `2~4회`, 몽당연필 기사단장은 `3~5회` 뽑는다.
 - `CraftingRecipe`는 입력, `goldCost`, 촉매 ID, 허용 보조 재료 ID, `successRate`, 성공 결과 ID, 실패 시 `consumeInputs` 및 선택적 `outputId`를 명시한다. 첫 두 레시피는 골드·촉매·보조 재료가 없음을 `0`과 빈 배열로 명시하며, 클라이언트는 제작 의도만 전송하고 서버가 성공/실패·소모·지급을 모두 확정한다.
 - 첫 레시피는 `음 · ㅎ ×1 + 음 · ㅘ ×1 -> 자형: 화`(성공률 `1`, 실패 시 미소모), `자형: 화 ×1 -> 결: 화`(성공률 `0.95`, 실패 시 소모·출력 없음)이다.
 - `WorldContent`는 맵의 `id`, `kind`, `maxPlayers`, `spawnPointId`와 입·출구 포털 링크를 서버 시작 전에 검증한다. `아르카디아`만 `공유 마을 허브`이며, `음` 파밍을 포함한 모든 게임플레이 구역은 `포털`로 연결되는 최대 4인 `협동 인스턴스`다.
@@ -477,6 +477,7 @@ shared/
       ],
       "eumRollGroup": {
         "draws": { "min": 1, "max": 2 },
+        "allowDuplicateSymbols": false,
         "entries": [
           { "symbol": "ㄱ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
           { "symbol": "ㅏ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
@@ -509,6 +510,7 @@ shared/
       ],
       "eumRollGroup": {
         "draws": { "min": 2, "max": 4 },
+        "allowDuplicateSymbols": false,
         "entries": [
           { "symbol": "ㅎ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
           { "symbol": "ㅘ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
@@ -555,6 +557,7 @@ shared/
       ],
       "eumRollGroup": {
         "draws": { "min": 3, "max": 5 },
+        "allowDuplicateSymbols": false,
         "entries": [
           { "symbol": "ㅎ", "weight": 1, "quantity": { "min": 1, "max": 1 } },
           { "symbol": "ㅘ", "weight": 1, "quantity": { "min": 1, "max": 1 } },

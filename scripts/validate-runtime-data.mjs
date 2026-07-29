@@ -411,6 +411,7 @@ const dataReadmeSource = readText("data/design/README.md");
 const verticalSliceSpecSource = readText("docs/superpowers/specs/2026-07-29-3d-online-vertical-slice-design.md");
 const itemEquipmentPlanSource = readText("plan/03_Item_and_Equipment.md");
 const storyPlanSource = readText("plan/14_Story_and_World_Lore.md");
+const mvpRoadmapSource = readText("plan/17_MVP_Development_Roadmap.md");
 assert.ok(
   itemEquipmentPlanSource.includes("가중치로 뽑고"),
   "plan/03 must describe grouped weighted 음 draws",
@@ -431,6 +432,15 @@ assert.ok(
   verticalSliceSpecSource.includes("중복 없이"),
   "vertical-slice spec must describe grouped 음 draws without replacement",
 );
+for (const [path, source] of [
+  ["plan/04_Technical_Architecture.md", architectureSource],
+  ["plan/17_MVP_Development_Roadmap.md", mvpRoadmapSource],
+]) {
+  assert.ok(
+    source.includes("각 선택 뒤에는 뽑힌 기호를 남은 가중치 풀에서 제거"),
+    `${path} must state that grouped 음 draws remove the selected symbol from the remaining weighted pool`,
+  );
+}
 for (const [path, source] of [
   ["plan/04_Technical_Architecture.md", architectureSource],
   ["data/design/README.md", dataReadmeSource],

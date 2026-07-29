@@ -514,6 +514,7 @@ Replace independent one-unit monster 음 entries with an `eumRollGroup` contract
 ```ts
 interface EumRollGroup {
   draws: { min: number; max: number };
+  allowDuplicateSymbols: boolean;
   entries: Array<{ symbol: string; weight: number; quantity: { min: number; max: number } }>;
 }
 ```
