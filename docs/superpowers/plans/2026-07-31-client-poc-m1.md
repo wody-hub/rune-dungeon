@@ -50,7 +50,7 @@ client/
 **Files:**
 - Create: `client/package.json`, `client/vite.config.ts`, `client/tsconfig.json`, `client/svelte.config.js`, `client/index.html`, `client/src/main.ts`, `client/src/App.svelte`
 
-- [ ] **Step 1: 스캐폴딩 생성**
+- [x] **Step 1: 스캐폴딩 생성**
 
 `client/`에 기존 `src/game/` 데이터를 보존한 채 Vite Svelte-TS 템플릿을 얹는다:
 
@@ -62,12 +62,12 @@ npm install three @threlte/core @threlte/extras
 npm install -D @types/three vitest
 ```
 
-- [ ] **Step 2: dev 서버 기동 확인**
+- [x] **Step 2: dev 서버 기동 확인**
 
 Run: `npm run dev`
 Expected: Vite 템플릿 기본 페이지가 브라우저에 뜬다.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add client && git commit -m "feat: scaffold Svelte+Threlte client app"
@@ -79,7 +79,7 @@ git add client && git commit -m "feat: scaffold Svelte+Threlte client app"
 - Create: `client/src/game/sim/movement.ts`, `client/src/game/sim/world.ts`
 - Test: `client/src/game/sim/__tests__/movement.test.ts`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -98,9 +98,9 @@ describe('stepToward', () => {
 });
 ```
 
-- [ ] **Step 2: 테스트 실패 확인** — Run: `npx vitest run` / Expected: FAIL (movement 미존재)
+- [x] **Step 2: 테스트 실패 확인** — Run: `npx vitest run` / Expected: FAIL (movement 미존재)
 
-- [ ] **Step 3: 최소 구현**
+- [x] **Step 3: 최소 구현**
 
 ```ts
 // movement.ts
@@ -141,9 +141,9 @@ export function tick(w: WorldState, dt: number): void {
 }
 ```
 
-- [ ] **Step 4: 테스트 통과 확인** — Run: `npx vitest run` / Expected: PASS
+- [x] **Step 4: 테스트 통과 확인** — Run: `npx vitest run` / Expected: PASS
 
-- [ ] **Step 5: Commit** — `git add client/src/game/sim && git commit -m "feat: add pure movement sim with tests"`
+- [x] **Step 5: Commit** — `git add client/src/game/sim && git commit -m "feat: add pure movement sim with tests"`
 
 ### Task 3: 아이소메트릭 씬 + 클릭 이동 연결
 
@@ -151,7 +151,7 @@ export function tick(w: WorldState, dt: number): void {
 - Create: `client/src/scene/Scene.svelte`, `client/src/scene/IsoCamera.svelte`, `client/src/scene/Ground.svelte`, `client/src/scene/Player.svelte`
 - Modify: `client/src/App.svelte`
 
-- [ ] **Step 1: 씬 구성**
+- [x] **Step 1: 씬 구성**
 
 App.svelte에서 `<Canvas><Scene /></Canvas>`를 띄우고, Scene은 Svelte 5 `$state`로 감싼 world를 `useTask`(Threlte 프레임 훅)에서 `tick(world, delta)`로 갱신한다.
 
@@ -190,14 +190,14 @@ App.svelte에서 `<Canvas><Scene /></Canvas>`를 띄우고, Scene은 Svelte 5 `$
 
 Player.svelte는 캡슐 메시(`T.CapsuleGeometry`)로 world의 `player.pos`를 렌더링. Scene.svelte가 조명(ambient + directional) 포함 전체를 조립한다.
 
-- [ ] **Step 2: 브라우저 검증**
+- [x] **Step 2: 브라우저 검증**
 
 Run: `npm run dev`
 Expected: 아이소메트릭 뷰의 초록 바닥 위 캡슐이 보이고, 바닥 클릭 시 그 지점으로 일정 속도로 걸어가며 카메라가 따라온다.
 
-- [ ] **Step 3: 조작감 1차 조정** — 속도(`PLAYER_SPEED`), zoom, 카메라 오프셋을 화면 보고 조정하고 값 확정.
+- [x] **Step 3: 조작감 1차 조정** — 속도(`PLAYER_SPEED`), zoom, 카메라 오프셋을 화면 보고 조정하고 값 확정.
 
-- [ ] **Step 4: Commit** — `git add client/src && git commit -m "feat: isometric scene with click-to-move player"`
+- [x] **Step 4: Commit** — `git add client/src && git commit -m "feat: isometric scene with click-to-move player"`
 
 ---
 
