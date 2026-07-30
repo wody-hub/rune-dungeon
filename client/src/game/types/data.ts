@@ -204,17 +204,17 @@ export interface ConsumableItem {
   name: string;
   kind: "CONSUMABLE";
   effect:
-    | { type: "HEAL_PERCENT"; value: number; cooldownMs: number }
+    | { type: "HEAL_OVER_TIME"; durationMs: number; totalHealPercent: number }
     | {
         type: "BUFF";
         durationMs: number;
-        damageBonus?: number;
-        elementDamageBonus?: number;
+        damagePercent?: number;
         attackSpeedBonus?: number;
         moveSpeedBonus?: number;
-        cooldownMs: number;
+        defenseBonus?: number;
       }
     | { type: "RETURN"; channelingMs: number; usableInCombat: boolean };
+  needsNumericTuning?: boolean;
 }
 
 export interface MaterialItem {

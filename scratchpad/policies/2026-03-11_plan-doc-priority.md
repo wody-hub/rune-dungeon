@@ -31,7 +31,7 @@ Status: draft
 - 규칙 기반 vs 의미 기반 예외 범위 정리
 - 조합 성공률과 파괴 리스크 단계별 재정의
 
-### 6. `plan/12_Incantation_Skill_System.md`
+### 6. `plan/12_Incantation_System.md`
 - 문장형 언령을 MVP에 넣을지 결정
 - 글자/단어 시스템과의 관계 단순화
 

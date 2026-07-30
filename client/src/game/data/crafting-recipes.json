@@ -17,11 +17,11 @@
     "inputs": [
       { "kind": "ITEM", "id": "jahyeong_hwa_001", "quantity": 1 }
     ],
-    "goldCost": 0,
-    "catalystItemIds": [],
+    "goldCost": 20,
+    "catalystItemIds": ["stone_inscribe_mantra_001"],
     "allowedSupportItemIds": [],
-    "successRate": 0.95,
+    "successRate": 1,
     "successOutputId": "letter_gyeol_hwa_001",
-    "failure": { "consumeInputs": true }
+    "failure": { "consumeInputs": false }
   }
 ]

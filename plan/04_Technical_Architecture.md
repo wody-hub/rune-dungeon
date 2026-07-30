@@ -203,7 +203,8 @@ interface CharacterVisualState {
 
 ### 4.2. 결: 글자 각인
 - `자형`에 의미를 새겨 `결: 글자`를 생성한다.
-- `결: 글자`부터는 확률, `돌`, `먹`, 희귀도가 붙는다.
+- `결: 글자`부터는 `돌` 촉매와 골드 비용이 붙는다.
+- 확률, `먹`, 희귀도는 첫 수직 슬라이스 이후의 상위 결부터 붙는다. 첫 수직 슬라이스의 제작은 실패하지 않는다.
 
 ### 4.3. 진언결/언령결 각인
 - `자형` 또는 `결: 글자`와 `돌`, 선택적 `먹`을 사용해 진언결/언령결을 생성한다.
@@ -216,8 +217,8 @@ interface CharacterVisualState {
 ### 4.5. 서버 확정 드랍·제작 계약
 - `DropEntry`는 `GOLD | ITEM`의 대상 ID, `probability`, 정수 `quantity.min/max`, `guaranteed`를 가진다. 서버는 사망 1회당 각 항목을 독립 판정하고, `guaranteed: true` 항목은 `probability: 1`이어야 한다.
 - `음`은 독립 항목이 아니라 `eumRollGroup`의 `draws.min/max` 횟수만큼 가중치 풀에서 뽑는다. 현재 모든 그룹은 `allowDuplicateSymbols: false`이며, 각 선택 뒤에는 뽑힌 기호를 남은 가중치 풀에서 제거하므로 한 보상에서 같은 음 기호가 중복되지 않는다. 먹물 슬라임은 `1~2회`, 오타 요정은 `2~4회`, 몽당연필 기사단장은 `3~5회` 뽑는다.
-- `CraftingRecipe`는 입력, `goldCost`, 촉매 ID, 허용 보조 재료 ID, `successRate`, 성공 결과 ID, 실패 시 `consumeInputs` 및 선택적 `outputId`를 명시한다. 첫 두 레시피는 골드·촉매·보조 재료가 없음을 `0`과 빈 배열로 명시하며, 클라이언트는 제작 의도만 전송하고 서버가 성공/실패·소모·지급을 모두 확정한다.
-- 첫 레시피는 `음 · ㅎ ×1 + 음 · ㅘ ×1 -> 자형: 화`(성공률 `1`, 실패 시 미소모), `자형: 화 ×1 -> 결: 화`(성공률 `0.95`, 실패 시 소모·출력 없음)이다.
+- `CraftingRecipe`는 입력, `goldCost`, 촉매 ID, 허용 보조 재료 ID, `successRate`, 성공 결과 ID, 실패 시 `consumeInputs` 및 선택적 `outputId`를 명시한다. 첫 수직 슬라이스의 모든 레시피는 `successRate: 1`이며, 클라이언트는 제작 의도만 전송하고 서버가 소모·지급을 모두 확정한다.
+- 첫 레시피는 `음 · ㅎ ×1 + 음 · ㅘ ×1 -> 자형: 화`(성공률 `1`, 골드 `0`, 촉매 없음), `자형: 화 ×1 + 돌: 새김 ×1 + 골드 20 -> 결: 화`(성공률 `1`)이다. 첫 제작 루프는 `음`, `돌`, `골드` 세 재료를 모두 사용한다.
 - `WorldContent`는 맵의 `id`, `kind`, `maxPlayers`, `spawnPointId`와 입·출구 포털 링크를 서버 시작 전에 검증한다. `아르카디아`만 `공유 마을 허브`이며, `음` 파밍을 포함한 모든 게임플레이 구역은 `포털`로 연결되는 최대 4인 `협동 인스턴스`다.
 
 ## 5. 구현 기술 스택
@@ -236,6 +237,11 @@ interface CharacterVisualState {
 
 클라이언트는 즉시 되돌릴 수 있는 바라보기·공격 선딜·로컬 이펙트만 예측할 수 있다. 어떤 요청도 HP, 인벤토리 수량, 드랍 결과, 제작 결과, 최종 위치를 직접 설정할 수 없다. `localStorage`는 그래픽·입력·UI 환경설정만 저장하며 게임 진행의 진실로 사용하지 않는다.
 
+## 5.1. 거리·속도 단위 기준
+- 기획 문서의 `px` 수치(사거리, 판정 폭, 이동 속도 등)는 화면 픽셀이 아니라 아이소메트릭 기준의 `논리 거리 단위`다.
+- 3D 구현에서는 `1 논리 px = 고정 스케일 계수 × 1 월드 유닛`으로 환산하며, 계수는 구현 단계에서 한 번 정해 전 수치에 동일하게 적용한다.
+- 따라서 문서의 상대 비율(예: 대검 사거리 `56` vs 활 사거리 `280`)이 밸런스 기준이고, 절대 단위는 환산 계수로 흡수한다.
+
 ## 6. 렌더링 방향
 - **Core Framework:** `Three.js/Threlte`
 - **View Style:** 제한된 줌을 가진 고정 아이소메트릭 3D 카메라; 자유 카메라는 제공하지 않는다.
@@ -252,7 +258,7 @@ interface CharacterVisualState {
 
 ## 8. MVP 기술 범위
 - 첫 수직 슬라이스는 `플레이어 1종`, `무기 1종`, `속성 1종`, `기본 변신 1종`, `필드 1`, `던전 1`, `보스 1`까지만 다룬다.
-- 첫 구현의 공유 공간은 아르카디아 `공유 마을 허브`뿐이다. 새벽 들판, 흑심 채굴장, 보스방은 입장 시 생성되는 `협동 인스턴스`이며, 같은 파티 또는 초대된 게스트가 마을·구역 `포털`과 입장 트리거를 통해 함께 입장한다.
+- 첫 구현의 공유 공간은 아르카디아 `공유 마을 허브`뿐이다. 새벽 들판, 흑심 채굴장, 보스방은 입장 시 생성되는 `협동 인스턴스`이며, 마을·구역 `포털`과 입장 트리거로 들어간다. 인스턴스는 파티를 강제하지 않는 공개 지속형 방으로, 목록에 공개되고 비밀번호 미설정 방은 빈자리가 있으면 누구나 합류하며 최대 4인이 자유롭게 드나든다.
 - 첫 구현 목표는 그래픽 완성도만이 아니라, 이 허브-인스턴스 구조에서 서버 권위 `이동`, `공격`, `언령 확률 발동`, `피격`, `변신 on/off`, `결 파밍`, `자형 -> 결: 글자` 루프 검증이다.
 
 ## 9. 전투 리소스 정책
@@ -413,10 +419,10 @@ shared/
       "ㅂ": 1
     },
     "items": [
-      "potion_sum_mul_001",
-      "potion_gyeol_bul_001",
-      "potion_jil_sum_001",
-      "potion_gwiro_gyeol_001"
+      "talisman_sum_gil_001",
+      "talisman_gyeol_bul_001",
+      "talisman_jil_sum_001",
+      "talisman_gwi_ro_001"
     ]
   },
   "visual": {
@@ -463,6 +469,7 @@ shared/
     "name": "먹물 슬라임",
     "rank": "NORMAL",
     "maxHp": 140,
+    "baseDefense": 0,
     "moveSpeed": 42,
     "aggroRange": 180,
     "attackRange": 28,
@@ -491,6 +498,7 @@ shared/
     "name": "오타 요정",
     "rank": "ELITE",
     "maxHp": 320,
+    "baseDefense": 10,
     "moveSpeed": 68,
     "aggroRange": 240,
     "attackRange": 220,
@@ -604,7 +612,7 @@ shared/
     "kind": "LETTER",
     "tierName": "씨앗",
     "components": ["jahyeong_hwa_001"],
-    "successRate": 0.95,
+    "successRate": 1,
     "stats": [
       { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.05 },
       { "type": "DAMAGE_PERCENT", "value": 0.02 }
@@ -662,42 +670,63 @@ shared/
 ```json
 [
   {
-    "id": "potion_sum_mul_001",
-    "name": "숨물",
+    "id": "talisman_sum_gil_001",
+    "name": "부적: 숨길",
     "kind": "CONSUMABLE",
     "effect": {
-      "type": "HEAL_PERCENT",
-      "value": 0.3,
-      "cooldownMs": 12000
-    }
+      "type": "HEAL_OVER_TIME",
+      "durationMs": 1800000,
+      "totalHealPercent": 0.3
+    },
+    "needsNumericTuning": true
   },
   {
-    "id": "potion_gyeol_bul_001",
-    "name": "결불",
-    "kind": "CONSUMABLE",
-    "effect": {
-      "type": "BUFF",
-      "durationMs": 12000,
-      "damageBonus": 0.1,
-      "elementDamageBonus": 0.1,
-      "cooldownMs": 30000
-    }
-  },
-  {
-    "id": "potion_jil_sum_001",
-    "name": "질숨",
+    "id": "talisman_gyeol_bul_001",
+    "name": "부적: 결불",
     "kind": "CONSUMABLE",
     "effect": {
       "type": "BUFF",
-      "durationMs": 10000,
-      "attackSpeedBonus": 0.12,
-      "moveSpeedBonus": 0.1,
-      "cooldownMs": 30000
-    }
+      "durationMs": 1800000,
+      "damagePercent": 0.1
+    },
+    "needsNumericTuning": true
   },
   {
-    "id": "potion_gwiro_gyeol_001",
-    "name": "귀로결",
+    "id": "talisman_jil_sum_001",
+    "name": "부적: 질숨",
+    "kind": "CONSUMABLE",
+    "effect": {
+      "type": "BUFF",
+      "durationMs": 1800000,
+      "attackSpeedBonus": 0.1
+    },
+    "needsNumericTuning": true
+  },
+  {
+    "id": "talisman_nal_sum_001",
+    "name": "부적: 날숨",
+    "kind": "CONSUMABLE",
+    "effect": {
+      "type": "BUFF",
+      "durationMs": 1800000,
+      "moveSpeedBonus": 0.1
+    },
+    "needsNumericTuning": true
+  },
+  {
+    "id": "talisman_gud_gyeol_001",
+    "name": "부적: 굳결",
+    "kind": "CONSUMABLE",
+    "effect": {
+      "type": "BUFF",
+      "durationMs": 1800000,
+      "defenseBonus": 0.1
+    },
+    "needsNumericTuning": true
+  },
+  {
+    "id": "talisman_gwi_ro_001",
+    "name": "부적: 귀로",
     "kind": "CONSUMABLE",
     "effect": {
       "type": "RETURN",
@@ -753,6 +782,7 @@ shared/
 | `16` | 사망 연출 및 드랍 생성 | 골드, `음`, 아이템 드랍 |
 | `17` | 전투 종료 후 상태 정리 | 공격 모션 종료, 입력 복귀, UI 정리 |
 
+- 피격자의 회피는 별도 조작이 아닌 `2단계 확률 판정`이다: `회피 발동 확률` 성공 시 `회피 시 피해 보정 확률`에 따라 원래 피해의 `0~50%`만 적용한다. 처리 순서 내 정확한 위치와 산식은 밸런스 단계에서 정한다.
 - `물리 피해`가 항상 먼저 들어가고, 언령결은 그 뒤에 덧붙는 구조로 고정한다.
 - 다중 언령 발동이 나와도 첫 번째 물리 타격 숫자가 가장 먼저 읽히도록 처리한다.
 - 보스 예외 상태(`평상시 피해 감소`, `약점 노출`, `그로기`, `특정 속성 언령 확정 발동`)는 `bossStateModifiers`를 참조한다.

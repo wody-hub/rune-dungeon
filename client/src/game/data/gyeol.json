@@ -39,7 +39,7 @@
       "kind": "LETTER",
       "tierName": "씨앗",
       "components": ["jahyeong_hwa_001"],
-      "successRate": 0.95,
+      "successRate": 1,
       "role": "속성 입문형",
       "stats": [
         { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.05 },

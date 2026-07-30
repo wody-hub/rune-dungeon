@@ -38,8 +38,14 @@
       "guaranteedRule": "guaranteed entries use probability 1"
     },
     "crafting": {
-      "jahyeongHwa": { "successRate": 1, "failure": "inputs are not consumed" },
-      "letterHwa": { "successRate": 0.95, "failure": "inputs are consumed and no output is granted" }
+      "firstSlicePolicy": "first-slice crafting cannot fail; recipes use eum + stone + gold only",
+      "jahyeongHwa": { "successRate": 1, "goldCost": 0, "failure": "inputs are not consumed" },
+      "letterHwa": {
+        "successRate": 1,
+        "goldCost": 20,
+        "catalystId": "stone_inscribe_mantra_001",
+        "failure": "cannot fail in the first slice"
+      }
     }
   },
   "items": {
@@ -127,7 +133,7 @@
         "id": "letter_gyeol_hwa_001",
         "nameKo": "결: 화",
         "kind": "LETTER",
-        "successRate": 0.95,
+        "successRate": 1,
         "roleKo": "속성 입문형",
         "stats": [
           { "type": "ELEMENT_ATTACK_PERCENT", "value": 0.05, "sourceTextKo": "속성 공격력 +5%" },
@@ -425,7 +431,7 @@
         "nameKo": "돌: 새김",
         "category": "STONE",
         "catalystType": "MANTRA",
-        "roleKo": "진언결 각인 필수"
+        "roleKo": "결: 글자·진언결 각인 필수"
       },
       {
         "id": "stone_open_speech_001",

@@ -531,9 +531,16 @@ for (const recipe of craftingRecipes) {
     assertPositiveInteger(input.quantity, `${label} quantity`);
     assertResourceReference(input, label, runtimeItemIds);
   }
-  assert.equal(recipe.goldCost, 0, `${recipe.id} goldCost`);
-  assert.deepEqual(recipe.catalystItemIds, [], `${recipe.id} catalystItemIds`);
+  assert.ok(
+    Number.isInteger(recipe.goldCost) && recipe.goldCost >= 0,
+    `${recipe.id} goldCost must be a non-negative integer`,
+  );
+  assert.ok(Array.isArray(recipe.catalystItemIds), `${recipe.id} catalystItemIds must be an array`);
+  for (const id of recipe.catalystItemIds) {
+    assert.ok(runtimeItemIds.has(id), `${recipe.id} catalyst ${id} must reference a runtime item`);
+  }
   assert.deepEqual(recipe.allowedSupportItemIds, [], `${recipe.id} allowedSupportItemIds`);
+  assert.equal(recipe.successRate, 1, `${recipe.id} successRate must be 1 (first slice crafting cannot fail)`);
   assertProbability(recipe.successRate, `${recipe.id} successRate`);
   assert.equal(typeof recipe.successOutputId, "string", `${recipe.id} successOutputId must be a string`);
   assert.ok(runtimeItemIds.has(recipe.successOutputId), `${recipe.id} successOutputId must reference a runtime item`);
@@ -550,12 +557,26 @@ assert.deepEqual(
     id: recipe.id,
     successRate: recipe.successRate,
     successOutputId: recipe.successOutputId,
+    goldCost: recipe.goldCost,
+    catalystItemIds: recipe.catalystItemIds,
   })),
   [
-    { id: "recipe_jahyeong_hwa_001", successRate: 1, successOutputId: "jahyeong_hwa_001" },
-    { id: "recipe_letter_hwa_001", successRate: 0.95, successOutputId: "letter_gyeol_hwa_001" },
+    {
+      id: "recipe_jahyeong_hwa_001",
+      successRate: 1,
+      successOutputId: "jahyeong_hwa_001",
+      goldCost: 0,
+      catalystItemIds: [],
+    },
+    {
+      id: "recipe_letter_hwa_001",
+      successRate: 1,
+      successOutputId: "letter_gyeol_hwa_001",
+      goldCost: 20,
+      catalystItemIds: ["stone_inscribe_mantra_001"],
+    },
   ],
-  "first two recipes retain approved success rates and outputs",
+  "first two recipes retain approved slice contract: eum + stone + gold, 100% success",
 );
 
 function expectedDamageAfterDefense(defense, incomingDamageMultiplier = 1) {
