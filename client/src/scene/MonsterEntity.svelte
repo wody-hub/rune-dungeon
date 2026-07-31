@@ -31,13 +31,13 @@
     position.y={0.55}
     scale={[0.9, 0.65, 0.9]}
     onclick={(event: IntersectionEvent<MouseEvent>) => {
-      event.stopPropagation();
       if (!monster.alive) return;
+      event.stopPropagation();
       onGesture('select');
     }}
     ondblclick={(event: IntersectionEvent<MouseEvent>) => {
-      event.stopPropagation();
       if (!monster.alive) return;
+      event.stopPropagation();
       onGesture('start_auto_attack');
     }}
   >
