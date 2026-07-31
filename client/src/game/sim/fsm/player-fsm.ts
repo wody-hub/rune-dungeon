@@ -49,6 +49,9 @@ export function toggleAutoAttack(
   if (player.autoAttackEnabled) {
     player.autoAttackEnabled = false;
     player.mode = 'idle';
+    player.moveTarget = null;
+    player.attackElapsedMs = 0;
+    player.pendingHitMs = null;
     return;
   }
   if (!monster?.alive || monster.entityId !== player.combatTargetId) return;

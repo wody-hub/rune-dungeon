@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import type { MonsterItem, PlayerData, WeaponItem } from '../../types/data';
 import {
   createWorld,
   enqueueIntent,
+  resolveCombatDefinitions,
   tick,
   PLAYER_SPEED,
   type WorldState,
@@ -38,10 +40,61 @@ function zeroRandom() {
   return { next: () => 0 };
 }
 
+function cloneJsonData<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 function startCombat(w: WorldState, monsterId = 'slime-1') {
   enqueueIntent(w, { type: 'select_target', monsterId });
   enqueueIntent(w, { type: 'toggle_auto_attack' });
 }
+
+describe('world combat content resolution', () => {
+  it('resolves the ink slime and the player-equipped weapon by stable IDs', () => {
+    const inkSlime = { id: 'monster_ink_slime_001' } as MonsterItem;
+    const equippedWeapon = { id: 'weapon-equipped' } as WeaponItem;
+    const definitions = resolveCombatDefinitions(
+      [{ id: 'monster-other' } as MonsterItem, inkSlime],
+      [{ id: 'weapon-other' } as WeaponItem, equippedWeapon],
+      { equipped: { weaponId: 'weapon-equipped' } } as PlayerData,
+    );
+
+    expect(definitions).toEqual({ monster: inkSlime, weapon: equippedWeapon });
+  });
+
+  it('fails clearly when the ink slime fixture is missing', () => {
+    expect(() =>
+      resolveCombatDefinitions(
+        [],
+        [{ id: 'weapon-equipped' } as WeaponItem],
+        { equipped: { weaponId: 'weapon-equipped' } } as PlayerData,
+      ),
+    ).toThrowError('Missing combat monster definition: monster_ink_slime_001');
+  });
+
+  it('fails clearly when the equipped weapon fixture is missing', () => {
+    expect(() =>
+      resolveCombatDefinitions(
+        [{ id: 'monster_ink_slime_001' } as MonsterItem],
+        [],
+        { equipped: { weaponId: 'weapon-missing' } } as PlayerData,
+      ),
+    ).toThrowError('Missing equipped weapon definition: weapon-missing');
+  });
+
+  it('isolates nested monster drop and player data between worlds', () => {
+    const first = createWorld();
+    const second = createWorld();
+    const secondDropMinimum = second.content.monster.drops.entries[0].quantity.min;
+    const secondAttackBonus = second.content.player.combatProfile.attackBonusFromStr;
+
+    first.content.monster.drops.entries[0].quantity.min = 999;
+    first.content.player.combatProfile.attackBonusFromStr = 999;
+
+    expect(second.content.monster.drops.entries[0].quantity.min).toBe(secondDropMinimum);
+    expect(second.content.player.combatProfile.attackBonusFromStr).toBe(secondAttackBonus);
+  });
+});
 
 describe('world combat loop', () => {
   it('spawns three ink slimes', () => {
@@ -60,6 +113,28 @@ describe('world combat loop', () => {
     expect(w.player.mode).toBe('moving');
     expect(w.player.pos.x).toBeGreaterThan(0);
     expect(monster.hp).toBe(w.content.monster.maxHp);
+  });
+
+  it('stops approaching but keeps the selection when auto attack is toggled off', () => {
+    const w = createWorld({ random: zeroRandom() });
+    const monster = w.monsters.get('slime-1')!;
+    monster.pos = { x: 10, z: 0 };
+    startCombat(w);
+    tick(w, 0.1);
+    const positionWhenToggledOff = { ...w.player.pos };
+
+    enqueueIntent(w, { type: 'toggle_auto_attack' });
+    tick(w, 0.1);
+
+    expect(w.player).toMatchObject({
+      pos: positionWhenToggledOff,
+      mode: 'idle',
+      moveTarget: null,
+      combatTargetId: 'slime-1',
+      autoAttackEnabled: false,
+      attackElapsedMs: 0,
+      pendingHitMs: null,
+    });
   });
 
   it('applies no damage before hitFrameMs', () => {
@@ -112,7 +187,7 @@ describe('world combat loop', () => {
     startCombat(w);
     tick(w, 0.32);
     const goldAfterDeath = w.inventory.gold;
-    const eumAfterDeath = structuredClone(w.inventory.eum);
+    const eumAfterDeath = cloneJsonData(w.inventory.eum);
     expect(goldAfterDeath).toBe(initialGold + 5);
     expect(eumAfterDeath).toContainEqual({ symbol: 'ㄱ', quantity: 4 });
     tick(w, 1);
@@ -153,7 +228,7 @@ describe('world combat loop', () => {
 
   it('ignores non-positive dt for timed progression', () => {
     const w = createWorld({ random: zeroRandom() });
-    const before = structuredClone(w.player);
+    const before = cloneJsonData(w.player);
     enqueueIntent(w, { type: 'move_to_ground', point: { x: 10, z: 0 } });
     tick(w, 0);
     expect(w.player).toEqual(before);

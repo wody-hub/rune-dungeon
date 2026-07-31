@@ -5,6 +5,7 @@ import {
   toPlayerData,
   type LegacyPlayerData,
   type MonsterItem,
+  type PlayerData,
   type PlayerInventory,
   type WeaponItem,
 } from '../types/data';
@@ -58,10 +59,29 @@ export interface WorldState {
   random: RandomSource;
 }
 
+export function resolveCombatDefinitions(
+  monsters: MonsterItem[],
+  weapons: WeaponItem[],
+  player: PlayerData,
+): { monster: MonsterItem; weapon: WeaponItem } {
+  const monster = monsters.find(({ id }) => id === 'monster_ink_slime_001');
+  if (!monster) {
+    throw new Error('Missing combat monster definition: monster_ink_slime_001');
+  }
+  const weapon = weapons.find(({ id }) => id === player.equipped.weaponId);
+  if (!weapon) {
+    throw new Error(`Missing equipped weapon definition: ${player.equipped.weaponId}`);
+  }
+  return { monster, weapon };
+}
+
 export function createWorld(options: WorldOptions = {}): WorldState {
-  const monster = monstersData[0] as MonsterItem;
-  const weapon = weaponsData[0] as WeaponItem;
   const player = toPlayerData(playerData as LegacyPlayerData);
+  const { monster, weapon } = resolveCombatDefinitions(
+    monstersData as unknown as MonsterItem[],
+    weaponsData as unknown as WeaponItem[],
+    player,
+  );
   const content = createRuntimeCombatContent(monster, weapon, player);
   const monsters = new Map(
     SLIME_SPAWNS.map((spawn, index) => [

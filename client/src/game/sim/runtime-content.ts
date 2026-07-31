@@ -23,23 +23,29 @@ export interface RuntimeCombatContent {
   player: PlayerData;
 }
 
+function cloneJsonData<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 export function createRuntimeCombatContent(
   monster: MonsterItem,
   weapon: WeaponItem,
   player: PlayerData,
 ): RuntimeCombatContent {
+  const clonedMonster = cloneJsonData(monster);
+  const clonedWeapon = cloneJsonData(weapon);
   return {
     monster: {
-      ...monster,
+      ...clonedMonster,
       moveSpeed: toWorldDistance(monster.moveSpeed),
       aggroRange: toWorldDistance(monster.aggroRange),
       attackRange: toWorldDistance(monster.attackRange),
     },
     weapon: {
-      ...weapon,
+      ...clonedWeapon,
       range: toWorldDistance(weapon.rangePx),
       hitboxWidth: toWorldDistance(weapon.hitboxWidthPx),
     },
-    player,
+    player: cloneJsonData(player),
   };
 }
