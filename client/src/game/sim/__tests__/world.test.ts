@@ -103,6 +103,46 @@ describe('world combat loop', () => {
     expect([...w.monsters.values()].every((monster) => monster.alive)).toBe(true);
   });
 
+  it('keeps every slime idle at its initial detection boundary', () => {
+    const w = createWorld({ random: zeroRandom() });
+    const initial = [...w.monsters.values()].map(({ pos }) => ({ ...pos }));
+
+    tick(w, 0.5);
+
+    expect([...w.monsters.values()].map(({ mode }) => mode)).toEqual([
+      'idle',
+      'idle',
+      'idle',
+    ]);
+    expect([...w.monsters.values()].map(({ pos }) => pos)).toEqual(initial);
+  });
+
+  it('advances monster pursuit after an ordinary player movement branch', () => {
+    const w = createWorld({ random: zeroRandom() });
+    const monster = w.monsters.get('slime-1')!;
+    w.player.pos = { x: 0.2, z: 0 };
+    enqueueIntent(w, { type: 'move_to_ground', point: { x: 0.3, z: 0 } });
+
+    tick(w, 0.1);
+
+    expect(w.player.pos).toEqual({ x: 0.3, z: 0 });
+    expect(monster.mode).toBe('chasing');
+    expect(monster.pos.x).toBeLessThan(3);
+  });
+
+  it('advances player and monster pursuit in the same combat tick', () => {
+    const w = createWorld({ random: zeroRandom() });
+    const monster = w.monsters.get('slime-1')!;
+
+    startCombat(w);
+    tick(w, 0.1);
+
+    expect(w.player.pos.x).toBeCloseTo(0.6);
+    expect(monster.mode).toBe('chasing');
+    expect(monster.pos.x).toBeLessThan(3);
+    expect(monster.hp).toBe(w.content.monster.maxHp);
+  });
+
   it('approaches the initial slime with the equipped melee weapon', () => {
     const w = createWorld({ random: zeroRandom() });
     const monster = w.monsters.get('slime-1')!;
@@ -255,9 +295,11 @@ describe('world combat loop', () => {
   it('ignores non-positive dt for timed progression', () => {
     const w = createWorld({ random: zeroRandom() });
     const before = cloneJsonData(w.player);
+    const monsterBefore = cloneJsonData([...w.monsters.values()]);
     enqueueIntent(w, { type: 'move_to_ground', point: { x: 10, z: 0 } });
     tick(w, 0);
     expect(w.player).toEqual(before);
+    expect([...w.monsters.values()]).toEqual(monsterBefore);
     expect(w.pendingIntents).toHaveLength(1);
   });
 });

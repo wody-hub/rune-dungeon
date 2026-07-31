@@ -11,6 +11,7 @@ import {
 } from '../types/data';
 import { rollPhysicalDamage } from './combat/damage';
 import { rollCombatRewards, type CombatRewards } from './combat/drops';
+import { tickMonsterAi } from './ai/monster-ai';
 import {
   createMonster,
   killMonster,
@@ -215,6 +216,25 @@ function tickAttack(w: WorldState, target: MonsterState, elapsedMs: number): voi
   }
 }
 
+function tickPlayer(w: WorldState, dt: number, elapsedMs: number): void {
+  const target = selectedMonster(w);
+  if (!w.player.autoAttackEnabled) {
+    tickGroundMovement(w.player, dt);
+  } else if (!target) {
+    stopCombat(w.player);
+  } else {
+    const distance = Math.hypot(
+      target.pos.x - w.player.pos.x,
+      target.pos.z - w.player.pos.z,
+    );
+    if (distance > w.content.weapon.range) {
+      approachTarget(w.player, target, dt);
+    } else {
+      tickAttack(w, target, elapsedMs);
+    }
+  }
+}
+
 export function tick(w: WorldState, dt: number): void {
   if (dt <= 0) return;
 
@@ -224,20 +244,8 @@ export function tick(w: WorldState, dt: number): void {
     tickMonsterRespawn(monster, elapsedMs, w.content.monster.maxHp);
   }
 
-  const target = selectedMonster(w);
-  if (!w.player.autoAttackEnabled) {
-    tickGroundMovement(w.player, dt);
-    return;
+  tickPlayer(w, dt, elapsedMs);
+  for (const monster of w.monsters.values()) {
+    tickMonsterAi(monster, w.player.pos, w.content.monster, dt);
   }
-  if (!target) {
-    stopCombat(w.player);
-    return;
-  }
-
-  const distance = Math.hypot(target.pos.x - w.player.pos.x, target.pos.z - w.player.pos.z);
-  if (distance > w.content.weapon.range) {
-    approachTarget(w.player, target, dt);
-    return;
-  }
-  tickAttack(w, target, elapsedMs);
 }
