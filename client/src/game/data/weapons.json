@@ -14,7 +14,7 @@
     "attackMotionMs": 1250,
     "hitFrameMs": 320,
     "recoveryMs": 930,
-    "rangePx": 56,
+    "rangePx": 18,
     "hitboxWidthPx": 32,
     "hitStunMs": 220
   }

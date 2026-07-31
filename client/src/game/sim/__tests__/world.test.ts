@@ -103,6 +103,20 @@ describe('world combat loop', () => {
     expect([...w.monsters.values()].every((monster) => monster.alive)).toBe(true);
   });
 
+  it('approaches the initial slime with the equipped melee weapon', () => {
+    const w = createWorld({ random: zeroRandom() });
+    const monster = w.monsters.get('slime-1')!;
+    const initialHp = monster.hp;
+
+    startCombat(w);
+    tick(w, 0.1);
+
+    expect(w.content.weapon.range).toBeCloseTo(1.8);
+    expect(w.player.mode).toBe('moving');
+    expect(w.player.pos.x).toBeGreaterThan(0);
+    expect(monster.hp).toBe(initialHp);
+  });
+
   it('approaches a selected target before attacking', () => {
     const w = createWorld({ random: zeroRandom() });
     const monster = w.monsters.get('slime-1')!;
