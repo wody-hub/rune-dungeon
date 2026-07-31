@@ -8,10 +8,17 @@ export function toWorldDistance(logicalPx: number): number {
 
 export interface RuntimeWeapon extends WeaponItem {
   range: number;
+  hitboxWidth: number;
+}
+
+export interface RuntimeMonster extends MonsterItem {
+  moveSpeed: number;
+  aggroRange: number;
+  attackRange: number;
 }
 
 export interface RuntimeCombatContent {
-  monster: MonsterItem;
+  monster: RuntimeMonster;
   weapon: RuntimeWeapon;
   player: PlayerData;
 }
@@ -22,8 +29,17 @@ export function createRuntimeCombatContent(
   player: PlayerData,
 ): RuntimeCombatContent {
   return {
-    monster,
-    weapon: { ...weapon, range: toWorldDistance(weapon.rangePx) },
+    monster: {
+      ...monster,
+      moveSpeed: toWorldDistance(monster.moveSpeed),
+      aggroRange: toWorldDistance(monster.aggroRange),
+      attackRange: toWorldDistance(monster.attackRange),
+    },
+    weapon: {
+      ...weapon,
+      range: toWorldDistance(weapon.rangePx),
+      hitboxWidth: toWorldDistance(weapon.hitboxWidthPx),
+    },
     player,
   };
 }
