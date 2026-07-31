@@ -32,15 +32,15 @@ export function rollCombatRewards(
     gold += randomInt(random, entry.quantity.min, entry.quantity.max);
   }
 
-  const available = [...dropTable.eumRollGroup.entries];
-  const drawCount = Math.min(
-    available.length,
-    randomInt(
-      random,
-      dropTable.eumRollGroup.draws.min,
-      dropTable.eumRollGroup.draws.max,
-    ),
+  let available = [...dropTable.eumRollGroup.entries];
+  const rolledDrawCount = randomInt(
+    random,
+    dropTable.eumRollGroup.draws.min,
+    dropTable.eumRollGroup.draws.max,
   );
+  const drawCount = dropTable.eumRollGroup.allowDuplicateSymbols
+    ? rolledDrawCount
+    : Math.min(available.length, rolledDrawCount);
   const quantities = new Map<string, number>();
 
   for (let draw = 0; draw < drawCount && available.length > 0; draw += 1) {
@@ -48,7 +48,9 @@ export function rollCombatRewards(
     const entry = available[index];
     const quantity = randomInt(random, entry.quantity.min, entry.quantity.max);
     quantities.set(entry.symbol, (quantities.get(entry.symbol) ?? 0) + quantity);
-    if (!dropTable.eumRollGroup.allowDuplicateSymbols) available.splice(index, 1);
+    if (!dropTable.eumRollGroup.allowDuplicateSymbols) {
+      available = available.filter(({ symbol }) => symbol !== entry.symbol);
+    }
   }
 
   return {
