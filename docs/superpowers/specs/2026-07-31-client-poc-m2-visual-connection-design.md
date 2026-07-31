@@ -1,7 +1,7 @@
 # Client POC M2 Visual Connection Design
 
 **Date:** 2026-07-31
-**Status:** Approved direction, pending written-spec review
+**Status:** Approved
 
 ## Goal
 
