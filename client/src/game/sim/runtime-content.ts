@@ -15,6 +15,8 @@ export interface RuntimeMonster extends MonsterItem {
   moveSpeed: number;
   aggroRange: number;
   attackRange: number;
+  disengageRange: number;
+  leashRange: number;
 }
 
 export interface RuntimeCombatContent {
@@ -34,12 +36,15 @@ export function createRuntimeCombatContent(
 ): RuntimeCombatContent {
   const clonedMonster = cloneJsonData(monster);
   const clonedWeapon = cloneJsonData(weapon);
+  const aggroRange = toWorldDistance(monster.aggroRange);
   return {
     monster: {
       ...clonedMonster,
       moveSpeed: toWorldDistance(monster.moveSpeed),
-      aggroRange: toWorldDistance(monster.aggroRange),
+      aggroRange,
       attackRange: toWorldDistance(monster.attackRange),
+      disengageRange: aggroRange * 1.5,
+      leashRange: aggroRange * 2,
     },
     weapon: {
       ...clonedWeapon,

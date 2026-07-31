@@ -12,6 +12,7 @@ describe('monster lifecycle', () => {
       hp: 140,
       alive: true,
       deathProcessed: false,
+      mode: 'idle',
       pos: { x: 3, z: 4 },
     });
   });
@@ -26,8 +27,18 @@ describe('monster lifecycle', () => {
       hp: 140,
       alive: true,
       deathProcessed: false,
+      mode: 'idle',
       respawnRemainingMs: null,
       pos: { x: 3, z: 4 },
     });
+  });
+
+  it('clears pursuit mode when killed', () => {
+    const monster = createMonster('slime-1', definition, { x: 3, z: 4 });
+    monster.mode = 'chasing';
+
+    killMonster(monster, 2_000);
+
+    expect(monster.mode).toBe('idle');
   });
 });
