@@ -52,17 +52,20 @@ src/
 | 마일스톤 | 내용 | 상태 |
 | :--- | :--- | :--- |
 | M1 | 스캐폴딩 + 아이소메트릭 카메라 + 클릭 이동 | **완료** (2026-07-31) |
-| M2 | 몬스터 스폰, 타깃 선택, 자동공격 토글, 전투·드랍(음/골드) | 예정 |
+| M2 | 순수 전투 코어: 몬스터 런타임, 타깃/자동공격, 피해·드랍·재스폰 | **완료** (2026-07-31) |
+| M2 시각 연결 | MonsterLayer 3D 렌더링, 몬스터 타깃 입력, HUD | 다음 작업 |
 | M3 | 수집 → 제작(`결: 화`) → 장착 → 변신 | 예정 |
 | M4 | 흑심 채굴장 씬 + 몽당연필 기사단장 + 첫 20분 연결 | 예정 |
 
-M2에서 예약된 자리: `game/sim/fsm/`(플레이어 상태기계 idle/moving/attacking), `game/net/`(sendXxx + handleServerMessage 메시지 경계, 뒤에 로컬 목), `src/ui/`(HUD — Canvas 바깥 형제), 몬스터 컬렉션은 `SvelteMap`으로 keyed each 마운트.
+M2 순수 전투 코어는 `game/sim/fsm/`의 플레이어 상태기계(`idle` / `moving` / `attacking`), 먹물 슬라임 런타임 상태, 타깃 선택·자동 접근/공격, 피해, 사망당 1회 보상(골드·음), 재스폰까지 구현했다. 기본 재스폰 지연은 `5000ms`다. 아직 시각적 M2는 완료되지 않았다. 다음 단계에서 `MonsterLayer` 3D 렌더링, 씬의 몬스터 타깃 입력, Canvas 밖 형제인 `src/ui/` HUD를 연결한다.
 
 ## 조정 노브 (화면 보고 확정할 값)
 
 - 이동 속도: `PLAYER_SPEED = 6` (`game/sim/world.ts`)
 - 줌: `zoom = 40` (`scene/IsoCamera.svelte`)
 - 카메라 거리·프러스텀: `ISO_DISTANCE = 50`, `FRUSTUM_HEIGHT = 20` (`game/sim/camera.ts`)
+- 전투 논리 거리 → 월드 단위: `LOGICAL_PX_TO_WORLD_UNIT = 0.1` (`game/sim/runtime-content.ts`)
+- 몬스터 재스폰: `5000ms` 기본값 (`game/sim/world.ts`)
 
 ## 디버그
 
