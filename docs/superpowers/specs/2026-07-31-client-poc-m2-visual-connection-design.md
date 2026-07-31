@@ -165,6 +165,24 @@ Exact colors, spacing, sizes, and labels are tuning values rather than stable
 architecture. They may be adjusted after browser inspection without changing
 the data flow.
 
+## Approved Melee Range Tuning
+
+Browser verification showed that the existing `낡은 양손검` was already a
+`GREATSWORD`, but its fixture range of `56` logical pixels became `5.6` world
+units. All three initial slimes therefore started inside attack range and the
+automatic approach behavior could not be observed.
+
+Keep the weapon identity and all spawn positions unchanged. Tune only:
+
+```json
+"rangePx": 18
+```
+
+With `LOGICAL_PX_TO_WORLD_UNIT = 0.1`, the runtime attack range becomes `1.8`
+world units. The initial `slime-1` at distance `3` must therefore cause the
+player to approach before the first attack. `hitboxWidthPx` and all damage,
+timing, and reward values remain unchanged.
+
 ## Error and Edge-Case Rules
 
 - Missing monster references are ignored instead of throwing during input.
@@ -192,6 +210,8 @@ Implementation follows red-green-refactor:
 - Three placeholder ink slimes are visible at their runtime spawn positions.
 - Clicking a living slime selects and highlights it without starting combat.
 - Double-clicking a living slime starts the existing auto-attack loop.
+- The equipped greatsword has runtime range `1.8`, so selecting the initial
+  `slime-1` causes visible approach before damage.
 - Player and monster visual state follows the pure world state.
 - The selected target panel reflects HP changes and disappears on death.
 - Gold and eum values visibly update after a kill.
