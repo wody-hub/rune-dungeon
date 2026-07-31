@@ -12,5 +12,5 @@ export function intentsForMonsterGesture(
   };
   return gesture === 'select'
     ? [select]
-    : [select, { type: 'toggle_auto_attack' }];
+    : [select, { type: 'enable_auto_attack' }];
 }

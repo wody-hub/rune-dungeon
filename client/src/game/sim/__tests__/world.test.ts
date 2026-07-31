@@ -151,6 +151,18 @@ describe('world combat loop', () => {
     });
   });
 
+  it('selecting and starting combat while combat is active keeps it enabled', () => {
+    const w = createWorld({ random: zeroRandom() });
+    startCombat(w);
+    tick(w, 0.1);
+
+    enqueueIntent(w, { type: 'select_target', monsterId: 'slime-1' });
+    enqueueIntent(w, { type: 'enable_auto_attack' });
+    tick(w, 0.1);
+
+    expect(w.player.autoAttackEnabled).toBe(true);
+  });
+
   it('applies no damage before hitFrameMs', () => {
     const w = createWorld({ random: zeroRandom() });
     const monster = w.monsters.get('slime-1')!;

@@ -20,6 +20,7 @@ import {
 import {
   beginGroundMove,
   createPlayerState,
+  enableAutoAttack,
   selectCombatTarget,
   stopCombat,
   toggleAutoAttack,
@@ -42,7 +43,8 @@ const SLIME_SPAWNS: Vec2[] = [
 export type GameIntent =
   | { type: 'move_to_ground'; point: Vec2 }
   | { type: 'select_target'; monsterId: string }
-  | { type: 'toggle_auto_attack' };
+  | { type: 'toggle_auto_attack' }
+  | { type: 'enable_auto_attack' };
 
 export interface WorldOptions {
   random?: RandomSource;
@@ -121,8 +123,10 @@ function drainIntents(w: WorldState): void {
       beginGroundMove(w.player, intent.point);
     } else if (intent.type === 'select_target') {
       selectCombatTarget(w.player, w.monsters.get(intent.monsterId));
-    } else {
+    } else if (intent.type === 'toggle_auto_attack') {
       toggleAutoAttack(w.player, selectedMonster(w));
+    } else if (intent.type === 'enable_auto_attack') {
+      enableAutoAttack(w.player, selectedMonster(w));
     }
   }
   w.pendingIntents.length = 0;

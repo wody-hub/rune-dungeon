@@ -3,6 +3,7 @@ import type { MonsterState } from '../../entities/monster';
 import {
   beginGroundMove,
   createPlayerState,
+  enableAutoAttack,
   selectCombatTarget,
   stopCombat,
   toggleAutoAttack,
@@ -47,6 +48,14 @@ describe('player combat FSM', () => {
   it('auto attack cannot start without a living target', () => {
     toggleAutoAttack(player, undefined);
     expect(player.autoAttackEnabled).toBe(false);
+  });
+
+  it('enabling auto attack while already enabled keeps combat enabled', () => {
+    selectCombatTarget(player, livingMonster);
+    enableAutoAttack(player, livingMonster);
+    enableAutoAttack(player, livingMonster);
+
+    expect(player.autoAttackEnabled).toBe(true);
   });
 
   it('target death returns the player to idle and clears combat state', () => {

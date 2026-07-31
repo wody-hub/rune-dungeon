@@ -54,6 +54,13 @@ export function toggleAutoAttack(
     player.pendingHitMs = null;
     return;
   }
+  enableAutoAttack(player, monster);
+}
+
+export function enableAutoAttack(
+  player: PlayerState,
+  monster: MonsterState | undefined,
+): void {
   if (!monster?.alive || monster.entityId !== player.combatTargetId) return;
   player.autoAttackEnabled = true;
 }
