@@ -4,6 +4,11 @@
   import { onMount } from 'svelte';
   import { createWorld, enqueueIntent, tick } from '../game/sim/world';
   import { createFrameTimer, FRAME_TIME_MS } from '../game/loop/fixed-step';
+  import {
+    createHudSnapshot,
+    hudSnapshotsEqual,
+    type HudSnapshot,
+  } from '../ui/hud-model';
   import IsoCamera from './IsoCamera.svelte';
   import GroundLayer from './GroundLayer.svelte';
   import MonsterLayer from './MonsterLayer.svelte';
@@ -16,6 +21,14 @@
   interactivity();
   const { advance } = useThrelte();
 
+  let {
+    onHudChange,
+  }: {
+    onHudChange: (snapshot: HudSnapshot) => void;
+  } = $props();
+
+  let lastHud: HudSnapshot | undefined;
+
   // 월드 상태는 반응성 그래프 밖의 plain object다. 프레임마다 바뀌는 값을
   // Svelte 반응성에 올리지 않고, 루프가 레이어 update()를 직접 호출한다.
   const world = createWorld();
@@ -27,6 +40,13 @@
   let monsterLayer = $state<{ update: () => void }>();
   let playerLayer = $state<{ update: () => void }>();
 
+  function publishHud(): void {
+    const next = createHudSnapshot(world);
+    if (lastHud && hudSnapshotsEqual(lastHud, next)) return;
+    lastHud = next;
+    onHudChange(next);
+  }
+
   function handleMonsterGesture(monsterId: string, gesture: MonsterGesture): void {
     for (const intent of intentsForMonsterGesture(monsterId, gesture)) {
       enqueueIntent(world, intent);
@@ -34,6 +54,7 @@
   }
 
   onMount(() => {
+    publishHud();
     const timer = createFrameTimer(performance.now());
     const dt = FRAME_TIME_MS / 1000;
     let raf = 0;
@@ -45,6 +66,7 @@
       playerLayer?.update();
       monsterLayer?.update();
       camera?.update();
+      publishHud();
       advance();
     };
     raf = requestAnimationFrame(loop);
