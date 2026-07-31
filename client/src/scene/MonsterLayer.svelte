@@ -1,0 +1,31 @@
+<script lang="ts">
+  import type { WorldState } from '../game/sim/world';
+  import MonsterEntity from './MonsterEntity.svelte';
+  import type { MonsterGesture } from './monster-input';
+
+  let {
+    world,
+    onMonsterGesture,
+  }: {
+    world: WorldState;
+    onMonsterGesture: (monsterId: string, gesture: MonsterGesture) => void;
+  } = $props();
+
+  const monsters = $derived([...world.monsters.values()]);
+  let entities = $state<Array<{ update: (selected: boolean) => void } | undefined>>([]);
+
+  export function update(): void {
+    for (let index = 0; index < monsters.length; index += 1) {
+      const monster = monsters[index];
+      entities[index]?.update(world.player.combatTargetId === monster.entityId);
+    }
+  }
+</script>
+
+{#each monsters as monster, index (monster.entityId)}
+  <MonsterEntity
+    bind:this={entities[index]}
+    {monster}
+    onGesture={(gesture) => onMonsterGesture(monster.entityId, gesture)}
+  />
+{/each}
