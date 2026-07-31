@@ -52,12 +52,14 @@ function pursue(
   }
 
   monster.mode = 'chasing';
+  const requestedStep = config.moveSpeed * dt;
+  const rangeBoundaryStep = playerDistance - config.attackRange;
   const allowedStep = Math.min(
-    config.moveSpeed * dt,
-    playerDistance - config.attackRange,
+    requestedStep,
+    rangeBoundaryStep,
   );
   monster.pos = stepToward(monster.pos, playerPos, allowedStep, 1);
-  if (distance(monster.pos, playerPos) <= config.attackRange) {
+  if (requestedStep >= rangeBoundaryStep) {
     monster.mode = 'engaged';
   }
 }

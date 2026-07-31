@@ -36,6 +36,13 @@ describe('monster pursuit AI', () => {
     expect(Math.hypot(2 - monster.pos.x, monster.pos.z)).toBeCloseTo(1.4);
   });
 
+  it('engages after a diagonal pursuit step capped at attack range', () => {
+    monster.mode = 'chasing';
+    tickMonsterAi(monster, { x: 2.3, z: 2.3 }, config, 1);
+    expect(monster.mode).toBe('engaged');
+    expect(Math.hypot(2.3 - monster.pos.x, 2.3 - monster.pos.z)).toBeCloseTo(1.4);
+  });
+
   it('holds while engaged and resumes pursuit when the player moves', () => {
     monster.mode = 'engaged';
     monster.pos = { x: 0.6, z: 0 };
