@@ -1,0 +1,68 @@
+# Rune Dungeon browser QA configuration
+
+project:
+  name: "rune-dungeon"
+
+server:
+  frontend:
+    port: 5173
+    baseUrl: "http://127.0.0.1:5173"
+  backend:
+    enabled: false
+    port: null
+    baseUrl: ""
+
+auth:
+  type: "none"
+
+frontend:
+  root: "client"
+  framework: "svelte-5-vite-threlte"
+  routes:
+    main: "/"
+    sub: "none"
+  pages:
+    root: "src"
+    listFile: "App.svelte"
+    detailPattern: "scene/*.svelte"
+    apiPattern: "none"
+  validation:
+    method: "none"
+  fileUpload:
+    component: "none"
+  pagination:
+    component: "none"
+  auth:
+    pattern: "none"
+
+backend:
+  enabled: false
+  root: ""
+  framework: "none"
+  language: "none"
+
+database:
+  type: "none"
+  ddlPaths: []
+
+dummyData:
+  enabled: false
+  count: 0
+  prefix: "[QA-{NNN}]"
+  allowedHosts:
+    - "127.0.0.1"
+    - "localhost"
+
+outputs:
+  root: ".si-planning"
+  featureDirPattern: "{feature}"
+  qaChecklist: "qa-checklist.md"
+  qaReport: "qa-report.md"
+  evidence: "evidence"
+
+browser:
+  viewport:
+    width: 1280
+    height: 720
+  webglRequired: true
+  preferredBrowser: "Google Chrome"
