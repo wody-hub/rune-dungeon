@@ -78,7 +78,7 @@
 - [ ] B-1 `[STEP]`: 플레이어와 `idle`인 `slime-1`의 거리를 정확히 `3.0`으로 두고 `dt=1/60` 한 틱을 호출해도 슬라임이 `idle`이며 움직이지 않는다.
 - [ ] B-2 `[LIVE]`: 거리를 `3.0`보다 조금 작게 만들면 `slime-1`이 `chasing`으로 바뀌고 즉시 플레이어 방향으로 이동한다.
 - [ ] B-3 `[LIVE]`: `slime-1` 접근 중 `slime-2`, `slime-3`는 `idle`과 원래 스폰 위치를 유지한다.
-- [ ] B-4 `[LIVE]`: 충분히 추적시키면 플레이어와 약 `1.4` 거리에서 `engaged`가 되고 더 가까이 이동하지 않는다.
+- [ ] B-4 `[LIVE]`: 충분히 추적시키면 플레이어와 `1.4 ± 0.01` 거리에서 `engaged`가 되고 더 가까이 이동하지 않는다.
 - [ ] B-5 `[STEP]`: `chasing` 상태에서 플레이어를 대각선 방향 `1.4` 밖에 두고 `dt=1` 한 틱을 호출해도 추적 이동이 `1.4` 안쪽으로 오버슈트하지 않으며 `engaged`가 된다.
 - [ ] B-6 `[LIVE]`: `engaged` 상태에서 플레이어가 `1.4` 밖, `4.5` 이내로 이동하면 다시 `chasing`하고 추적을 재개한다.
 
@@ -97,14 +97,14 @@
 - [ ] D-2 `[LIVE]`: 선택한 슬라임을 더블클릭하면 자동공격이 `ON`이 되고 플레이어가 대상에게 접근한다.
 - [ ] D-3 `[LIVE]`: 이미 자동공격 중 같은 슬라임을 다시 더블클릭해도 자동공격이 꺼지지 않는다.
 - [ ] D-4 `[LIVE]`: 지면을 클릭하면 대상 선택과 자동공격이 해제되고 플레이어 상태가 `이동`으로 표시된다.
-- [ ] D-5 `[LIVE]`: 이동하는 슬라임을 선택·공격할 때 대상 위치 갱신과 플레이어 접근이 같은 화면 루프에서 자연스럽게 이어진다.
+- [ ] D-5 `[LIVE]`: 이동하는 슬라임을 선택·공격한 뒤 연속 상태 스냅샷 3개 이상에서 플레이어가 대상 방향으로 이동하고 둘 사이 거리가 감소한다. 거리가 무기 범위 `1.8` 이내가 되면 플레이어가 `attacking`으로 바뀌고 이후 대상 HP가 감소한다.
 
 ## E. 사망·보상·리스폰 회귀
 
-- [ ] E-1 `[LIVE]`: 자동공격 시작 후 첫 `320ms` 전에는 HP가 감소하지 않고 첫 히트 프레임부터 감소한다. 두 번째 타격은 시작 후 `1570ms`(`1250ms` 모션 + 다음 `320ms` 히트 프레임) 전에는 발생하지 않으며 대상 HUD의 HP 값과 바가 함께 갱신된다.
+- [ ] E-1 `[LIVE]`: 자동공격의 논리 히트 시점은 첫 `320ms`, 두 번째 `1570ms`(`1250ms` 모션 + 다음 `320ms` 히트 프레임)다. 60Hz 화면 관측에는 최대 1프레임(`16.7ms`) 지연을 허용한다. 각 허용 구간 전에는 HP가 감소하지 않고 이후에는 정확히 한 번씩 감소하며 대상 HUD의 HP 값과 바가 내부 상태와 일치한다.
 - [ ] E-2 `[LIVE]`: 슬라임 사망 시 화면에서 숨겨지고 선택·자동공격이 해제되며 내부 모드는 `idle`이다.
 - [ ] E-3 `[LIVE]`: 한 번의 사망에 골드와 음 보상이 정확히 한 번만 증가하고 대기 중 추가 증가가 없다.
-- [ ] E-4 `[LIVE]`: 기본 리스폰 시간 `5000ms` 후 슬라임이 최대 HP, 원래 스폰 위치, `idle`로 다시 나타난다.
+- [ ] E-4 `[LIVE]`: 슬라임 사망 직후 플레이어를 `(-10, 0)`으로 이동시키고 도착·`idle` 및 대상 스폰과의 거리 `3.0` 초과를 확인한다. 이후 기본 리스폰 시간 `5000ms`가 지나면 슬라임이 최대 HP, 원래 스폰 위치, `idle`로 다시 나타난다.
 - [ ] E-5 `[LIVE]`: 리스폰한 슬라임을 다시 처치하면 새 생명 기준으로 보상을 다시 한 번 받을 수 있다.
 
 ## F. 범위·안정성·최종 회귀
@@ -121,10 +121,13 @@
 - [ ] G-2: 저장소 루트에서 `(cd client && npx vitest run)` — 전체 테스트 통과.
 - [ ] G-3: 저장소 루트에서 `(cd client && npm run build)` — 프로덕션 빌드 성공.
 - [ ] G-4: 저장소 루트에서 `node scripts/validate-runtime-data.mjs` — `runtime data OK`.
-- [ ] G-5: 저장소 루트에서 아래 명령을 실행해 `client/src/game/`의 Svelte, Three.js, Threlte, 브라우저 import가 없음을 확인한다.
+- [ ] G-5: 저장소 루트에서 아래 명령을 실행해 `client/src/game/`의 Svelte, Three.js, Threlte import와 브라우저 전역 API 사용이 없음을 확인한다.
 
   ```bash
   if rg -n "from ['\"](?:svelte|three|@threlte)|import\\(['\"](?:svelte|three|@threlte)" client/src/game; then
+    exit 1
+  fi
+  if rg -n '\b(window|document|navigator|location|localStorage|sessionStorage|requestAnimationFrame|cancelAnimationFrame|HTMLElement|HTMLCanvasElement|fetch|WebSocket)\b' client/src/game; then
     exit 1
   fi
   ```
