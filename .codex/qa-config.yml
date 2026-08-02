@@ -66,3 +66,13 @@ browser:
     height: 720
   webglRequired: true
   preferredBrowser: "Google Chrome"
+  executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  headless: true
+  launchArgs:
+    - "--use-angle=swiftshader"
+    - "--enable-webgl"
+    - "--ignore-gpu-blocklist"
+  stateProbe:
+    pauseAnimationFrame: true
+    worldGlobal: "window.__world"
+    tickImport: "/src/game/sim/world.ts"
