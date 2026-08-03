@@ -7,6 +7,11 @@ import {
   playerHpFillRatio,
   type HudSnapshot,
 } from '../hud-model';
+import {
+  M3_IDS,
+  applyM3Action,
+  enableM3SupplyCache,
+} from '../../game/sim/m3-progression';
 
 describe('HUD model', () => {
   it.each([
@@ -40,6 +45,15 @@ describe('HUD model', () => {
         { symbol: 'ㅇ', quantity: 2 },
       ],
       target: null,
+      m3: expect.objectContaining({
+        stage: 'defeat_slime',
+        gold: 15,
+        hwaInitial: 0,
+        hwaMedial: 0,
+        stone: 0,
+        currentGyeolId: null,
+        transformed: false,
+      }),
     });
     expect(snapshot).not.toHaveProperty('playerPos');
     world.inventory.eum[0].quantity = 99;
@@ -94,6 +108,33 @@ describe('HUD model', () => {
 
     expect(after).toMatchObject({ playerHp: 196, playerMaxHp: 236 });
     expect(hudSnapshotsEqual(before, after)).toBe(false);
+  });
+
+  it('publishes M3 stage, requirements, current Gyeol, and transformed state', () => {
+    const world = createWorld();
+    enableM3SupplyCache(world.m3);
+    applyM3Action(world.m3, world.inventory, 'in_fire_001', 'collect_m3_supply_cache');
+    world.inventory.gold = 20;
+    applyM3Action(world.m3, world.inventory, 'in_fire_001', 'craft_m3_jahyeong_hwa');
+    applyM3Action(world.m3, world.inventory, 'in_fire_001', 'inscribe_m3_letter_hwa');
+    applyM3Action(world.m3, world.inventory, 'in_fire_001', 'equip_m3_letter_hwa');
+    applyM3Action(world.m3, world.inventory, 'in_fire_001', 'toggle_m3_transformation');
+
+    const snapshot = createHudSnapshot(world);
+    expect(snapshot.m3).toMatchObject({
+      stage: 'transformed',
+      hwaInitial: 0,
+      hwaMedial: 0,
+      stone: 0,
+      currentGyeolId: M3_IDS.letter,
+      transformed: true,
+    });
+    expect(
+      hudSnapshotsEqual(snapshot, {
+        ...snapshot,
+        m3: { ...snapshot.m3, statusMessage: 'changed' },
+      }),
+    ).toBe(false);
   });
 
   it.each([

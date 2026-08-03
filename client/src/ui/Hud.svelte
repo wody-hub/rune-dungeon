@@ -1,12 +1,16 @@
 <script lang="ts">
+  import type { M3Action } from '../game/sim/m3-progression';
+  import M3ProgressPanel from './M3ProgressPanel.svelte';
   import { playerHpFillRatio, type HudSnapshot } from './hud-model';
 
   let {
     snapshot,
     showDebug = false,
+    onM3Action,
   }: {
     snapshot: HudSnapshot | null;
     showDebug?: boolean;
+    onM3Action: (action: M3Action) => void;
   } = $props();
 
   const modeLabel = {
@@ -30,6 +34,9 @@
           style:width={`${playerHpFillRatio(snapshot.playerHp, snapshot.playerMaxHp) * 100}%`}
         ></div>
       </div>
+      {#if snapshot.m3.currentGyeolId}
+        <span class="current-gyeol-label">현재 결 · 화</span>
+      {/if}
     </section>
 
     {#if snapshot.target}
@@ -60,6 +67,8 @@
         {/each}
       </div>
     </section>
+
+    <M3ProgressPanel snapshot={snapshot.m3} onAction={onM3Action} />
 
     {#if showDebug}
       <aside class="hud-panel debug-panel" aria-label="개발 정보">
@@ -118,6 +127,13 @@
   }
 
   .player-panel { top: var(--rd-panel-inset); left: var(--rd-panel-inset); width: var(--rd-panel-player-width); }
+
+  .current-gyeol-label {
+    display: block;
+    margin-top: var(--rd-space-sm);
+    color: var(--rd-fire-gyeol);
+    font: 700 var(--rd-type-label-size)/1.2 var(--rd-font-display);
+  }
 
   .target-panel {
     top: var(--rd-panel-inset);

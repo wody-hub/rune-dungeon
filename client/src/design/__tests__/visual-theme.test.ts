@@ -58,6 +58,7 @@ describe('visual theme', () => {
 
   it('serializes stable CSS custom properties for the Svelte shell', () => {
     const variables = themeCssVariables().split(';');
+    expect(visualTheme.motion.transformationMs).toBe(800);
     expect(variables).toEqual(expect.arrayContaining([
       '--rd-ink-950:#0D1418',
       '--rd-font-display:"Gowun Batang", serif',
@@ -74,6 +75,7 @@ describe('visual theme', () => {
       '--rd-panel-target-width:362px',
       '--rd-panel-resource-width:282px',
       '--rd-motion-short:200ms',
+      '--rd-motion-transformation:800ms',
     ]));
   });
 });

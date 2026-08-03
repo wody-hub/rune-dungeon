@@ -54,6 +54,7 @@ export const visualTheme = {
     glowPeriodMs: 2_400,
     microMs: 100,
     shortMs: 200,
+    transformationMs: 800,
   },
 } as const;
 
@@ -104,6 +105,7 @@ export function themeCssVariables(theme: VisualTheme = visualTheme): string {
     ['--rd-panel-mobile-target-top', theme.panel.mobileTargetTop],
     ['--rd-motion-micro', `${theme.motion.microMs}ms`],
     ['--rd-motion-short', `${theme.motion.shortMs}ms`],
+    ['--rd-motion-transformation', `${theme.motion.transformationMs}ms`],
   ];
   return variables
     .map(([variable, value]) => `${variable}:${value}`)

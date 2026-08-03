@@ -3,6 +3,7 @@
   import { interactivity } from '@threlte/extras';
   import { onMount } from 'svelte';
   import { createWorld, enqueueIntent, tick } from '../game/sim/world';
+  import type { M3Action } from '../game/sim/m3-progression';
   import { createFrameTimer, FRAME_TIME_MS } from '../game/loop/fixed-step';
   import {
     createHudSnapshot,
@@ -39,6 +40,10 @@
   let camera = $state<{ update: () => void }>();
   let monsterLayer = $state<{ update: (nowMs: number) => void }>();
   let playerLayer = $state<{ update: (nowMs: number) => void }>();
+
+  export function requestM3Action(action: M3Action): void {
+    enqueueIntent(world, { type: action });
+  }
 
   function publishHud(): void {
     const next = createHudSnapshot(world);
