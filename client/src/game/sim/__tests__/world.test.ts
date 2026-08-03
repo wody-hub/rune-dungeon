@@ -97,6 +97,54 @@ describe('world combat content resolution', () => {
 });
 
 describe('world combat loop', () => {
+  it('initializes runtime player hp from fixture content', () => {
+    const w = createWorld({ random: zeroRandom() });
+    expect(w.player).toMatchObject({ hp: 196, maxHp: 196 });
+  });
+
+  it('applies a counterattack after monster AI engages', () => {
+    const w = createWorld({ random: zeroRandom() });
+    const monster = w.monsters.get('slime-1')!;
+    monster.pos = { x: 1.4, z: 0 };
+    monster.spawnPos = { ...monster.pos };
+
+    tick(w, 0.419);
+    expect(w.player.hp).toBe(196);
+    tick(w, 0.001);
+    expect(w.player.hp).toBe(180);
+  });
+
+  it('lets engaged monsters attack on independent clocks', () => {
+    const w = createWorld({ random: zeroRandom() });
+    const first = w.monsters.get('slime-1')!;
+    const second = w.monsters.get('slime-2')!;
+    first.pos = { x: 1.4, z: 0 };
+    first.spawnPos = { ...first.pos };
+    second.pos = { x: -1.4, z: 0 };
+    second.spawnPos = { ...second.pos };
+
+    tick(w, 0.42);
+
+    expect(w.player.hp).toBe(164);
+    expect(first.pendingHitMs).toBeNull();
+    expect(second.pendingHitMs).toBeNull();
+  });
+
+  it('resets a partial counterattack when pursuit resumes', () => {
+    const w = createWorld({ random: zeroRandom() });
+    const monster = w.monsters.get('slime-1')!;
+    monster.pos = { x: 1.4, z: 0 };
+    monster.spawnPos = { ...monster.pos };
+    tick(w, 0.2);
+    expect(monster.pendingHitMs).toBe(220);
+
+    w.player.pos = { x: 3, z: 0 };
+    tick(w, 0.01);
+    expect(monster.mode).toBe('chasing');
+    expect(monster).toMatchObject({ attackElapsedMs: 0, pendingHitMs: null });
+    expect(w.player.hp).toBe(196);
+  });
+
   it('spawns three ink slimes', () => {
     const w = createWorld({ random: zeroRandom() });
     expect([...w.monsters.values()]).toHaveLength(3);

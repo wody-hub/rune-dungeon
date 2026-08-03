@@ -11,6 +11,7 @@ import {
 } from '../types/data';
 import { rollPhysicalDamage } from './combat/damage';
 import { rollCombatRewards, type CombatRewards } from './combat/drops';
+import { tickMonsterAttack } from './combat/monster-attack';
 import { tickMonsterAi } from './ai/monster-ai';
 import {
   createMonster,
@@ -250,5 +251,19 @@ export function tick(w: WorldState, dt: number): void {
   tickPlayer(w, dt, elapsedMs);
   for (const monster of w.monsters.values()) {
     tickMonsterAi(monster, w.player.pos, w.content.monster, dt);
+  }
+  for (const monster of w.monsters.values()) {
+    tickMonsterAttack(
+      monster,
+      w.player,
+      {
+        baseDamage: w.content.monster.baseDamage,
+        attackMotionMs: w.content.monster.attackMotionMs,
+        hitFrameMs: w.content.monster.hitFrameMs,
+        playerDefense: w.content.player.combatProfile.defenseFromStr,
+      },
+      elapsedMs,
+      w.random,
+    );
   }
 }
