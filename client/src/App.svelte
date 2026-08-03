@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Canvas } from '@threlte/core';
+  import { themeCssVariables } from './design/visual-theme';
   import GameScene from './scene/GameScene.svelte';
   import Hud from './ui/Hud.svelte';
   import type { HudSnapshot } from './ui/hud-model';
@@ -7,7 +8,7 @@
   let hud = $state<HudSnapshot | null>(null);
 </script>
 
-<div class="game-root">
+<div class="game-root" style={themeCssVariables()}>
   <Canvas renderMode="manual">
     <GameScene onHudChange={(snapshot) => (hud = snapshot)} />
   </Canvas>

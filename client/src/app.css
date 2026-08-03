@@ -5,14 +5,25 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #111;
-  color: #eee;
-  font-family: system-ui, sans-serif;
+  background: #0d1418;
+  color: #ddd4bd;
+  font-family: "SUIT Variable", sans-serif;
+}
+
+body {
+  text-rendering: optimizeLegibility;
 }
 
 #app {
   width: 100%;
   height: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 .hud {
