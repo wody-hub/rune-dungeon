@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { visualTheme } from '../../design/visual-theme';
-import { glowPulse, monsterVisualState } from '../visual-state';
+import { glowPulse, monsterVisualState, transientPulse } from '../visual-state';
 
 describe('scene visual state', () => {
   it('loops the crystal pulse every approved 2.4 seconds', () => {
@@ -16,16 +16,28 @@ describe('scene visual state', () => {
 
   it('uses silhouette plus seal ring to identify selection', () => {
     expect(monsterVisualState(false)).toEqual({
-      body: '#13191C',
+      body: '#344349',
       core: visualTheme.colors.crystalGlow,
       ring: visualTheme.colors.sealVermilion,
       ringVisible: false,
       coreBoost: 0,
     });
     expect(monsterVisualState(true)).toMatchObject({
-      body: '#20272A',
+      body: '#46575D',
       ringVisible: true,
       coreBoost: 0.24,
     });
+  });
+
+  it('decays combat feedback across the approved short duration', () => {
+    expect(transientPulse(1_000, 1_000, false)).toBe(1);
+    expect(transientPulse(1_100, 1_000, false)).toBe(0.5);
+    expect(transientPulse(1_200, 1_000, false)).toBe(0);
+    expect(transientPulse(999, 1_000, false)).toBe(0);
+  });
+
+  it('suppresses combat transients when reduced motion is requested', () => {
+    expect(transientPulse(1_000, 1_000, true)).toBe(0);
+    expect(transientPulse(1_000, null, false)).toBe(0);
   });
 });
