@@ -24,6 +24,10 @@ export function playerHpFillRatio(playerHp: number, playerMaxHp: number): number
   return Math.min(1, Math.max(0, playerHp / playerMaxHp));
 }
 
+export function isDebugHudEnabled(dev: boolean, search: string): boolean {
+  return dev && new URLSearchParams(search).has('debugHud');
+}
+
 export function createHudSnapshot(world: WorldState): HudSnapshot {
   const selectedId = world.player.combatTargetId;
   const selected = selectedId ? world.monsters.get(selectedId) : undefined;

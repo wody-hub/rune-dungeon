@@ -3,11 +3,23 @@ import { createWorld, enqueueIntent, tick } from '../../game/sim/world';
 import {
   createHudSnapshot,
   hudSnapshotsEqual,
+  isDebugHudEnabled,
   playerHpFillRatio,
   type HudSnapshot,
 } from '../hud-model';
 
 describe('HUD model', () => {
+  it.each([
+    [true, '?debugHud', true],
+    [true, '?other=value', false],
+    [false, '?debugHud', false],
+  ])(
+    'resolves debug HUD for dev=%s and search=%s',
+    (dev, search, expected) => {
+      expect(isDebugHudEnabled(dev, search)).toBe(expected);
+    },
+  );
+
   it('copies and sorts visible inventory state without exposing positions', () => {
     const world = createWorld();
     world.inventory.eum = [
