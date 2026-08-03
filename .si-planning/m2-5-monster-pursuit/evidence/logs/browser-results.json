@@ -1,0 +1,3178 @@
+{
+  "executedAt": "2026-08-03T00:19:17.060Z",
+  "url": "http://127.0.0.1:5173/",
+  "expectedCount": 32,
+  "summary": {
+    "PASS": 32
+  },
+  "browserErrors": [],
+  "results": [
+    {
+      "id": "A-1",
+      "status": "PASS",
+      "details": {
+        "status": 200,
+        "canvas": {
+          "width": 1280,
+          "height": 720,
+          "clientWidth": 1280,
+          "clientHeight": 720,
+          "webgl2": true
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/A-1.png",
+      "screenshotError": null
+    },
+    {
+      "id": "A-2",
+      "status": "PASS",
+      "details": {
+        "canvas": {
+          "width": 1280,
+          "height": 720,
+          "clientWidth": 1280,
+          "clientHeight": 720,
+          "webgl2": true
+        },
+        "errors": []
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/A-2.png",
+      "screenshotError": null
+    },
+    {
+      "id": "A-3",
+      "status": "PASS",
+      "details": [
+        {
+          "entityId": "slime-1",
+          "mode": "idle",
+          "alive": true,
+          "hp": 140,
+          "maxHp": 140,
+          "deathProcessed": false,
+          "respawnRemainingMs": null,
+          "pos": {
+            "x": 3,
+            "z": 0
+          },
+          "spawnPos": {
+            "x": 3,
+            "z": 0
+          }
+        },
+        {
+          "entityId": "slime-2",
+          "mode": "idle",
+          "alive": true,
+          "hp": 140,
+          "maxHp": 140,
+          "deathProcessed": false,
+          "respawnRemainingMs": null,
+          "pos": {
+            "x": -3,
+            "z": 3
+          },
+          "spawnPos": {
+            "x": -3,
+            "z": 3
+          }
+        },
+        {
+          "entityId": "slime-3",
+          "mode": "idle",
+          "alive": true,
+          "hp": 140,
+          "maxHp": 140,
+          "deathProcessed": false,
+          "respawnRemainingMs": null,
+          "pos": {
+            "x": 0,
+            "z": -4
+          },
+          "spawnPos": {
+            "x": 0,
+            "z": -4
+          }
+        }
+      ],
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/A-3.png",
+      "screenshotError": null
+    },
+    {
+      "id": "A-4",
+      "status": "PASS",
+      "details": {
+        "initial": [
+          {
+            "entityId": "slime-1",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 3,
+              "z": 0
+            },
+            "spawnPos": {
+              "x": 3,
+              "z": 0
+            }
+          },
+          {
+            "entityId": "slime-2",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": -3,
+              "z": 3
+            },
+            "spawnPos": {
+              "x": -3,
+              "z": 3
+            }
+          },
+          {
+            "entityId": "slime-3",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 0,
+              "z": -4
+            },
+            "spawnPos": {
+              "x": 0,
+              "z": -4
+            }
+          }
+        ],
+        "later": [
+          {
+            "entityId": "slime-1",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 3,
+              "z": 0
+            },
+            "spawnPos": {
+              "x": 3,
+              "z": 0
+            }
+          },
+          {
+            "entityId": "slime-2",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": -3,
+              "z": 3
+            },
+            "spawnPos": {
+              "x": -3,
+              "z": 3
+            }
+          },
+          {
+            "entityId": "slime-3",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 0,
+              "z": -4
+            },
+            "spawnPos": {
+              "x": 0,
+              "z": -4
+            }
+          }
+        ]
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/A-4.png",
+      "screenshotError": null
+    },
+    {
+      "id": "A-5",
+      "status": "PASS",
+      "details": {
+        "text": "상태\n대기\n자동공격\nOFF\n골드\n100\n음\nㄱ×3 · ㅂ×1 · ㅇ×1 · ㅎ×1 · ㅏ×2 · ㅘ×1",
+        "targetVisible": false,
+        "fillWidth": null,
+        "canvasVisible": true
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/A-5.png",
+      "screenshotError": null
+    },
+    {
+      "id": "B-1",
+      "status": "PASS",
+      "details": {
+        "before": {
+          "player": {
+            "pos": {
+              "x": 0,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 3,
+              "z": 0
+            },
+            "pos": {
+              "x": 3,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "idle",
+            "respawnRemainingMs": null
+          }
+        },
+        "after": {
+          "player": {
+            "pos": {
+              "x": 0,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 3,
+              "z": 0
+            },
+            "pos": {
+              "x": 3,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "idle",
+            "respawnRemainingMs": null
+          }
+        },
+        "afterSecond": null
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/B-1.png",
+      "screenshotError": null
+    },
+    {
+      "id": "B-2",
+      "status": "PASS",
+      "details": {
+        "player": {
+          "pos": {
+            "x": 0.1,
+            "z": 0
+          },
+          "mode": "idle",
+          "moveTarget": null,
+          "combatTargetId": null,
+          "autoAttackEnabled": false,
+          "attackElapsedMs": 0,
+          "pendingHitMs": null
+        },
+        "monsters": [
+          {
+            "entityId": "slime-1",
+            "mode": "chasing",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 2.93,
+              "z": 0
+            },
+            "spawnPos": {
+              "x": 3,
+              "z": 0
+            }
+          },
+          {
+            "entityId": "slime-2",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": -3,
+              "z": 3
+            },
+            "spawnPos": {
+              "x": -3,
+              "z": 3
+            }
+          },
+          {
+            "entityId": "slime-3",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 0,
+              "z": -4
+            },
+            "spawnPos": {
+              "x": 0,
+              "z": -4
+            }
+          }
+        ],
+        "inventory": {
+          "gold": 100,
+          "eum": [
+            {
+              "symbol": "ㄱ",
+              "quantity": 3
+            },
+            {
+              "symbol": "ㅏ",
+              "quantity": 2
+            },
+            {
+              "symbol": "ㅇ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅎ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅘ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅂ",
+              "quantity": 1
+            }
+          ]
+        },
+        "weaponRange": 1.8
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/B-2.png",
+      "screenshotError": null
+    },
+    {
+      "id": "B-3",
+      "status": "PASS",
+      "details": [
+        {
+          "entityId": "slime-1",
+          "mode": "chasing",
+          "alive": true,
+          "hp": 140,
+          "maxHp": 140,
+          "deathProcessed": false,
+          "respawnRemainingMs": null,
+          "pos": {
+            "x": 2.93,
+            "z": 0
+          },
+          "spawnPos": {
+            "x": 3,
+            "z": 0
+          }
+        },
+        {
+          "entityId": "slime-2",
+          "mode": "idle",
+          "alive": true,
+          "hp": 140,
+          "maxHp": 140,
+          "deathProcessed": false,
+          "respawnRemainingMs": null,
+          "pos": {
+            "x": -3,
+            "z": 3
+          },
+          "spawnPos": {
+            "x": -3,
+            "z": 3
+          }
+        },
+        {
+          "entityId": "slime-3",
+          "mode": "idle",
+          "alive": true,
+          "hp": 140,
+          "maxHp": 140,
+          "deathProcessed": false,
+          "respawnRemainingMs": null,
+          "pos": {
+            "x": 0,
+            "z": -4
+          },
+          "spawnPos": {
+            "x": 0,
+            "z": -4
+          }
+        }
+      ],
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/B-3.png",
+      "screenshotError": null
+    },
+    {
+      "id": "B-4",
+      "status": "PASS",
+      "details": {
+        "state": {
+          "player": {
+            "pos": {
+              "x": 0.1,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "engaged",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 1.5000000000000002,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 100,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 2
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        },
+        "distance": 1.4000000000000001
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/B-4.png",
+      "screenshotError": null
+    },
+    {
+      "id": "B-5",
+      "status": "PASS",
+      "details": {
+        "before": {
+          "player": {
+            "pos": {
+              "x": 2.3,
+              "z": 2.3
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 0,
+              "z": 0
+            },
+            "pos": {
+              "x": 0,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "chasing",
+            "respawnRemainingMs": null
+          }
+        },
+        "after": {
+          "player": {
+            "pos": {
+              "x": 2.3,
+              "z": 2.3
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 0,
+              "z": 0
+            },
+            "pos": {
+              "x": 1.310050506338833,
+              "z": 1.310050506338833
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "engaged",
+            "respawnRemainingMs": null
+          }
+        },
+        "afterSecond": null
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/B-5.png",
+      "screenshotError": null
+    },
+    {
+      "id": "B-6",
+      "status": "PASS",
+      "details": {
+        "player": {
+          "pos": {
+            "x": 0,
+            "z": 0
+          },
+          "mode": "moving",
+          "moveTarget": {
+            "x": -1,
+            "z": 0
+          },
+          "combatTargetId": null,
+          "autoAttackEnabled": false,
+          "attackElapsedMs": 0,
+          "pendingHitMs": null
+        },
+        "monsters": [
+          {
+            "entityId": "slime-1",
+            "mode": "chasing",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 1.4300000000000002,
+              "z": 0
+            },
+            "spawnPos": {
+              "x": 3,
+              "z": 0
+            }
+          },
+          {
+            "entityId": "slime-2",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": -3,
+              "z": 3
+            },
+            "spawnPos": {
+              "x": -3,
+              "z": 3
+            }
+          },
+          {
+            "entityId": "slime-3",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 0,
+              "z": -4
+            },
+            "spawnPos": {
+              "x": 0,
+              "z": -4
+            }
+          }
+        ],
+        "inventory": {
+          "gold": 100,
+          "eum": [
+            {
+              "symbol": "ㄱ",
+              "quantity": 3
+            },
+            {
+              "symbol": "ㅏ",
+              "quantity": 2
+            },
+            {
+              "symbol": "ㅇ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅎ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅘ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅂ",
+              "quantity": 1
+            }
+          ]
+        },
+        "weaponRange": 1.8
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/B-6.png",
+      "screenshotError": null
+    },
+    {
+      "id": "C-1",
+      "status": "PASS",
+      "details": {
+        "before": {
+          "player": {
+            "pos": {
+              "x": 4.5,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 0,
+              "z": 0
+            },
+            "pos": {
+              "x": 0,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "chasing",
+            "respawnRemainingMs": null
+          }
+        },
+        "after": {
+          "player": {
+            "pos": {
+              "x": 4.5,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 0,
+              "z": 0
+            },
+            "pos": {
+              "x": 0.07,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "chasing",
+            "respawnRemainingMs": null
+          }
+        },
+        "afterSecond": null
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/C-1.png",
+      "screenshotError": null
+    },
+    {
+      "id": "C-2",
+      "status": "PASS",
+      "details": {
+        "state": {
+          "player": {
+            "pos": {
+              "x": 12,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "returning",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 7.45000000000001,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 100,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 2
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        },
+        "spawnDistance": 4.45000000000001
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/C-2.png",
+      "screenshotError": null
+    },
+    {
+      "id": "C-3",
+      "status": "PASS",
+      "details": {
+        "before": {
+          "player": {
+            "pos": {
+              "x": 7,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 0,
+              "z": 0
+            },
+            "pos": {
+              "x": 6,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "chasing",
+            "respawnRemainingMs": null
+          }
+        },
+        "after": {
+          "player": {
+            "pos": {
+              "x": 7,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 0,
+              "z": 0
+            },
+            "pos": {
+              "x": 5.93,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "returning",
+            "respawnRemainingMs": null
+          }
+        },
+        "afterSecond": null
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/C-3.png",
+      "screenshotError": null
+    },
+    {
+      "id": "C-4",
+      "status": "PASS",
+      "details": {
+        "state": {
+          "player": {
+            "pos": {
+              "x": -4.699999999999999,
+              "z": 0
+            },
+            "mode": "moving",
+            "moveTarget": {
+              "x": -2.9799999999999995,
+              "z": 0
+            },
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "returning",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -1.7200000000000015,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 100,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 2
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        },
+        "distance": 2.9799999999999978
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/C-4.png",
+      "screenshotError": null
+    },
+    {
+      "id": "C-5",
+      "status": "PASS",
+      "details": {
+        "player": {
+          "pos": {
+            "x": -2.9799999999999995,
+            "z": 0
+          },
+          "mode": "idle",
+          "moveTarget": null,
+          "combatTargetId": null,
+          "autoAttackEnabled": false,
+          "attackElapsedMs": 0,
+          "pendingHitMs": null
+        },
+        "monsters": [
+          {
+            "entityId": "slime-1",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 3,
+              "z": 0
+            },
+            "spawnPos": {
+              "x": 3,
+              "z": 0
+            }
+          },
+          {
+            "entityId": "slime-2",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": -3,
+              "z": 3
+            },
+            "spawnPos": {
+              "x": -3,
+              "z": 3
+            }
+          },
+          {
+            "entityId": "slime-3",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 0,
+              "z": -4
+            },
+            "spawnPos": {
+              "x": 0,
+              "z": -4
+            }
+          }
+        ],
+        "inventory": {
+          "gold": 100,
+          "eum": [
+            {
+              "symbol": "ㄱ",
+              "quantity": 3
+            },
+            {
+              "symbol": "ㅏ",
+              "quantity": 2
+            },
+            {
+              "symbol": "ㅇ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅎ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅘ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅂ",
+              "quantity": 1
+            }
+          ]
+        },
+        "weaponRange": 1.8
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/C-5.png",
+      "screenshotError": null
+    },
+    {
+      "id": "C-6",
+      "status": "PASS",
+      "details": {
+        "before": {
+          "player": {
+            "pos": {
+              "x": 0.1,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 0,
+              "z": 0
+            },
+            "pos": {
+              "x": 0.01,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "returning",
+            "respawnRemainingMs": null
+          }
+        },
+        "after": {
+          "player": {
+            "pos": {
+              "x": 0.1,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 0,
+              "z": 0
+            },
+            "pos": {
+              "x": 0,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "idle",
+            "respawnRemainingMs": null
+          }
+        },
+        "afterSecond": {
+          "player": {
+            "pos": {
+              "x": 0.1,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monster": {
+            "entityId": "slime-1",
+            "definitionId": "monster_ink_slime_001",
+            "spawnPos": {
+              "x": 0,
+              "z": 0
+            },
+            "pos": {
+              "x": 0,
+              "z": 0
+            },
+            "hp": 140,
+            "alive": true,
+            "deathProcessed": false,
+            "mode": "engaged",
+            "respawnRemainingMs": null
+          }
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/C-6.png",
+      "screenshotError": null
+    },
+    {
+      "id": "D-1",
+      "status": "PASS",
+      "details": {
+        "state": {
+          "player": {
+            "pos": {
+              "x": 0,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": "slime-1",
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 3,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 100,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 2
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        },
+        "hud": {
+          "text": "상태\n대기\n자동공격\nOFF\n골드\n100\n음\nㄱ×3 · ㅂ×1 · ㅇ×1 · ㅎ×1 · ㅏ×2 · ㅘ×1\n먹물 슬라임\n140 / 140",
+          "targetVisible": true,
+          "fillWidth": "100%",
+          "canvasVisible": true
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/D-1.png",
+      "screenshotError": null
+    },
+    {
+      "id": "D-2",
+      "status": "PASS",
+      "details": {
+        "player": {
+          "pos": {
+            "x": 0.1,
+            "z": 0
+          },
+          "mode": "moving",
+          "moveTarget": {
+            "x": 3,
+            "z": 0
+          },
+          "combatTargetId": "slime-1",
+          "autoAttackEnabled": true,
+          "attackElapsedMs": 0,
+          "pendingHitMs": null
+        },
+        "monsters": [
+          {
+            "entityId": "slime-1",
+            "mode": "chasing",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 2.93,
+              "z": 0
+            },
+            "spawnPos": {
+              "x": 3,
+              "z": 0
+            }
+          },
+          {
+            "entityId": "slime-2",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": -3,
+              "z": 3
+            },
+            "spawnPos": {
+              "x": -3,
+              "z": 3
+            }
+          },
+          {
+            "entityId": "slime-3",
+            "mode": "idle",
+            "alive": true,
+            "hp": 140,
+            "maxHp": 140,
+            "deathProcessed": false,
+            "respawnRemainingMs": null,
+            "pos": {
+              "x": 0,
+              "z": -4
+            },
+            "spawnPos": {
+              "x": 0,
+              "z": -4
+            }
+          }
+        ],
+        "inventory": {
+          "gold": 100,
+          "eum": [
+            {
+              "symbol": "ㄱ",
+              "quantity": 3
+            },
+            {
+              "symbol": "ㅏ",
+              "quantity": 2
+            },
+            {
+              "symbol": "ㅇ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅎ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅘ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅂ",
+              "quantity": 1
+            }
+          ]
+        },
+        "weaponRange": 1.8
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/D-2.png",
+      "screenshotError": null
+    },
+    {
+      "id": "D-3",
+      "status": "PASS",
+      "details": {
+        "pos": {
+          "x": 0.7999999999999999,
+          "z": 0
+        },
+        "mode": "attacking",
+        "moveTarget": null,
+        "combatTargetId": "slime-1",
+        "autoAttackEnabled": true,
+        "attackElapsedMs": 116.66666666666669,
+        "pendingHitMs": 203.33333333333331
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/D-3.png",
+      "screenshotError": null
+    },
+    {
+      "id": "D-4",
+      "status": "PASS",
+      "details": {
+        "pos": {
+          "x": 0.8034831261930868,
+          "z": 0.09993932074975811
+        },
+        "mode": "moving",
+        "moveTarget": {
+          "x": 1.1095870278420072,
+          "z": 8.882801127583122
+        },
+        "combatTargetId": null,
+        "autoAttackEnabled": false,
+        "attackElapsedMs": 0,
+        "pendingHitMs": null
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/D-4.png",
+      "screenshotError": null
+    },
+    {
+      "id": "D-5",
+      "status": "PASS",
+      "details": {
+        "approachSamples": [
+          {
+            "player": {
+              "x": 0.6,
+              "z": 0
+            },
+            "monster": {
+              "x": 2.580000000000001,
+              "z": 0
+            },
+            "distance": 1.9800000000000009
+          },
+          {
+            "player": {
+              "x": 0.7,
+              "z": 0
+            },
+            "monster": {
+              "x": 2.510000000000001,
+              "z": 0
+            },
+            "distance": 1.8100000000000012
+          },
+          {
+            "player": {
+              "x": 0.7999999999999999,
+              "z": 0
+            },
+            "monster": {
+              "x": 2.3000000000000016,
+              "z": 0
+            },
+            "distance": 1.5000000000000018
+          }
+        ],
+        "attacking": {
+          "pos": {
+            "x": 0.7999999999999999,
+            "z": 0
+          },
+          "mode": "attacking",
+          "moveTarget": null,
+          "combatTargetId": "slime-1",
+          "autoAttackEnabled": true,
+          "attackElapsedMs": 166.66666666666666,
+          "pendingHitMs": 153.33333333333334
+        },
+        "firstHit": {
+          "player": {
+            "pos": {
+              "x": 0.7999999999999999,
+              "z": 0
+            },
+            "mode": "attacking",
+            "moveTarget": null,
+            "combatTargetId": "slime-1",
+            "autoAttackEnabled": true,
+            "attackElapsedMs": 333.33333333333337,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "engaged",
+              "alive": true,
+              "hp": 101,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 2.2,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 100,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 2
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/D-5.png",
+      "screenshotError": null
+    },
+    {
+      "id": "E-1",
+      "status": "PASS",
+      "details": {
+        "attackStartState": {
+          "player": {
+            "pos": {
+              "x": 0.7999999999999999,
+              "z": 0
+            },
+            "mode": "attacking",
+            "moveTarget": null,
+            "combatTargetId": "slime-1",
+            "autoAttackEnabled": true,
+            "attackElapsedMs": 166.66666666666666,
+            "pendingHitMs": 153.33333333333334
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "engaged",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 2.2,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 100,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 2
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        },
+        "firstHitAt": 335.0666666428249,
+        "secondHitAt": 1583.1666666666667,
+        "hpAtAttackStart": 140,
+        "hpAfterFirst": 101,
+        "hpAfterSecond": 57,
+        "hud": {
+          "text": "상태\n공격\n자동공격\nON\n골드\n100\n음\nㄱ×3 · ㅂ×1 · ㅇ×1 · ㅎ×1 · ㅏ×2 · ㅘ×1\n먹물 슬라임\n57 / 140",
+          "targetVisible": true,
+          "fillWidth": "40.7143%",
+          "canvasVisible": true
+        },
+        "expectedWidth": "40.714285714285715%"
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/E-1.png",
+      "screenshotError": null
+    },
+    {
+      "id": "E-2",
+      "status": "PASS",
+      "details": {
+        "state": {
+          "player": {
+            "pos": {
+              "x": 0.7999999999999999,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "idle",
+              "alive": false,
+              "hp": 0,
+              "maxHp": 140,
+              "deathProcessed": true,
+              "respawnRemainingMs": 5000,
+              "pos": {
+                "x": 2.2,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 105,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 4
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        },
+        "hud": {
+          "text": "상태\n대기\n자동공격\nOFF\n골드\n105\n음\nㄱ×4 · ㅂ×1 · ㅇ×1 · ㅎ×1 · ㅏ×3 · ㅘ×1",
+          "targetVisible": false,
+          "fillWidth": null,
+          "canvasVisible": true
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/E-2.png",
+      "screenshotError": null
+    },
+    {
+      "id": "E-3",
+      "status": "PASS",
+      "details": {
+        "before": {
+          "gold": 100,
+          "eum": [
+            {
+              "symbol": "ㄱ",
+              "quantity": 3
+            },
+            {
+              "symbol": "ㅏ",
+              "quantity": 2
+            },
+            {
+              "symbol": "ㅇ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅎ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅘ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅂ",
+              "quantity": 1
+            }
+          ]
+        },
+        "after": {
+          "gold": 105,
+          "eum": [
+            {
+              "symbol": "ㄱ",
+              "quantity": 4
+            },
+            {
+              "symbol": "ㅏ",
+              "quantity": 3
+            },
+            {
+              "symbol": "ㅇ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅎ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅘ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅂ",
+              "quantity": 1
+            }
+          ]
+        },
+        "stable": {
+          "gold": 105,
+          "eum": [
+            {
+              "symbol": "ㄱ",
+              "quantity": 4
+            },
+            {
+              "symbol": "ㅏ",
+              "quantity": 3
+            },
+            {
+              "symbol": "ㅇ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅎ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅘ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅂ",
+              "quantity": 1
+            }
+          ]
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/E-3.png",
+      "screenshotError": null
+    },
+    {
+      "id": "E-4",
+      "status": "PASS",
+      "details": {
+        "evacuated": {
+          "player": {
+            "pos": {
+              "x": -10,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "idle",
+              "alive": false,
+              "hp": 0,
+              "maxHp": 140,
+              "deathProcessed": true,
+              "respawnRemainingMs": 2383.3333333333326,
+              "pos": {
+                "x": 2.2,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 105,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 4
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        },
+        "respawned": {
+          "player": {
+            "pos": {
+              "x": -10,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 3,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 105,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 4
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/E-4.png",
+      "screenshotError": null
+    },
+    {
+      "id": "E-5",
+      "status": "PASS",
+      "details": {
+        "firstReward": {
+          "gold": 105,
+          "eum": [
+            {
+              "symbol": "ㄱ",
+              "quantity": 4
+            },
+            {
+              "symbol": "ㅏ",
+              "quantity": 3
+            },
+            {
+              "symbol": "ㅇ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅎ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅘ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅂ",
+              "quantity": 1
+            }
+          ]
+        },
+        "secondReward": {
+          "gold": 111,
+          "eum": [
+            {
+              "symbol": "ㄱ",
+              "quantity": 5
+            },
+            {
+              "symbol": "ㅏ",
+              "quantity": 3
+            },
+            {
+              "symbol": "ㅇ",
+              "quantity": 2
+            },
+            {
+              "symbol": "ㅎ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅘ",
+              "quantity": 1
+            },
+            {
+              "symbol": "ㅂ",
+              "quantity": 1
+            }
+          ]
+        },
+        "state": {
+          "player": {
+            "pos": {
+              "x": 0.7999999999999999,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "idle",
+              "alive": false,
+              "hp": 0,
+              "maxHp": 140,
+              "deathProcessed": true,
+              "respawnRemainingMs": 5000,
+              "pos": {
+                "x": 2.2,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 111,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 5
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 2
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/E-5.png",
+      "screenshotError": null
+    },
+    {
+      "id": "F-1",
+      "status": "PASS",
+      "details": {
+        "before": {
+          "pos": {
+            "x": 0.1,
+            "z": 0
+          },
+          "mode": "idle",
+          "moveTarget": null,
+          "combatTargetId": null,
+          "autoAttackEnabled": false,
+          "attackElapsedMs": 0,
+          "pendingHitMs": null
+        },
+        "after": {
+          "pos": {
+            "x": 0.1,
+            "z": 0
+          },
+          "mode": "idle",
+          "moveTarget": null,
+          "combatTargetId": null,
+          "autoAttackEnabled": false,
+          "attackElapsedMs": 0,
+          "pendingHitMs": null
+        },
+        "hud": {
+          "text": "상태\n대기\n자동공격\nOFF\n골드\n100\n음\nㄱ×3 · ㅂ×1 · ㅇ×1 · ㅎ×1 · ㅏ×2 · ㅘ×1",
+          "targetVisible": false,
+          "fillWidth": null,
+          "canvasVisible": true
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/F-1.png",
+      "screenshotError": null
+    },
+    {
+      "id": "F-2",
+      "status": "PASS",
+      "details": {
+        "hud": {
+          "text": "상태\n대기\n자동공격\nOFF\n골드\n100\n음\nㄱ×3 · ㅂ×1 · ㅇ×1 · ㅎ×1 · ㅏ×2 · ㅘ×1",
+          "targetVisible": false,
+          "fillWidth": null,
+          "canvasVisible": true
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/F-2.png",
+      "screenshotError": null
+    },
+    {
+      "id": "F-3",
+      "status": "PASS",
+      "details": [
+        {
+          "cycle": 1,
+          "engaged": {
+            "player": {
+              "pos": {
+                "x": 0.1,
+                "z": 0
+              },
+              "mode": "idle",
+              "moveTarget": null,
+              "combatTargetId": null,
+              "autoAttackEnabled": false,
+              "attackElapsedMs": 0,
+              "pendingHitMs": null
+            },
+            "monsters": [
+              {
+                "entityId": "slime-1",
+                "mode": "engaged",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 1.5000000000000002,
+                  "z": 0
+                },
+                "spawnPos": {
+                  "x": 3,
+                  "z": 0
+                }
+              },
+              {
+                "entityId": "slime-2",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": -3,
+                  "z": 3
+                },
+                "spawnPos": {
+                  "x": -3,
+                  "z": 3
+                }
+              },
+              {
+                "entityId": "slime-3",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 0,
+                  "z": -4
+                },
+                "spawnPos": {
+                  "x": 0,
+                  "z": -4
+                }
+              }
+            ],
+            "inventory": {
+              "gold": 100,
+              "eum": [
+                {
+                  "symbol": "ㄱ",
+                  "quantity": 3
+                },
+                {
+                  "symbol": "ㅏ",
+                  "quantity": 2
+                },
+                {
+                  "symbol": "ㅇ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅎ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅘ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅂ",
+                  "quantity": 1
+                }
+              ]
+            },
+            "weaponRange": 1.8
+          },
+          "returned": {
+            "player": {
+              "pos": {
+                "x": -12,
+                "z": 0
+              },
+              "mode": "idle",
+              "moveTarget": null,
+              "combatTargetId": null,
+              "autoAttackEnabled": false,
+              "attackElapsedMs": 0,
+              "pendingHitMs": null
+            },
+            "monsters": [
+              {
+                "entityId": "slime-1",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 3,
+                  "z": 0
+                },
+                "spawnPos": {
+                  "x": 3,
+                  "z": 0
+                }
+              },
+              {
+                "entityId": "slime-2",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": -3,
+                  "z": 3
+                },
+                "spawnPos": {
+                  "x": -3,
+                  "z": 3
+                }
+              },
+              {
+                "entityId": "slime-3",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 0,
+                  "z": -4
+                },
+                "spawnPos": {
+                  "x": 0,
+                  "z": -4
+                }
+              }
+            ],
+            "inventory": {
+              "gold": 100,
+              "eum": [
+                {
+                  "symbol": "ㄱ",
+                  "quantity": 3
+                },
+                {
+                  "symbol": "ㅏ",
+                  "quantity": 2
+                },
+                {
+                  "symbol": "ㅇ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅎ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅘ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅂ",
+                  "quantity": 1
+                }
+              ]
+            },
+            "weaponRange": 1.8
+          },
+          "otherMonstersSafe": true,
+          "finite": true
+        },
+        {
+          "cycle": 2,
+          "engaged": {
+            "player": {
+              "pos": {
+                "x": 0.1,
+                "z": 0
+              },
+              "mode": "idle",
+              "moveTarget": null,
+              "combatTargetId": null,
+              "autoAttackEnabled": false,
+              "attackElapsedMs": 0,
+              "pendingHitMs": null
+            },
+            "monsters": [
+              {
+                "entityId": "slime-1",
+                "mode": "engaged",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 1.5000000000000002,
+                  "z": 0
+                },
+                "spawnPos": {
+                  "x": 3,
+                  "z": 0
+                }
+              },
+              {
+                "entityId": "slime-2",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": -3,
+                  "z": 3
+                },
+                "spawnPos": {
+                  "x": -3,
+                  "z": 3
+                }
+              },
+              {
+                "entityId": "slime-3",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 0,
+                  "z": -4
+                },
+                "spawnPos": {
+                  "x": 0,
+                  "z": -4
+                }
+              }
+            ],
+            "inventory": {
+              "gold": 100,
+              "eum": [
+                {
+                  "symbol": "ㄱ",
+                  "quantity": 3
+                },
+                {
+                  "symbol": "ㅏ",
+                  "quantity": 2
+                },
+                {
+                  "symbol": "ㅇ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅎ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅘ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅂ",
+                  "quantity": 1
+                }
+              ]
+            },
+            "weaponRange": 1.8
+          },
+          "returned": {
+            "player": {
+              "pos": {
+                "x": -12,
+                "z": 0
+              },
+              "mode": "idle",
+              "moveTarget": null,
+              "combatTargetId": null,
+              "autoAttackEnabled": false,
+              "attackElapsedMs": 0,
+              "pendingHitMs": null
+            },
+            "monsters": [
+              {
+                "entityId": "slime-1",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 3,
+                  "z": 0
+                },
+                "spawnPos": {
+                  "x": 3,
+                  "z": 0
+                }
+              },
+              {
+                "entityId": "slime-2",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": -3,
+                  "z": 3
+                },
+                "spawnPos": {
+                  "x": -3,
+                  "z": 3
+                }
+              },
+              {
+                "entityId": "slime-3",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 0,
+                  "z": -4
+                },
+                "spawnPos": {
+                  "x": 0,
+                  "z": -4
+                }
+              }
+            ],
+            "inventory": {
+              "gold": 100,
+              "eum": [
+                {
+                  "symbol": "ㄱ",
+                  "quantity": 3
+                },
+                {
+                  "symbol": "ㅏ",
+                  "quantity": 2
+                },
+                {
+                  "symbol": "ㅇ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅎ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅘ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅂ",
+                  "quantity": 1
+                }
+              ]
+            },
+            "weaponRange": 1.8
+          },
+          "otherMonstersSafe": true,
+          "finite": true
+        },
+        {
+          "cycle": 3,
+          "engaged": {
+            "player": {
+              "pos": {
+                "x": 0.1,
+                "z": 0
+              },
+              "mode": "idle",
+              "moveTarget": null,
+              "combatTargetId": null,
+              "autoAttackEnabled": false,
+              "attackElapsedMs": 0,
+              "pendingHitMs": null
+            },
+            "monsters": [
+              {
+                "entityId": "slime-1",
+                "mode": "engaged",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 1.5000000000000002,
+                  "z": 0
+                },
+                "spawnPos": {
+                  "x": 3,
+                  "z": 0
+                }
+              },
+              {
+                "entityId": "slime-2",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": -3,
+                  "z": 3
+                },
+                "spawnPos": {
+                  "x": -3,
+                  "z": 3
+                }
+              },
+              {
+                "entityId": "slime-3",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 0,
+                  "z": -4
+                },
+                "spawnPos": {
+                  "x": 0,
+                  "z": -4
+                }
+              }
+            ],
+            "inventory": {
+              "gold": 100,
+              "eum": [
+                {
+                  "symbol": "ㄱ",
+                  "quantity": 3
+                },
+                {
+                  "symbol": "ㅏ",
+                  "quantity": 2
+                },
+                {
+                  "symbol": "ㅇ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅎ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅘ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅂ",
+                  "quantity": 1
+                }
+              ]
+            },
+            "weaponRange": 1.8
+          },
+          "returned": {
+            "player": {
+              "pos": {
+                "x": -12,
+                "z": 0
+              },
+              "mode": "idle",
+              "moveTarget": null,
+              "combatTargetId": null,
+              "autoAttackEnabled": false,
+              "attackElapsedMs": 0,
+              "pendingHitMs": null
+            },
+            "monsters": [
+              {
+                "entityId": "slime-1",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 3,
+                  "z": 0
+                },
+                "spawnPos": {
+                  "x": 3,
+                  "z": 0
+                }
+              },
+              {
+                "entityId": "slime-2",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": -3,
+                  "z": 3
+                },
+                "spawnPos": {
+                  "x": -3,
+                  "z": 3
+                }
+              },
+              {
+                "entityId": "slime-3",
+                "mode": "idle",
+                "alive": true,
+                "hp": 140,
+                "maxHp": 140,
+                "deathProcessed": false,
+                "respawnRemainingMs": null,
+                "pos": {
+                  "x": 0,
+                  "z": -4
+                },
+                "spawnPos": {
+                  "x": 0,
+                  "z": -4
+                }
+              }
+            ],
+            "inventory": {
+              "gold": 100,
+              "eum": [
+                {
+                  "symbol": "ㄱ",
+                  "quantity": 3
+                },
+                {
+                  "symbol": "ㅏ",
+                  "quantity": 2
+                },
+                {
+                  "symbol": "ㅇ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅎ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅘ",
+                  "quantity": 1
+                },
+                {
+                  "symbol": "ㅂ",
+                  "quantity": 1
+                }
+              ]
+            },
+            "weaponRange": 1.8
+          },
+          "otherMonstersSafe": true,
+          "finite": true
+        }
+      ],
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/F-3.png",
+      "screenshotError": null
+    },
+    {
+      "id": "F-4",
+      "status": "PASS",
+      "details": {
+        "reset": {
+          "player": {
+            "pos": {
+              "x": 0,
+              "z": 0
+            },
+            "mode": "idle",
+            "moveTarget": null,
+            "combatTargetId": null,
+            "autoAttackEnabled": false,
+            "attackElapsedMs": 0,
+            "pendingHitMs": null
+          },
+          "monsters": [
+            {
+              "entityId": "slime-1",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 3,
+                "z": 0
+              },
+              "spawnPos": {
+                "x": 3,
+                "z": 0
+              }
+            },
+            {
+              "entityId": "slime-2",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": -3,
+                "z": 3
+              },
+              "spawnPos": {
+                "x": -3,
+                "z": 3
+              }
+            },
+            {
+              "entityId": "slime-3",
+              "mode": "idle",
+              "alive": true,
+              "hp": 140,
+              "maxHp": 140,
+              "deathProcessed": false,
+              "respawnRemainingMs": null,
+              "pos": {
+                "x": 0,
+                "z": -4
+              },
+              "spawnPos": {
+                "x": 0,
+                "z": -4
+              }
+            }
+          ],
+          "inventory": {
+            "gold": 100,
+            "eum": [
+              {
+                "symbol": "ㄱ",
+                "quantity": 3
+              },
+              {
+                "symbol": "ㅏ",
+                "quantity": 2
+              },
+              {
+                "symbol": "ㅇ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅎ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅘ",
+                "quantity": 1
+              },
+              {
+                "symbol": "ㅂ",
+                "quantity": 1
+              }
+            ]
+          },
+          "weaponRange": 1.8
+        },
+        "hud": {
+          "text": "상태\n대기\n자동공격\nOFF\n골드\n100\n음\nㄱ×3 · ㅂ×1 · ㅇ×1 · ㅎ×1 · ㅏ×2 · ㅘ×1",
+          "targetVisible": false,
+          "fillWidth": null,
+          "canvasVisible": true
+        }
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/F-4.png",
+      "screenshotError": null
+    },
+    {
+      "id": "F-5",
+      "status": "PASS",
+      "details": {
+        "browserErrors": []
+      },
+      "screenshot": ".si-planning/m2-5-monster-pursuit/evidence/screenshots/F-5.png",
+      "screenshotError": null
+    }
+  ]
+}
