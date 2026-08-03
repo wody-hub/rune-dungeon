@@ -5,6 +5,8 @@ export interface MonsterDefinitionRef {
   maxHp: number;
 }
 
+export type MonsterMode = 'idle' | 'chasing' | 'engaged' | 'returning';
+
 export interface MonsterState {
   entityId: string;
   definitionId: string;
@@ -13,6 +15,7 @@ export interface MonsterState {
   hp: number;
   alive: boolean;
   deathProcessed: boolean;
+  mode: MonsterMode;
   respawnRemainingMs: number | null;
 }
 
@@ -29,6 +32,7 @@ export function createMonster(
     hp: definition.maxHp,
     alive: true,
     deathProcessed: false,
+    mode: 'idle',
     respawnRemainingMs: null,
   };
 }
@@ -36,6 +40,7 @@ export function createMonster(
 export function killMonster(monster: MonsterState, respawnMs: number): void {
   monster.hp = 0;
   monster.alive = false;
+  monster.mode = 'idle';
   monster.respawnRemainingMs = respawnMs;
 }
 
@@ -50,6 +55,7 @@ export function tickMonsterRespawn(
   monster.hp = maxHp;
   monster.alive = true;
   monster.deathProcessed = false;
+  monster.mode = 'idle';
   monster.respawnRemainingMs = null;
   monster.pos = { ...monster.spawnPos };
 }

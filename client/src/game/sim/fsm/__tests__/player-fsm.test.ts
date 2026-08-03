@@ -17,6 +17,7 @@ const livingMonster: MonsterState = {
   hp: 140,
   alive: true,
   deathProcessed: false,
+  mode: 'idle',
   respawnRemainingMs: null,
 };
 

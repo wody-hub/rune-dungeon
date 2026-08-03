@@ -1,0 +1,50 @@
+started_at=2026-08-03T09:03:08+0900
+v22.20.0
+
+> rune-dungeon-client@0.0.0 check
+> svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json
+
+Loading svelte-check in workspace: /Users/j.jaeyo/Project/ETC/rune-dungeon/.worktrees/m2-5-monster-pursuit/client
+Getting Svelte diagnostics...
+
+svelte-check found 0 errors and 0 warnings
+
+ RUN  v4.1.10 /Users/j.jaeyo/Project/ETC/rune-dungeon/.worktrees/m2-5-monster-pursuit/client
+
+
+ Test Files  12 passed (12)
+      Tests  65 passed (65)
+   Start at  09:03:11
+   Duration  196ms (transform 408ms, setup 0ms, import 529ms, tests 36ms, environment 1ms)
+
+
+> rune-dungeon-client@0.0.0 build
+> vite build
+
+vite v8.2.0 building client environment for production...
+[2Ktransforming...✓ 437 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                               0.46 kB │ gzip:   0.29 kB
+dist/assets/basis_transcoder-o4Hde_L7.js     57.52 kB
+dist/assets/draco_wasm_wrapper-fZCQGLGb.js   58.45 kB
+dist/assets/draco_wasm_wrapper-DxJM36Ib.js   58.76 kB
+dist/assets/draco_decoder-Z1_iN-Ht.wasm     192.42 kB │ gzip:  64.11 kB
+dist/assets/draco_decoder-C32yEggz.wasm     285.74 kB │ gzip:  89.66 kB
+dist/assets/basis_transcoder-VXdx5NbI.wasm  527.33 kB │ gzip: 248.94 kB
+dist/assets/draco_decoder-fzg4nYZr.js       719.41 kB
+dist/assets/index-DvsIs67c.css                1.19 kB │ gzip:   0.59 kB
+dist/assets/index-D_58CIlJ.js               826.19 kB │ gzip: 221.13 kB
+
+✓ built in 479ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+runtime data OK
+G-1 PASS: check
+G-2 PASS: vitest
+G-3 PASS: build
+G-4 PASS: runtime data
+G-5 PASS: pure game boundary
