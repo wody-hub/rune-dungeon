@@ -2,7 +2,7 @@
 
 ## RED
 
-- 런타임 상태 — `cd client && npx vitest run src/game/sim/fsm/__tests__/player-fsm.test.ts src/game/sim/entities/__tests__/monster.test.ts`: Task 1 구현 전 2개 파일 실패, 4개 테스트 실패·7개 통과. 플레이어 반환 상태에 `hp`/`maxHp`가 없었고, 새 몬스터에 `attackElapsedMs`/`pendingHitMs`가 없으며 `killMonster`가 시계를 초기화하지 않았다. 당시 커밋은 `21cc799` (`docs: plan M2.5 monster counterattack`)이다.
+- 런타임 상태 — `cd client && npx vitest run src/game/sim/fsm/__tests__/player-fsm.test.ts src/game/sim/entities/__tests__/monster.test.ts`: Task 1 구현 전 2개 파일 실패, 4개 테스트 실패·7개 통과. 플레이어 반환 상태에 `hp`/`maxHp`가 없었고, 새 몬스터에 `attackElapsedMs`/`pendingHitMs`가 없으며 `killMonster`가 시계를 초기화하지 않았다. 당시 커밋은 `3d93a977ba585e8aedd13fded0f509f702f1165e` (`docs: review M2.5 monster counterattack plan`)이다.
 - 공격 시계 — `cd client && npx vitest run src/game/sim/combat/__tests__/monster-attack.test.ts src/game/sim/__tests__/world.test.ts`: Task 2 구현 전 `monster-attack.test.ts`가 누락된 `../monster-attack` 모듈을 import하지 못했고, 월드 테스트에서 플레이어 HP가 기대값 `180`/`164` 대신 `196`으로 남았으며 부분 공격 시계가 기대값 `220` 대신 `null`이었다. 당시 커밋은 `7c3640bde09e77872147ab1d50b326002689e57f` (`feat: add runtime player hp and monster attack clocks`)이다.
 - HUD — `cd client && npx vitest run src/ui/__tests__/hud-model.test.ts`: Task 3 구현 전 1개 파일에서 2개 테스트 실패·2개 통과. 스냅샷에 `playerHp`/`playerMaxHp`가 없고 표시 assertion이 두 필드를 찾지 못했다. 당시 커밋은 `fa80e618757e08e2725cef2aadf9b6d98698a71f` (`feat: apply timed monster counterattacks`)이다.
 
