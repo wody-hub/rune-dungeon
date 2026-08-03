@@ -12,12 +12,14 @@
   } = $props();
 
   const monsters = $derived([...world.monsters.values()]);
-  let entities = $state<Array<{ update: (selected: boolean) => void } | undefined>>([]);
+  let entities = $state<
+    Array<{ update: (selected: boolean, nowMs: number) => void } | undefined>
+  >([]);
 
-  export function update(): void {
+  export function update(nowMs: number): void {
     for (let index = 0; index < monsters.length; index += 1) {
       const monster = monsters[index];
-      entities[index]?.update(world.player.combatTargetId === monster.entityId);
+      entities[index]?.update(world.player.combatTargetId === monster.entityId, nowMs);
     }
   }
 </script>
