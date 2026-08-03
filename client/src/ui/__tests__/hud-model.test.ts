@@ -3,6 +3,7 @@ import { createWorld, enqueueIntent, tick } from '../../game/sim/world';
 import {
   createHudSnapshot,
   hudSnapshotsEqual,
+  playerHpFillRatio,
   type HudSnapshot,
 } from '../hud-model';
 
@@ -19,6 +20,8 @@ describe('HUD model', () => {
     expect(snapshot).toEqual({
       playerMode: 'idle',
       autoAttackEnabled: false,
+      playerHp: 196,
+      playerMaxHp: 196,
       gold: world.inventory.gold,
       eum: [
         { symbol: 'ㄱ', quantity: 4 },
@@ -59,5 +62,34 @@ describe('HUD model', () => {
       gold: sameValues.gold + 1,
     };
     expect(hudSnapshotsEqual(first, changed)).toBe(false);
+  });
+
+  it('publishes when visible player hp changes', () => {
+    const world = createWorld();
+    const before = createHudSnapshot(world);
+    world.player.hp -= 16;
+    const after = createHudSnapshot(world);
+
+    expect(after).toMatchObject({ playerHp: 180, playerMaxHp: 196 });
+    expect(hudSnapshotsEqual(before, after)).toBe(false);
+  });
+
+  it('publishes when visible player maximum hp changes', () => {
+    const world = createWorld();
+    const before = createHudSnapshot(world);
+    world.player.maxHp += 40;
+    const after = createHudSnapshot(world);
+
+    expect(after).toMatchObject({ playerHp: 196, playerMaxHp: 236 });
+    expect(hudSnapshotsEqual(before, after)).toBe(false);
+  });
+
+  it.each([
+    [0, 196, 0],
+    [-16, 196, 0],
+    [212, 196, 1],
+    [16, 0, 0],
+  ])('clamps player hp fill ratio for hp %i and max hp %i', (hp, maxHp, expected) => {
+    expect(playerHpFillRatio(hp, maxHp)).toBe(expected);
   });
 });

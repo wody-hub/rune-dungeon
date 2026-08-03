@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HudSnapshot } from './hud-model';
+  import { playerHpFillRatio, type HudSnapshot } from './hud-model';
 
   let { snapshot }: { snapshot: HudSnapshot | null } = $props();
 
@@ -14,6 +14,16 @@
   {#if snapshot}
     <section class="hud-panel player-panel">
       <div><span>상태</span><strong>{modeLabel[snapshot.playerMode]}</strong></div>
+      <div>
+        <span>HP</span>
+        <strong>{snapshot.playerHp} / {snapshot.playerMaxHp}</strong>
+      </div>
+      <div class="player-hp-track">
+        <div
+          class="player-hp-fill"
+          style:width={`${playerHpFillRatio(snapshot.playerHp, snapshot.playerMaxHp) * 100}%`}
+        ></div>
+      </div>
       <div>
         <span>자동공격</span>
         <strong>{snapshot.autoAttackEnabled ? 'ON' : 'OFF'}</strong>

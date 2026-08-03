@@ -14,6 +14,8 @@ describe('monster lifecycle', () => {
       deathProcessed: false,
       mode: 'idle',
       pos: { x: 3, z: 4 },
+      attackElapsedMs: 0,
+      pendingHitMs: null,
     });
   });
 
@@ -40,5 +42,26 @@ describe('monster lifecycle', () => {
     killMonster(monster, 2_000);
 
     expect(monster.mode).toBe('idle');
+  });
+
+  it('clears attack timing when killed and respawned', () => {
+    const monster = createMonster('slime-1', definition, { x: 3, z: 4 });
+    monster.mode = 'engaged';
+    monster.attackElapsedMs = 200;
+    monster.pendingHitMs = 220;
+
+    killMonster(monster, 2_000);
+
+    expect(monster).toMatchObject({ attackElapsedMs: 0, pendingHitMs: null });
+
+    monster.attackElapsedMs = 300;
+    monster.pendingHitMs = 120;
+    tickMonsterRespawn(monster, 2_000, definition.maxHp);
+
+    expect(monster).toMatchObject({
+      alive: true,
+      attackElapsedMs: 0,
+      pendingHitMs: null,
+    });
   });
 });

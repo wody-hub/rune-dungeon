@@ -1,0 +1,76 @@
+M2.5 Monster Counterattack — static gates
+Executed: 2026-08-03 KST
+Required environment: PATH=/Users/j.jaeyo/.nvm/versions/node/v22.20.0/bin:$PATH
+
+G-1 PASS
+command: (cd client && npm run check)
+node: v22.20.0
+exit: 0
+output:
+> rune-dungeon-client@0.0.0 check
+> svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json
+
+Loading svelte-check in workspace: /Users/j.jaeyo/Project/ETC/rune-dungeon/.worktrees/m2-5-monster-counterattack/client
+Getting Svelte diagnostics...
+
+svelte-check found 0 errors and 0 warnings
+
+G-2 PASS
+command: (cd client && npx vitest run)
+node: v22.20.0
+exit: 0
+output:
+ RUN  v4.1.10 /Users/j.jaeyo/Project/ETC/rune-dungeon/.worktrees/m2-5-monster-counterattack/client
+
+ Test Files  13 passed (13)
+      Tests  84 passed (84)
+   Start at  13:07:48
+   Duration  189ms (transform 363ms, setup 0ms, import 522ms, tests 41ms, environment 1ms)
+
+G-3 PASS
+command: (cd client && npm run build)
+node: v22.20.0
+exit: 0
+output:
+> rune-dungeon-client@0.0.0 build
+> vite build
+
+vite v8.2.0 building client environment for production...
+transforming... 438 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                               0.46 kB | gzip:   0.29 kB
+dist/assets/basis_transcoder-o4Hde_L7.js     57.52 kB
+dist/assets/draco_wasm_wrapper-fZCQGLGb.js   58.45 kB
+dist/assets/draco_wasm_wrapper-DxJM36Ib.js   58.76 kB
+dist/assets/draco_decoder-Z1_iN-Ht.wasm     192.42 kB | gzip:  64.11 kB
+dist/assets/draco_decoder-C32yEggz.wasm     285.74 kB | gzip:  89.66 kB
+dist/assets/basis_transcoder-VXdx5NbI.wasm  527.33 kB | gzip: 248.94 kB
+dist/assets/draco_decoder-fzg4nYZr.js       719.41 kB
+dist/assets/index-BIFmlE2b.css                1.41 kB | gzip:   0.61 kB
+dist/assets/index-whxYmkrE.js               827.74 kB | gzip: 221.55 kB
+
+built in 426ms
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification.
+
+Allowed advisory: existing chunk-size advisory only.
+
+Environment correction:
+- Initial preflight under the shell-default Node v20.15.1 exited 0 but emitted Vite's unsupported-Node warning.
+- The prescribed Node v22.20.0 PATH was then applied and the gate was rerun.
+- The prescribed run above emitted only the allowed chunk advisory, so G-3 is PASS.
+
+G-4 PASS
+command: node scripts/validate-runtime-data.mjs
+node: v22.20.0
+exit: 0
+output:
+runtime data OK
+
+G-5 PASS
+command:
+rg -n --glob 'client/src/game/**' '(from\s+["'\'' ](svelte|three|@threlte)|window\.|document\.|requestAnimationFrame|cancelAnimationFrame|localStorage|navigator\.)' .
+exit: 1
+matches: 0
+interpretation: rg exit 1 means no forbidden Svelte/Three.js/Threlte imports or browser globals were found under client/src/game/.

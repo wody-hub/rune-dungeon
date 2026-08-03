@@ -1,0 +1,489 @@
+{
+  "feature": "m2-5-monster-counterattack",
+  "executedAt": "2026-08-03 13:06:00 KST",
+  "url": "http://127.0.0.1:5173/",
+  "runner": {
+    "type": "direct-playwright",
+    "browser": "Chrome 151.0.0.0",
+    "viewport": { "width": 1280, "height": 720 },
+    "configuredLaunchArgs": [
+      "--use-angle=swiftshader",
+      "--enable-webgl",
+      "--ignore-gpu-blocklist"
+    ],
+    "webgl2": true,
+    "webglRenderer": "WebKit WebGL",
+    "webglVendor": "WebKit"
+  },
+  "summary": {
+    "total": 39,
+    "pass": 39,
+    "fail": 0,
+    "skip": 0,
+    "error": 0,
+    "live": { "total": 20, "pass": 20 },
+    "step": { "total": 14, "pass": 14 },
+    "static": { "total": 5, "pass": 5 }
+  },
+  "console": {
+    "consoleErrors": 0,
+    "pageErrors": 0,
+    "webglInitializationErrors": 0,
+    "finalPlaywrightConsoleProbe": "Total messages: 4; Errors: 0; Warnings: 0"
+  },
+  "stepProtocol": {
+    "freshPagePerItem": true,
+    "addInitScriptBeforeNavigation": true,
+    "requestAnimationFramePaused": true,
+    "tickImport": "/src/game/sim/world.ts",
+    "manualTickGlobal": "window.__qaTick",
+    "stateResetPerScenario": true
+  },
+  "results": [
+    {
+      "id": "A-1",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "httpStatus": 200,
+        "viewport": [1280, 720],
+        "canvasBackingSize": [1280, 720],
+        "canvasCssSize": [1280, 720],
+        "webgl2": true
+      },
+      "evidence": ["../screenshots/initial-hud.png"]
+    },
+    {
+      "id": "A-2",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": { "consoleErrors": 0, "pageErrors": 0, "webglErrors": 0 }
+    },
+    {
+      "id": "A-3",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": { "hud": "HP 196 / 196", "playerHpFill": "100%" },
+      "evidence": ["../screenshots/initial-hud.png"]
+    },
+    {
+      "id": "A-4",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "player": { "hp": 196, "maxHp": 196 },
+        "livingSlimes": 3
+      }
+    },
+    {
+      "id": "A-5",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "monsterModes": ["idle", "idle", "idle"],
+        "playerMode": "idle",
+        "hudMode": "대기",
+        "autoAttack": false
+      }
+    },
+    {
+      "id": "B-1",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": {
+        "tickMs": 200,
+        "playerHp": 196,
+        "attackElapsedMs": 200,
+        "pendingHitMs": 220,
+        "clockOriginMs": 420
+      }
+    },
+    {
+      "id": "B-2",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": { "elapsedMs": 419, "playerHp": 196, "pendingHitMs": 1 }
+    },
+    {
+      "id": "B-3",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": {
+        "before": { "elapsedMs": 419, "playerHp": 196, "pendingHitMs": 1 },
+        "after": { "elapsedMs": 420, "playerHp": 180, "pendingHitMs": null },
+        "damage": 16
+      }
+    },
+    {
+      "id": "B-4",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": { "elapsedMs": 1819, "playerHp": 180, "pendingHitMs": 1 }
+    },
+    {
+      "id": "B-5",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": { "elapsedMs": 1820, "playerHp": 164, "hits": 2 }
+    },
+    {
+      "id": "B-6",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": { "singleTickMs": 3220, "playerHp": 148, "hits": 3 }
+    },
+    {
+      "id": "C-1",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": {
+        "partial": { "attackElapsedMs": 200, "pendingHitMs": 220 },
+        "afterExit": { "mode": "chasing", "attackElapsedMs": 0, "pendingHitMs": null, "playerHp": 196 }
+      }
+    },
+    {
+      "id": "C-2",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": {
+        "idle": { "attackElapsedMs": 0, "pendingHitMs": null },
+        "returning": { "attackElapsedMs": 0, "pendingHitMs": null }
+      }
+    },
+    {
+      "id": "C-3",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": {
+        "alive": false,
+        "playerHp": 196,
+        "attackElapsedMs": 0,
+        "pendingHitMs": null,
+        "respawnRemainingMs": 4900
+      }
+    },
+    {
+      "id": "C-4",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": {
+        "death": { "alive": false, "hp": 0, "attackElapsedMs": 0, "pendingHitMs": null },
+        "respawn": {
+          "alive": true,
+          "hp": 140,
+          "pos": { "x": 3, "z": 0 },
+          "attackElapsedMs": 0,
+          "pendingHitMs": null
+        }
+      }
+    },
+    {
+      "id": "C-5",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": { "elapsedMs": 420, "attackingMonsters": 2, "playerHp": 164, "damage": 32 }
+    },
+    {
+      "id": "C-6",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": {
+        "hpAt419Ms": 196,
+        "hpAt420Ms": 180,
+        "hpAt620Ms": 164,
+        "secondEngagementDelayMs": 200
+      }
+    },
+    {
+      "id": "C-7",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": { "startingHp": 10, "afterFirstHit": 0, "afterAdditionalHits": 0 }
+    },
+    {
+      "id": "C-8",
+      "mode": "STEP",
+      "status": "PASS",
+      "actual": {
+        "partialBeforeExitMs": 200,
+        "afterExit": { "attackElapsedMs": 0, "pendingHitMs": null },
+        "reengagedHpAt419Ms": 196,
+        "reengagedHpAt420Ms": 180
+      }
+    },
+    {
+      "id": "D-1",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "canvasClick": [680, 360],
+        "playerMovedTo": { "x": 0.7071067812, "z": 0.7071067812 },
+        "autoAttack": false,
+        "combatTargetId": null,
+        "monsterMode": "engaged",
+        "hpTransition": [196, 180]
+      },
+      "evidence": ["../screenshots/first-damage.png"]
+    },
+    {
+      "id": "D-2",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "worldHp": 180,
+        "hud": "HP 180 / 196",
+        "playerHpFill": "91.8367%",
+        "expectedRatioPercent": 91.8367346939,
+        "comparison": "numeric tolerance"
+      },
+      "evidence": ["../screenshots/first-damage.png"]
+    },
+    {
+      "id": "D-3",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "observedTransitions": [196, 180, 164],
+        "perTransitionDamage": [16, 16],
+        "intermediateDuplicateDamage": false,
+        "finalFill": "83.6735%"
+      },
+      "evidence": ["../screenshots/repeated-damage.png"]
+    },
+    {
+      "id": "D-4",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "partial": { "attackElapsedMs": 133.3333333333, "pendingHitMs": 286.6666666667, "hp": 196 },
+        "exit": { "mode": "chasing", "attackElapsedMs": 0, "pendingHitMs": null, "hp": 196 },
+        "reengage": { "attackElapsedMs": 16.6666666667, "pendingHitMs": 403.3333333333 },
+        "hpBeforeFresh420Ms": 196,
+        "hpAfterFresh420Ms": 180
+      },
+      "evidence": ["../screenshots/reset-reengage.png"]
+    },
+    {
+      "id": "D-5",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "observedHpTransitions": [196, 148, 100, 52, 4, 0],
+        "worldHp": 0,
+        "hud": "HP 0 / 196",
+        "playerHpFill": "0%",
+        "postZeroStableMs": 1500,
+        "pageResponsive": true
+      },
+      "evidence": ["../screenshots/hp-zero.png"]
+    },
+    {
+      "id": "E-1",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "modeSequence": ["idle", "chasing", "engaged", "chasing", "returning", "idle"],
+        "engagedDistance": 1.4,
+        "finalPos": { "x": 3, "z": 0 },
+        "finalDistanceToSpawn": 0
+      },
+      "evidence": ["../screenshots/tracking-return.png"]
+    },
+    {
+      "id": "E-2",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "singleClick": { "combatTargetId": "slime-1", "autoAttack": false },
+        "doubleClick": { "combatTargetId": "slime-1", "autoAttack": true, "playerMode": "moving" },
+        "playerApproached": true
+      },
+      "evidence": ["../screenshots/target-hp-compatibility.png"]
+    },
+    {
+      "id": "E-3",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "configuredHitFrameMs": 320,
+        "configuredAttackMotionMs": 1250,
+        "observedFrameCrossingsFromFirstSampleMs": [316.7, 1568.3],
+        "logicalHitTimesMs": [320, 1570],
+        "targetHpTransitions": [140, 97, 57]
+      }
+    },
+    {
+      "id": "E-4",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "death": {
+          "alive": false,
+          "hp": 0,
+          "selected": false,
+          "autoAttack": false,
+          "respawnRemainingMs": 5000
+        },
+        "reward": { "goldBefore": 100, "goldAfter": 108, "awardedOnce": true },
+        "respawn": { "alive": true, "hp": 140, "mode": "idle", "pos": { "x": 3, "z": 0 } }
+      },
+      "evidence": ["../screenshots/monster-death-hidden.png", "../screenshots/final-stable-state.png"]
+    },
+    {
+      "id": "E-5",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "targetSelector": ".hp-fill",
+        "targetHud": "140 / 140",
+        "targetFill": "100%",
+        "playerSelector": ".player-hp-fill",
+        "playerHud": "196 / 196",
+        "playerFill": "100%",
+        "distinctElements": true
+      },
+      "evidence": ["../screenshots/target-hp-compatibility.png"]
+    },
+    {
+      "id": "E-6",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "player": { "hp": 196, "maxHp": 196 },
+        "livingSlimes": 3,
+        "monsterHp": [140, 140, 140],
+        "gold": 100,
+        "playerFill": "100%"
+      },
+      "evidence": ["../screenshots/final-stable-state.png"]
+    },
+    {
+      "id": "F-1",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "canvas": { "count": 1, "width": 1280, "height": 720, "webgl2": true },
+        "hudPresent": true,
+        "visualReview": "Canvas, HUD, monsters, player, and selection ring remain intact across representative captures"
+      },
+      "evidence": [
+        "../screenshots/initial-hud.png",
+        "../screenshots/first-damage.png",
+        "../screenshots/repeated-damage.png",
+        "../screenshots/target-hp-compatibility.png",
+        "../screenshots/monster-death-hidden.png",
+        "../screenshots/final-stable-state.png"
+      ]
+    },
+    {
+      "id": "F-2",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "cycles": 3,
+        "canvasClickEachCycle": [600, 400],
+        "allExitClocks": { "attackElapsedMs": 0, "pendingHitMs": null },
+        "allReengaged": true,
+        "allCoordinatesFinite": true,
+        "playerHpEachCycle": 196
+      }
+    },
+    {
+      "id": "F-3",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "matchingDamageVfxHitAudioVideoElements": 0,
+        "documentAnimations": 0,
+        "playerDeathOrStunFields": 0,
+        "playerModeRemainsSupported": true
+      },
+      "evidence": ["../screenshots/final-regression.png"]
+    },
+    {
+      "id": "F-4",
+      "mode": "LIVE",
+      "status": "PASS",
+      "actual": {
+        "httpStatus": 200,
+        "fetchHealthStatus": 200,
+        "documentReadyState": "complete",
+        "consoleErrors": 0,
+        "pageErrors": 0,
+        "webgl2": true,
+        "finiteState": true
+      },
+      "evidence": ["../screenshots/final-regression.png"]
+    },
+    {
+      "id": "G-1",
+      "mode": "STATIC",
+      "status": "PASS",
+      "actual": { "node": "v22.20.0", "exitCode": 0, "errors": 0, "warnings": 0 },
+      "evidence": ["static-gates.log"]
+    },
+    {
+      "id": "G-2",
+      "mode": "STATIC",
+      "status": "PASS",
+      "actual": { "node": "v22.20.0", "exitCode": 0, "testFiles": "13/13", "tests": "84/84" },
+      "evidence": ["static-gates.log"]
+    },
+    {
+      "id": "G-3",
+      "mode": "STATIC",
+      "status": "PASS",
+      "actual": {
+        "node": "v22.20.0",
+        "exitCode": 0,
+        "transformedModules": 438,
+        "allowedAdvisories": ["chunk size > 500 kB"]
+      },
+      "evidence": ["static-gates.log"]
+    },
+    {
+      "id": "G-4",
+      "mode": "STATIC",
+      "status": "PASS",
+      "actual": { "node": "v22.20.0", "exitCode": 0, "output": "runtime data OK" },
+      "evidence": ["static-gates.log"]
+    },
+    {
+      "id": "G-5",
+      "mode": "STATIC",
+      "status": "PASS",
+      "actual": { "rgExitCode": 1, "matches": 0, "meaning": "no forbidden imports or browser globals found" },
+      "evidence": ["static-gates.log"]
+    }
+  ],
+  "runnerCorrections": [
+    {
+      "classification": "QA environment correction",
+      "detail": "Initial G-3 preflight used default Node v20.15.1 and emitted Vite's unsupported-Node warning. Repeated with the plan-specified Node v22.20.0 PATH; build passed with only the allowed chunk advisory."
+    },
+    {
+      "classification": "test-runner defect",
+      "detail": "The first LIVE runner referenced Node-side performance; repeated using Date.now."
+    },
+    {
+      "classification": "test-runner assertion correction",
+      "detail": "D-2 initially compared CSS serialized 91.8367% to an unrounded string. Numeric comparison confirmed it matches 180/196."
+    },
+    {
+      "classification": "test-runner timeout correction",
+      "detail": "The first F-2 loop timed out after dependent movement geometry drift. Repeated as three independently reset normal-rAF cycles with actual Canvas ground clicks; all three passed."
+    }
+  ],
+  "screenshots": [
+    "../screenshots/initial-hud.png",
+    "../screenshots/first-damage.png",
+    "../screenshots/repeated-damage.png",
+    "../screenshots/reset-reengage.png",
+    "../screenshots/hp-zero.png",
+    "../screenshots/target-hp-compatibility.png",
+    "../screenshots/tracking-return.png",
+    "../screenshots/monster-death-hidden.png",
+    "../screenshots/final-stable-state.png",
+    "../screenshots/final-regression.png"
+  ]
+}

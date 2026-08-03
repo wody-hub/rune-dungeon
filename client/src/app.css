@@ -45,6 +45,22 @@ body {
   margin: 4px 0;
 }
 
+.player-panel > .player-hp-track {
+  display: block;
+  height: 8px;
+  margin: 8px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #272a30;
+}
+
+.player-hp-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #4aa66f;
+  transition: width 100ms linear;
+}
+
 .player-panel span {
   color: #aeb7c5;
 }

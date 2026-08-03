@@ -3,6 +3,11 @@ import type { Vec2 } from '../movement';
 
 export type PlayerMode = 'idle' | 'moving' | 'attacking';
 
+export interface PlayerVitals {
+  hp: number;
+  maxHp: number;
+}
+
 export interface PlayerState {
   pos: Vec2;
   mode: PlayerMode;
@@ -11,9 +16,12 @@ export interface PlayerState {
   autoAttackEnabled: boolean;
   attackElapsedMs: number;
   pendingHitMs: number | null;
+  hp: number;
+  maxHp: number;
 }
 
-export function createPlayerState(): PlayerState {
+export function createPlayerState(vitals: PlayerVitals): PlayerState {
+  const maxHp = Math.max(0, vitals.maxHp);
   return {
     pos: { x: 0, z: 0 },
     mode: 'idle',
@@ -22,6 +30,8 @@ export function createPlayerState(): PlayerState {
     autoAttackEnabled: false,
     attackElapsedMs: 0,
     pendingHitMs: null,
+    hp: Math.min(maxHp, Math.max(0, vitals.hp)),
+    maxHp,
   };
 }
 
