@@ -37,8 +37,8 @@
   }
 
   let camera = $state<{ update: () => void }>();
-  let monsterLayer = $state<{ update: () => void }>();
-  let playerLayer = $state<{ update: () => void }>();
+  let monsterLayer = $state<{ update: (nowMs: number) => void }>();
+  let playerLayer = $state<{ update: (nowMs: number) => void }>();
 
   function publishHud(): void {
     const next = createHudSnapshot(world);
@@ -63,8 +63,8 @@
       const steps = timer.advance(now);
       if (steps === 0) return;
       for (let i = 0; i < steps; i++) tick(world, dt);
-      playerLayer?.update();
-      monsterLayer?.update();
+      playerLayer?.update(now);
+      monsterLayer?.update(now);
       camera?.update();
       publishHud();
       advance();
@@ -76,8 +76,8 @@
 
 <IsoCamera bind:this={camera} {world} />
 
-<T.AmbientLight intensity={0.6} />
-<T.DirectionalLight position={[10, 20, 10]} intensity={1.2} />
+<T.AmbientLight color="#A9C5C2" intensity={0.34} />
+<T.DirectionalLight color="#D9D2BD" position={[10, 20, 10]} intensity={1.05} />
 
 <GroundLayer
   onGroundClick={(x, z) => enqueueIntent(world, { type: 'move_to_ground', point: { x, z } })}

@@ -5,9 +5,13 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #111;
-  color: #eee;
-  font-family: system-ui, sans-serif;
+  background: #0d1418;
+  color: #ddd4bd;
+  font-family: "SUIT Variable", sans-serif;
+}
+
+body {
+  text-rendering: optimizeLegibility;
 }
 
 #app {
@@ -15,87 +19,9 @@ body {
   height: 100%;
 }
 
-.hud {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  color: #f7f3e8;
-}
-
-.hud-panel {
-  position: absolute;
-  padding: 12px 14px;
-  border: 1px solid rgb(255 255 255 / 18%);
-  border-radius: 8px;
-  background: rgb(12 15 20 / 82%);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 24%);
-  font-size: 13px;
-}
-
-.player-panel {
-  top: 16px;
-  left: 16px;
-  min-width: 210px;
-}
-
-.player-panel > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  margin: 4px 0;
-}
-
-.player-panel > .player-hp-track {
-  display: block;
-  height: 8px;
-  margin: 8px 0;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #272a30;
-}
-
-.player-hp-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: #4aa66f;
-  transition: width 100ms linear;
-}
-
-.player-panel span {
-  color: #aeb7c5;
-}
-
-.eum-row strong {
-  max-width: 150px;
-  text-align: right;
-}
-
-.target-panel {
-  top: 16px;
-  left: 50%;
-  width: min(320px, calc(100vw - 32px));
-  transform: translateX(-50%);
-  text-align: center;
-}
-
-.target-panel > span {
-  display: block;
-  margin-top: 3px;
-  color: #d8dbe0;
-  font-variant-numeric: tabular-nums;
-}
-
-.hp-track {
-  height: 8px;
-  margin-top: 8px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #272a30;
-}
-
-.hp-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: #c94e58;
-  transition: width 100ms linear;
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
