@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HudSnapshot } from './hud-model';
+  import { playerHpFillRatio, type HudSnapshot } from './hud-model';
 
   let { snapshot }: { snapshot: HudSnapshot | null } = $props();
 
@@ -21,9 +21,7 @@
       <div class="player-hp-track">
         <div
           class="player-hp-fill"
-          style:width={`${snapshot.playerMaxHp > 0
-            ? Math.max(0, snapshot.playerHp / snapshot.playerMaxHp) * 100
-            : 0}%`}
+          style:width={`${playerHpFillRatio(snapshot.playerHp, snapshot.playerMaxHp) * 100}%`}
         ></div>
       </div>
       <div>

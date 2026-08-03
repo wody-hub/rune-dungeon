@@ -27,3 +27,24 @@
 - Task 1: `7c3640bde09e77872147ab1d50b326002689e57f feat: add runtime player hp and monster attack clocks`
 - Task 2: `fa80e618757e08e2725cef2aadf9b6d98698a71f feat: apply timed monster counterattacks`
 - Task 3: `7eb694b896daa6546c9841fc2e5f1288cc785516 feat: show player hp in combat hud`
+
+## Post-review hardening
+
+### RED
+
+- HUD 비율 경계 테스트를 먼저 추가한 뒤 `cd client && npx vitest run src/ui/__tests__/hud-model.test.ts`를 실행했다. 신규 `playerHpFillRatio` API가 아직 없어 `TypeError: playerHpFillRatio is not a function`으로 4개 경계 사례(HP 0, 음수 HP, 최대 HP 초과, 최대 HP 0)가 실패했고, 나머지 5개는 통과했다. 이는 누락된 표시 비율 보호 로직에 의한 의도된 실패다.
+- `playerMaxHp`만 달라져도 `hudSnapshotsEqual`이 false가 되는 회귀 assertion과, 몬스터별 진입 시점을 어긋나게 한 독립 시계 assertion도 제품 코드 변경 전에 추가했다. 전자는 비교기가 이미 `playerMaxHp`를 비교하고 있었고, 후자는 독립 시계가 이미 구현되어 있어 각각 기존 동작을 의미 있게 확인하는 통과 회귀 테스트였다. 특히 후자는 첫 몬스터의 420 ms 경계에서만 첫 피해가 발생하고, 200 ms 뒤 두 번째 몬스터의 별도 420 ms 경계에서 두 번째 피해가 발생함을 확인한다.
+
+### GREEN
+
+- HUD 계산을 순수 `playerHpFillRatio` helper로 추출해 유효하지 않은 최대 HP는 0으로, 일반 비율은 `[0, 1]`로 제한했다. `Hud.svelte`는 이 값을 폭으로 표시만 한다.
+- 집중 회귀 — `export PATH=/Users/j.jaeyo/.nvm/versions/node/v22.20.0/bin:$PATH; (cd client && npx vitest run src/ui/__tests__/hud-model.test.ts src/game/sim/__tests__/world.test.ts)`: `Test Files 2 passed (2)`, `Tests 35 passed (35)`.
+
+### Final checks
+
+- 전체 Vitest — `export PATH=/Users/j.jaeyo/.nvm/versions/node/v22.20.0/bin:$PATH; (cd client && npx vitest run)`: `Test Files 13 passed (13)`, `Tests 84 passed (84)`.
+- Svelte/TypeScript 검사 — `export PATH=/Users/j.jaeyo/.nvm/versions/node/v22.20.0/bin:$PATH; (cd client && npm run check)`: `svelte-check found 0 errors and 0 warnings`.
+- 빌드 — `export PATH=/Users/j.jaeyo/.nvm/versions/node/v22.20.0/bin:$PATH; (cd client && npm run build)`: 438개 모듈 변환 후 성공. 기존 500 kB 초과 청크 advisory만 출력됐다.
+- 런타임 데이터 — `export PATH=/Users/j.jaeyo/.nvm/versions/node/v22.20.0/bin:$PATH; node scripts/validate-runtime-data.mjs`: `runtime data OK`.
+- 패치 위생 — `git diff --check`: 출력 없이 성공.
+- Important browser-QA는 코드 수정이나 이 작업의 완료 조건으로 처리하지 않았다. 커밋 뒤 controller가 필수 QA pipeline을 실행해야 한다.

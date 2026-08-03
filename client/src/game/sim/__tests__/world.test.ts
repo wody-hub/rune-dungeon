@@ -114,19 +114,32 @@ describe('world combat loop', () => {
     expect(w.player.hp).toBe(180);
   });
 
-  it('lets engaged monsters attack on independent clocks', () => {
+  it('lets staggered monster engagements hit on their own clock boundaries', () => {
     const w = createWorld({ random: zeroRandom() });
     const first = w.monsters.get('slime-1')!;
     const second = w.monsters.get('slime-2')!;
     first.pos = { x: 1.4, z: 0 };
     first.spawnPos = { ...first.pos };
-    second.pos = { x: -1.4, z: 0 };
+    second.pos = { x: -3, z: 0 };
     second.spawnPos = { ...second.pos };
 
-    tick(w, 0.42);
+    tick(w, 0.2);
+    expect(first.pendingHitMs).toBe(220);
+    expect(second.mode).toBe('idle');
 
-    expect(w.player.hp).toBe(164);
+    second.pos = { x: -1.4, z: 0 };
+    second.spawnPos = { ...second.pos };
+    tick(w, 0.219);
+    expect(w.player.hp).toBe(196);
+    expect(first.pendingHitMs).toBe(1);
+    expect(second.pendingHitMs).toBe(201);
+
+    tick(w, 0.001);
+    expect(w.player.hp).toBe(180);
     expect(first.pendingHitMs).toBeNull();
+
+    tick(w, 0.2);
+    expect(w.player.hp).toBe(164);
     expect(second.pendingHitMs).toBeNull();
   });
 

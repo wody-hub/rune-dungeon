@@ -19,6 +19,11 @@ export interface HudSnapshot {
   target: TargetHudSnapshot | null;
 }
 
+export function playerHpFillRatio(playerHp: number, playerMaxHp: number): number {
+  if (playerMaxHp <= 0) return 0;
+  return Math.min(1, Math.max(0, playerHp / playerMaxHp));
+}
+
 export function createHudSnapshot(world: WorldState): HudSnapshot {
   const selectedId = world.player.combatTargetId;
   const selected = selectedId ? world.monsters.get(selectedId) : undefined;
