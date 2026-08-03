@@ -3,6 +3,7 @@ import type { PlayerInventory } from '../../types/data';
 import {
   M3_IDS,
   applyM3Action,
+  createM3CompletedCheckpoint,
   createM3InventorySeed,
   createM3Progress,
   enableM3SupplyCache,
@@ -28,6 +29,23 @@ describe('M3 progression', () => {
       eum: [{ symbol: 'ㄱ', quantity: 3 }],
       items: [],
     });
+  });
+
+  it('creates a completed but not transformed M3 checkpoint for the M4 scenario', () => {
+    const { inventory, progress } = createM3CompletedCheckpoint(sourceInventory());
+
+    expect(progress).toMatchObject({
+      cacheAvailable: true,
+      cacheCollected: true,
+      currentGyeolId: M3_IDS.letter,
+      transformed: false,
+    });
+    expect(inventory).toEqual({
+      gold: 15,
+      eum: [{ symbol: 'ㄱ', quantity: 3 }],
+      items: [],
+    });
+    expect(getM3Stage(progress, inventory)).toBe('transform');
   });
 
   it('enables and collects the supply cache exactly once', () => {

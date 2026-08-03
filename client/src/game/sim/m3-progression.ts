@@ -174,6 +174,25 @@ export function createM3Progress(): M3Progress {
   };
 }
 
+export function createM3CompletedCheckpoint(source: PlayerInventory): {
+  inventory: PlayerInventory;
+  progress: M3Progress;
+} {
+  return {
+    inventory: createM3InventorySeed(source),
+    progress: {
+      ...createM3Progress(),
+      cacheAvailable: true,
+      cacheCollected: true,
+      currentGyeolId: M3_IDS.letter,
+      statusMessage: '결: 화를 현재 결에 장착했습니다.',
+      acquisitionSequence: 1,
+      inscriptionSequence: 1,
+      equipSequence: 1,
+    },
+  };
+}
+
 export function enableM3SupplyCache(progress: M3Progress): void {
   if (progress.cacheAvailable || progress.cacheCollected) return;
   progress.cacheAvailable = true;
