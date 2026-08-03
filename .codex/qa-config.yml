@@ -58,9 +58,13 @@ outputs:
   featureDirPattern: "{feature}"
   qaChecklist: "qa-checklist.md"
   qaReport: "qa-report.md"
-  evidence: "evidence"
+  evidenceDir: "evidence"
+  screenshotDir: "screenshots"
+  logsDir: "logs"
 
 browser:
+  runner: "direct-playwright"
+  runnerReason: "WebGL launch flags, deterministic rAF control, and Canvas coordinate input are required"
   viewport:
     width: 1280
     height: 720
