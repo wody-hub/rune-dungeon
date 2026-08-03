@@ -28,6 +28,7 @@
 - Modify: `client/src/game/sim/fsm/__tests__/player-fsm.test.ts`
 - Modify: `client/src/game/sim/entities/monster.ts`
 - Modify: `client/src/game/sim/entities/__tests__/monster.test.ts`
+- Modify: `client/src/game/sim/world.ts`
 
 **Interfaces:**
 - Produces: `PlayerVitals { hp: number; maxHp: number }`
@@ -60,6 +61,21 @@ beforeEach(() => {
 
 it('creates runtime player vitals from content values', () => {
   expect(player).toMatchObject({ hp: 196, maxHp: 196 });
+});
+
+it('clamps runtime player vitals into the valid range', () => {
+  expect(createPlayerState({ hp: 250, maxHp: 196 })).toMatchObject({
+    hp: 196,
+    maxHp: 196,
+  });
+  expect(createPlayerState({ hp: -1, maxHp: 196 })).toMatchObject({
+    hp: 0,
+    maxHp: 196,
+  });
+  expect(createPlayerState({ hp: 10, maxHp: -1 })).toMatchObject({
+    hp: 0,
+    maxHp: 0,
+  });
 });
 ```
 
@@ -717,3 +733,17 @@ After Task 4, do not merge yet. Run the remaining `riskzero-si` stages in order:
 3. Diff-based PR safety review.
 4. Browser QA checklist generation for exact timing, reset, multiple attackers, HP HUD, and existing pursuit/combat regressions.
 5. Browser QA, bug-fix loop if needed, and final evidence report.
+
+## GSTACK REVIEW REPORT
+
+| Review | Trigger | Why | Runs | Status | Findings |
+|--------|---------|-----|------|--------|----------|
+| CEO Review | `/plan-ceo-review` | Scope & strategy | 0 | — | Not run |
+| Codex Review | `/codex review` | Independent 2nd opinion | 0 | — | Not run |
+| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 1 | CLEAR | 2 plan gaps found and folded, 0 critical gaps |
+| Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | First visual checkpoint follows this slice |
+| DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | Not run |
+
+**VERDICT:** ENG CLEARED — ready to implement.
+
+NO UNRESOLVED DECISIONS

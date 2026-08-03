@@ -17,6 +17,7 @@
 실패 조건:
 
 - `createPlayerState({ hp: 196, maxHp: 196 })`가 HP 필드를 만들지 못한다.
+- 초기 HP가 `[0, maxHp]`로 고정되지 않고 음수 `maxHp`가 `0`으로 정규화되지 않는다.
 - 새 몬스터가 `attackElapsedMs=0`, `pendingHitMs=null`을 갖지 않는다.
 - 추적 중인 몬스터의 공격 시계가 사망과 리스폰에서 초기화되지 않는다.
 
