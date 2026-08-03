@@ -1,40 +1,82 @@
+# Rune Dungeon browser QA configuration
+
 project:
-  name: rune-dungeon
+  name: "rune-dungeon"
 
 server:
   frontend:
     port: 5173
-    baseUrl: http://127.0.0.1:5173
-  backend: null
+    baseUrl: "http://127.0.0.1:5173"
+  backend:
+    enabled: false
+    port: null
+    baseUrl: ""
 
 auth:
-  type: none
+  type: "none"
 
 frontend:
-  root: client
-  framework: svelte
+  root: "client"
+  framework: "svelte-5-vite-threlte"
   routes:
-    main: /
+    main: "/"
+    sub: "none"
   pages:
-    root: src
+    root: "src"
+    listFile: "App.svelte"
+    detailPattern: "scene/*.svelte"
+    apiPattern: "none"
+  validation:
+    method: "none"
+  fileUpload:
+    component: "none"
+  pagination:
+    component: "none"
+  auth:
+    pattern: "none"
 
-database: null
+backend:
+  enabled: false
+  root: ""
+  framework: "none"
+  language: "none"
+
+database:
+  type: "none"
+  ddlPaths: []
+
 dummyData:
   enabled: false
+  count: 0
+  prefix: "[QA-{NNN}]"
+  allowedHosts:
+    - "127.0.0.1"
+    - "localhost"
+
+outputs:
+  root: ".si-planning"
+  featureDirPattern: "{feature}"
+  qaChecklist: "qa-checklist.md"
+  qaReport: "qa-report.md"
+  evidenceDir: "evidence"
+  screenshotDir: "screenshots"
+  logsDir: "logs"
 
 browser:
-  runner: direct-playwright
+  runner: "direct-playwright"
+  runnerReason: "WebGL launch flags, deterministic rAF control, and Canvas coordinate input are required"
   viewport:
     width: 1280
     height: 720
-  chromeArgs:
-    - --use-angle=swiftshader
-    - --enable-webgl
-    - --ignore-gpu-blocklist
-
-outputs:
-  root: .si-planning
-  featureDirPattern: "{feature}"
-  qaChecklist: qa-checklist.md
-  qaReport: qa-report.md
-  finalReport: final-report.md
+  webglRequired: true
+  preferredBrowser: "Google Chrome"
+  executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  headless: true
+  launchArgs:
+    - "--use-angle=swiftshader"
+    - "--enable-webgl"
+    - "--ignore-gpu-blocklist"
+  stateProbe:
+    pauseAnimationFrame: true
+    worldGlobal: "window.__world"
+    tickImport: "/src/game/sim/world.ts"
