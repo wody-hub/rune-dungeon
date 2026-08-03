@@ -19,6 +19,8 @@ describe('HUD model', () => {
     expect(snapshot).toEqual({
       playerMode: 'idle',
       autoAttackEnabled: false,
+      playerHp: 196,
+      playerMaxHp: 196,
       gold: world.inventory.gold,
       eum: [
         { symbol: 'ㄱ', quantity: 4 },
@@ -59,5 +61,15 @@ describe('HUD model', () => {
       gold: sameValues.gold + 1,
     };
     expect(hudSnapshotsEqual(first, changed)).toBe(false);
+  });
+
+  it('publishes when visible player hp changes', () => {
+    const world = createWorld();
+    const before = createHudSnapshot(world);
+    world.player.hp -= 16;
+    const after = createHudSnapshot(world);
+
+    expect(after).toMatchObject({ playerHp: 180, playerMaxHp: 196 });
+    expect(hudSnapshotsEqual(before, after)).toBe(false);
   });
 });

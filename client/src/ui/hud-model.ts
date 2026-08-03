@@ -12,6 +12,8 @@ export interface TargetHudSnapshot {
 export interface HudSnapshot {
   playerMode: PlayerMode;
   autoAttackEnabled: boolean;
+  playerHp: number;
+  playerMaxHp: number;
   gold: number;
   eum: EumStack[];
   target: TargetHudSnapshot | null;
@@ -32,6 +34,8 @@ export function createHudSnapshot(world: WorldState): HudSnapshot {
   return {
     playerMode: world.player.mode,
     autoAttackEnabled: world.player.autoAttackEnabled,
+    playerHp: world.player.hp,
+    playerMaxHp: world.player.maxHp,
     gold: world.inventory.gold,
     eum: world.inventory.eum
       .map((stack) => ({ ...stack }))
@@ -47,6 +51,8 @@ export function hudSnapshotsEqual(
   if (
     left.playerMode !== right.playerMode ||
     left.autoAttackEnabled !== right.autoAttackEnabled ||
+    left.playerHp !== right.playerHp ||
+    left.playerMaxHp !== right.playerMaxHp ||
     left.gold !== right.gold
   ) {
     return false;
