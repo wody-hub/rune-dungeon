@@ -4,7 +4,7 @@ import playerSource from '../PlayerLayer.svelte?raw';
 
 describe('scene combat feedback contract', () => {
   it('renders player attack and damage transients without simulation changes', () => {
-    expect(playerSource).toContain("import { glowPulse, transientPulse } from './visual-state';");
+    expect(playerSource).toContain("import { glowPulse, transformationProgress, transientPulse } from './visual-state';");
     expect(playerSource).toContain('world.player.hp < previousHp');
     expect(playerSource).toContain("world.player.mode === 'attacking'");
     expect(playerSource).toContain('transientPulse(nowMs, damageStartedAtMs, reducedMotion)');

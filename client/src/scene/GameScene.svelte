@@ -13,6 +13,7 @@
   import IsoCamera from './IsoCamera.svelte';
   import GroundLayer from './GroundLayer.svelte';
   import MonsterLayer from './MonsterLayer.svelte';
+  import M3SupplyCache from './M3SupplyCache.svelte';
   import PlayerLayer from './PlayerLayer.svelte';
   import {
     intentsForMonsterGesture,
@@ -39,7 +40,10 @@
 
   let camera = $state<{ update: () => void }>();
   let monsterLayer = $state<{ update: (nowMs: number) => void }>();
-  let playerLayer = $state<{ update: (nowMs: number) => void }>();
+  let playerLayer = $state<{
+    update: (nowMs: number, transformed: boolean, transformationSequence: number) => void;
+  }>();
+  let supplyCache = $state<{ update: (visible: boolean, nowMs: number) => void }>();
 
   export function requestM3Action(action: M3Action): void {
     enqueueIntent(world, { type: action });
@@ -68,8 +72,9 @@
       const steps = timer.advance(now);
       if (steps === 0) return;
       for (let i = 0; i < steps; i++) tick(world, dt);
-      playerLayer?.update(now);
+      playerLayer?.update(now, world.m3.transformed, world.m3.transformationSequence);
       monsterLayer?.update(now);
+      supplyCache?.update(world.m3.cacheAvailable && !world.m3.cacheCollected, now);
       camera?.update();
       publishHud();
       advance();
@@ -88,4 +93,5 @@
   onGroundClick={(x, z) => enqueueIntent(world, { type: 'move_to_ground', point: { x, z } })}
 />
 <MonsterLayer bind:this={monsterLayer} {world} onMonsterGesture={handleMonsterGesture} />
+<M3SupplyCache bind:this={supplyCache} onCollect={requestM3Action} />
 <PlayerLayer bind:this={playerLayer} {world} />

@@ -15,6 +15,16 @@ export function transientPulse(
   return Math.max(0, 1 - (nowMs - startedAtMs) / visualTheme.motion.shortMs);
 }
 
+export function transformationProgress(
+  nowMs: number,
+  startedAtMs: number | null,
+  reducedMotion: boolean,
+): number {
+  if (startedAtMs === null) return 0;
+  if (reducedMotion) return 1;
+  return Math.min(1, Math.max(0, (nowMs - startedAtMs) / visualTheme.motion.transformationMs));
+}
+
 export function monsterVisualState(selected: boolean): {
   body: string;
   core: string;
