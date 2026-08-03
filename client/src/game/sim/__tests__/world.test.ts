@@ -8,6 +8,7 @@ import {
   PLAYER_SPEED,
   type WorldState,
 } from '../world';
+import { M3_IDS } from '../m3-progression';
 
 describe('world intents', () => {
   it('move_to_ground 인텐트는 틱에서 소비되어 이동 목표가 된다', () => {
@@ -320,6 +321,28 @@ describe('world combat loop', () => {
     tick(w, 1);
     expect(w.inventory.gold).toBe(goldAfterDeath);
     expect(w.inventory.eum).toEqual(eumAfterDeath);
+  });
+
+  it('preserves the first slime reward while enabling the one-time M3 supply cache', () => {
+    const w = createWorld({ random: zeroRandom() });
+    const monster = w.monsters.get('slime-1')!;
+    monster.pos = { x: 1, z: 0 };
+    monster.hp = 1;
+
+    startCombat(w);
+    tick(w, 0.32);
+
+    expect(w.inventory.gold).toBe(20);
+    expect(w.inventory.eum).toContainEqual({ symbol: 'ㄱ', quantity: 4 });
+    expect(w.m3).toMatchObject({ cacheAvailable: true, cacheCollected: false });
+
+    enqueueIntent(w, { type: 'collect_m3_supply_cache' });
+    tick(w, 1 / 60);
+    expect(w.inventory.eum).toEqual(expect.arrayContaining([
+      { symbol: 'ㅎ', quantity: 1 },
+      { symbol: 'ㅘ', quantity: 1 },
+    ]));
+    expect(w.inventory.items).toContain(M3_IDS.stone);
   });
 
   it('stops combat when the selected target dies', () => {

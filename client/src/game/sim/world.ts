@@ -31,6 +31,14 @@ import {
 import { stepToward, type Vec2 } from './movement';
 import { mathRandom, type RandomSource } from './random';
 import { createRuntimeCombatContent, type RuntimeCombatContent } from './runtime-content';
+import {
+  applyM3Action,
+  createM3InventorySeed,
+  createM3Progress,
+  enableM3SupplyCache,
+  isM3Action,
+  type M3Progress,
+} from './m3-progression';
 
 export const PLAYER_SPEED = 6; // m/s, 화면 보고 조정
 
@@ -46,7 +54,12 @@ export type GameIntent =
   | { type: 'move_to_ground'; point: Vec2 }
   | { type: 'select_target'; monsterId: string }
   | { type: 'toggle_auto_attack' }
-  | { type: 'enable_auto_attack' };
+  | { type: 'enable_auto_attack' }
+  | { type: 'collect_m3_supply_cache' }
+  | { type: 'craft_m3_jahyeong_hwa' }
+  | { type: 'inscribe_m3_letter_hwa' }
+  | { type: 'equip_m3_letter_hwa' }
+  | { type: 'toggle_m3_transformation' };
 
 export interface WorldOptions {
   random?: RandomSource;
@@ -59,6 +72,7 @@ export interface WorldState {
   player: PlayerState;
   monsters: Map<string, MonsterState>;
   inventory: PlayerInventory;
+  m3: M3Progress;
   pendingIntents: GameIntent[];
   random: RandomSource;
 }
@@ -87,6 +101,7 @@ export function createWorld(options: WorldOptions = {}): WorldState {
     player,
   );
   const content = createRuntimeCombatContent(monster, weapon, player);
+  const inventory = createM3InventorySeed(player.inventory);
   const monsters = new Map(
     SLIME_SPAWNS.map((spawn, index) => [
       `slime-${index + 1}`,
@@ -102,11 +117,8 @@ export function createWorld(options: WorldOptions = {}): WorldState {
       maxHp: content.player.hp.max,
     }),
     monsters,
-    inventory: {
-      gold: player.inventory.gold,
-      eum: player.inventory.eum.map((stack) => ({ ...stack })),
-      items: [...player.inventory.items],
-    },
+    inventory,
+    m3: createM3Progress(),
     pendingIntents: [],
     random: options.random ?? mathRandom,
   };
@@ -132,6 +144,8 @@ function drainIntents(w: WorldState): void {
       toggleAutoAttack(w.player, selectedMonster(w));
     } else if (intent.type === 'enable_auto_attack') {
       enableAutoAttack(w.player, selectedMonster(w));
+    } else if (isM3Action(intent)) {
+      applyM3Action(w.m3, w.inventory, w.content.player.equipped.inId, intent.type);
     }
   }
   w.pendingIntents.length = 0;
@@ -183,6 +197,7 @@ function processHit(w: WorldState, target: MonsterState): void {
 
   killMonster(target, w.respawnMs);
   applyRewards(w.inventory, rollCombatRewards(monster.drops, w.random));
+  enableM3SupplyCache(w.m3);
   target.deathProcessed = true;
   stopCombat(w.player);
 }
