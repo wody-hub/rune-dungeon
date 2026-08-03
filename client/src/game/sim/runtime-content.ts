@@ -29,23 +29,27 @@ function cloneJsonData<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
+export function createRuntimeMonster(monster: MonsterItem): RuntimeMonster {
+  const clonedMonster = cloneJsonData(monster);
+  const aggroRange = toWorldDistance(monster.aggroRange);
+  return {
+    ...clonedMonster,
+    moveSpeed: toWorldDistance(monster.moveSpeed),
+    aggroRange,
+    attackRange: toWorldDistance(monster.attackRange),
+    disengageRange: aggroRange * 1.5,
+    leashRange: aggroRange * 2,
+  };
+}
+
 export function createRuntimeCombatContent(
   monster: MonsterItem,
   weapon: WeaponItem,
   player: PlayerData,
 ): RuntimeCombatContent {
-  const clonedMonster = cloneJsonData(monster);
   const clonedWeapon = cloneJsonData(weapon);
-  const aggroRange = toWorldDistance(monster.aggroRange);
   return {
-    monster: {
-      ...clonedMonster,
-      moveSpeed: toWorldDistance(monster.moveSpeed),
-      aggroRange,
-      attackRange: toWorldDistance(monster.attackRange),
-      disengageRange: aggroRange * 1.5,
-      leashRange: aggroRange * 2,
-    },
+    monster: createRuntimeMonster(monster),
     weapon: {
       ...clonedWeapon,
       range: toWorldDistance(weapon.rangePx),

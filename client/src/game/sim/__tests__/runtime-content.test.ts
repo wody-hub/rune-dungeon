@@ -3,6 +3,7 @@ import monstersData from '../../data/monsters.json';
 import type { MonsterItem, PlayerData, WeaponItem } from '../../types/data';
 import {
   createRuntimeCombatContent,
+  createRuntimeMonster,
   LOGICAL_PX_TO_WORLD_UNIT,
   toWorldDistance,
 } from '../runtime-content';
@@ -30,6 +31,25 @@ describe('runtime content units', () => {
     expect(content.monster.leashRange).toBeCloseTo(6);
     expect(content.weapon.range).toBeCloseTo(1.8);
     expect(content.weapon.hitboxWidth).toBeCloseTo(3.2);
+  });
+
+  it('converts each monster fixture without sharing nested data', () => {
+    const elite = JSON.parse(JSON.stringify(monstersData[1])) as MonsterItem;
+    const originalEntries = JSON.parse(JSON.stringify(elite.drops.entries));
+
+    const runtime = createRuntimeMonster(elite);
+    runtime.drops.entries.push({
+      kind: 'GOLD',
+      probability: 1,
+      quantity: { min: 1, max: 1 },
+      guaranteed: true,
+    });
+
+    expect(runtime.id).toBe('monster_typo_sprite_001');
+    expect(runtime.moveSpeed).toBeCloseTo(6.8);
+    expect(runtime.aggroRange).toBeCloseTo(24);
+    expect(runtime.attackRange).toBeCloseTo(22);
+    expect(elite.drops.entries).toEqual(originalEntries);
   });
 
   it('keeps the POC ink slime idle-safe tuning in its fixture', () => {
