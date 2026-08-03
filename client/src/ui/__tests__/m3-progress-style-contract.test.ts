@@ -14,4 +14,10 @@ describe('M3 progression panel style contract', () => {
     expect(panelSource).toContain('bottom: 176px;');
     expect(panelSource).toMatch(/<button[\s\S]*onAction\(action\)/);
   });
+
+  it('hides decorative acquisition and inscription overlays when motion is reduced', () => {
+    expect(panelSource).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.acquisition-chips,[\s\S]*\.inscription-flash[\s\S]*display:\s*none;/,
+    );
+  });
 });

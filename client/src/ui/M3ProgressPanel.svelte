@@ -235,7 +235,7 @@
   @media (prefers-reduced-motion: reduce) {
     .acquisition-chips,
     .inscription-flash {
-      animation: none;
+      display: none;
     }
   }
 </style>
