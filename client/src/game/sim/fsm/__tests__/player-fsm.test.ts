@@ -19,13 +19,34 @@ const livingMonster: MonsterState = {
   deathProcessed: false,
   mode: 'idle',
   respawnRemainingMs: null,
+  attackElapsedMs: 0,
+  pendingHitMs: null,
 };
 
 describe('player combat FSM', () => {
-  let player = createPlayerState();
+  let player = createPlayerState({ hp: 196, maxHp: 196 });
 
   beforeEach(() => {
-    player = createPlayerState();
+    player = createPlayerState({ hp: 196, maxHp: 196 });
+  });
+
+  it('creates runtime player vitals from content values', () => {
+    expect(player).toMatchObject({ hp: 196, maxHp: 196 });
+  });
+
+  it('clamps runtime player vitals into the valid range', () => {
+    expect(createPlayerState({ hp: 250, maxHp: 196 })).toMatchObject({
+      hp: 196,
+      maxHp: 196,
+    });
+    expect(createPlayerState({ hp: -1, maxHp: 196 })).toMatchObject({
+      hp: 0,
+      maxHp: 196,
+    });
+    expect(createPlayerState({ hp: 10, maxHp: -1 })).toMatchObject({
+      hp: 0,
+      maxHp: 0,
+    });
   });
 
   it('ground movement clears target and disables auto attack', () => {

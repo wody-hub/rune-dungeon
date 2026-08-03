@@ -17,6 +17,8 @@ export interface MonsterState {
   deathProcessed: boolean;
   mode: MonsterMode;
   respawnRemainingMs: number | null;
+  attackElapsedMs: number;
+  pendingHitMs: number | null;
 }
 
 export function createMonster(
@@ -34,7 +36,14 @@ export function createMonster(
     deathProcessed: false,
     mode: 'idle',
     respawnRemainingMs: null,
+    attackElapsedMs: 0,
+    pendingHitMs: null,
   };
+}
+
+export function resetMonsterAttack(monster: MonsterState): void {
+  monster.attackElapsedMs = 0;
+  monster.pendingHitMs = null;
 }
 
 export function killMonster(monster: MonsterState, respawnMs: number): void {
@@ -42,6 +51,7 @@ export function killMonster(monster: MonsterState, respawnMs: number): void {
   monster.alive = false;
   monster.mode = 'idle';
   monster.respawnRemainingMs = respawnMs;
+  resetMonsterAttack(monster);
 }
 
 export function tickMonsterRespawn(
@@ -58,4 +68,5 @@ export function tickMonsterRespawn(
   monster.mode = 'idle';
   monster.respawnRemainingMs = null;
   monster.pos = { ...monster.spawnPos };
+  resetMonsterAttack(monster);
 }

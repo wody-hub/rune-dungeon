@@ -96,7 +96,10 @@ export function createWorld(options: WorldOptions = {}): WorldState {
   return {
     content,
     respawnMs: options.respawnMs ?? DEFAULT_RESPAWN_MS,
-    player: createPlayerState(),
+    player: createPlayerState({
+      hp: content.player.hp.current,
+      maxHp: content.player.hp.max,
+    }),
     monsters,
     inventory: {
       gold: player.inventory.gold,
