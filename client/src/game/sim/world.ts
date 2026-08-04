@@ -16,6 +16,7 @@ import { tickMonsterAi } from './ai/monster-ai';
 import {
   createMonster,
   killMonster,
+  resetMonsterAttack,
   tickMonsterRespawn,
   type MonsterState,
 } from './entities/monster';
@@ -33,12 +34,31 @@ import { mathRandom, type RandomSource } from './random';
 import { createRuntimeCombatContent, type RuntimeCombatContent } from './runtime-content';
 import {
   applyM3Action,
+  createM3CompletedCheckpoint,
   createM3InventorySeed,
   createM3Progress,
   enableM3SupplyCache,
   isM3Action,
   type M3Progress,
 } from './m3-progression';
+import {
+  bossCombatPolicy,
+  markBossCleared,
+  startBossGroggy,
+  tickBossState,
+} from './boss-state';
+import {
+  completeM4Quest,
+  createM4Progress,
+  enterM4BossRoom,
+  M4_ENTITY_IDS,
+  M4_SPAWNS,
+  type M4Progress,
+} from './m4-scenario';
+import {
+  createRuntimeMonster,
+  type RuntimeMonster,
+} from './runtime-content';
 
 export const PLAYER_SPEED = 6; // m/s, 화면 보고 조정
 
@@ -55,6 +75,7 @@ export type GameIntent =
   | { type: 'select_target'; monsterId: string }
   | { type: 'toggle_auto_attack' }
   | { type: 'enable_auto_attack' }
+  | { type: 'enter_m4_boss_room' }
   | { type: 'collect_m3_supply_cache' }
   | { type: 'craft_m3_jahyeong_hwa' }
   | { type: 'inscribe_m3_letter_hwa' }
@@ -64,15 +85,21 @@ export type GameIntent =
 export interface WorldOptions {
   random?: RandomSource;
   respawnMs?: number;
+  scenario?: WorldScenario;
 }
+
+export type WorldScenario = 'skirmish' | 'm4';
 
 export interface WorldState {
   content: RuntimeCombatContent;
+  scenario: WorldScenario;
+  monsterDefinitions: Map<string, RuntimeMonster>;
   respawnMs: number;
   player: PlayerState;
   monsters: Map<string, MonsterState>;
   inventory: PlayerInventory;
   m3: M3Progress;
+  m4: M4Progress | null;
   pendingIntents: GameIntent[];
   random: RandomSource;
 }
@@ -101,27 +128,85 @@ export function createWorld(options: WorldOptions = {}): WorldState {
     player,
   );
   const content = createRuntimeCombatContent(monster, weapon, player);
-  const inventory = createM3InventorySeed(player.inventory);
-  const monsters = new Map(
+  const scenario = options.scenario ?? 'skirmish';
+  const monsterDefinitions = new Map<string, RuntimeMonster>([
+    [content.monster.id, content.monster],
+  ]);
+  let inventory = createM3InventorySeed(player.inventory);
+  let m3 = createM3Progress();
+  let m4: M4Progress | null = null;
+  let monsters = new Map<string, MonsterState>(
     SLIME_SPAWNS.map((spawn, index) => [
       `slime-${index + 1}`,
       createMonster(`slime-${index + 1}`, content.monster, spawn),
     ]),
   );
+  const playerState = createPlayerState({
+    hp: content.player.hp.current,
+    maxHp: content.player.hp.max,
+  });
+
+  if (scenario === 'm4') {
+    const elite = (monstersData as unknown as MonsterItem[]).find(
+      ({ id }) => id === 'monster_typo_sprite_001',
+    );
+    if (!elite) throw new Error('Missing M4 elite definition: monster_typo_sprite_001');
+    const boss = (monstersData as unknown as MonsterItem[]).find(
+      ({ id }) => id === 'boss_pencil_knight_commander_001',
+    );
+    if (!boss) throw new Error('Missing M4 boss definition: boss_pencil_knight_commander_001');
+
+    const runtimeElite = createRuntimeMonster(elite);
+    const runtimeBoss = createRuntimeMonster(boss);
+    monsterDefinitions.set(runtimeElite.id, runtimeElite);
+    monsterDefinitions.set(runtimeBoss.id, runtimeBoss);
+    ({ inventory, progress: m3 } = createM3CompletedCheckpoint(player.inventory));
+    m4 = createM4Progress(runtimeBoss);
+    monsters = new Map([
+      [
+        M4_ENTITY_IDS.elite,
+        createMonster(M4_ENTITY_IDS.elite, runtimeElite, M4_SPAWNS.elite),
+      ],
+      [
+        M4_ENTITY_IDS.boss,
+        createMonster(M4_ENTITY_IDS.boss, runtimeBoss, M4_SPAWNS.boss),
+      ],
+    ]);
+    playerState.pos = { ...M4_SPAWNS.minePlayer };
+  }
 
   return {
     content,
+    scenario,
+    monsterDefinitions,
     respawnMs: options.respawnMs ?? DEFAULT_RESPAWN_MS,
-    player: createPlayerState({
-      hp: content.player.hp.current,
-      maxHp: content.player.hp.max,
-    }),
+    player: playerState,
     monsters,
     inventory,
-    m3: createM3Progress(),
+    m3,
+    m4,
     pendingIntents: [],
     random: options.random ?? mathRandom,
   };
+}
+
+export function getMonsterDefinition(
+  w: WorldState,
+  monster: MonsterState,
+): RuntimeMonster {
+  const definition = w.monsterDefinitions.get(monster.definitionId);
+  if (!definition) {
+    throw new Error(`Missing runtime monster definition: ${monster.definitionId}`);
+  }
+  return definition;
+}
+
+export function isMonsterActive(w: WorldState, monster: MonsterState): boolean {
+  if (w.scenario !== 'm4') return true;
+  if (w.m4?.area === 'blackheart_mine') {
+    return monster.entityId === M4_ENTITY_IDS.elite;
+  }
+  return monster.entityId === M4_ENTITY_IDS.boss && w.m4?.objective !== 'complete';
 }
 
 export function enqueueIntent(w: WorldState, intent: GameIntent): void {
@@ -131,7 +216,7 @@ export function enqueueIntent(w: WorldState, intent: GameIntent): void {
 function selectedMonster(w: WorldState): MonsterState | undefined {
   if (!w.player.combatTargetId) return undefined;
   const monster = w.monsters.get(w.player.combatTargetId);
-  return monster?.alive ? monster : undefined;
+  return monster?.alive && isMonsterActive(w, monster) ? monster : undefined;
 }
 
 function drainIntents(w: WorldState): void {
@@ -139,11 +224,20 @@ function drainIntents(w: WorldState): void {
     if (intent.type === 'move_to_ground') {
       beginGroundMove(w.player, intent.point);
     } else if (intent.type === 'select_target') {
-      selectCombatTarget(w.player, w.monsters.get(intent.monsterId));
+      const target = w.monsters.get(intent.monsterId);
+      selectCombatTarget(
+        w.player,
+        target && isMonsterActive(w, target) ? target : undefined,
+      );
     } else if (intent.type === 'toggle_auto_attack') {
       toggleAutoAttack(w.player, selectedMonster(w));
     } else if (intent.type === 'enable_auto_attack') {
       enableAutoAttack(w.player, selectedMonster(w));
+    } else if (intent.type === 'enter_m4_boss_room') {
+      if (w.m4 && enterM4BossRoom(w.m4)) {
+        stopCombat(w.player);
+        w.player.pos = { ...M4_SPAWNS.bossPlayer };
+      }
     } else if (isM3Action(intent)) {
       applyM3Action(w.m3, w.inventory, w.content.player.equipped.inId, intent.type);
     }
@@ -181,23 +275,52 @@ function applyRewards(inventory: PlayerInventory, rewards: CombatRewards): void 
 }
 
 function processHit(w: WorldState, target: MonsterState): void {
-  const { monster, player, weapon } = w.content;
+  const { player, weapon } = w.content;
+  const definition = getMonsterDefinition(w, target);
+  const bossModifiers = definition.bossStateModifiers;
+  if (
+    w.m4 &&
+    target.entityId === M4_ENTITY_IDS.boss &&
+    bossModifiers &&
+    w.m4.boss.phase === 'exposed' &&
+    w.m3.transformed
+  ) {
+    startBossGroggy(w.m4.boss, bossModifiers);
+  }
+  const policy =
+    bossModifiers && w.m4 && target.entityId === M4_ENTITY_IDS.boss
+      ? bossCombatPolicy(w.m4.boss, bossModifiers, definition.baseDefense)
+      : { defense: definition.baseDefense, incomingDamageMultiplier: 1 };
   const damage = rollPhysicalDamage(
     {
       minDamage: weapon.minDamage,
       maxDamage: weapon.maxDamage,
       attackBonus: player.combatProfile.attackBonusFromStr,
       damageMultiplier: weapon.damageMultiplier,
-      defense: monster.baseDefense,
+      defense: policy.defense,
     },
     w.random,
   );
-  target.hp = Math.max(0, target.hp - damage);
+  target.hp = Math.max(0, target.hp - damage * policy.incomingDamageMultiplier);
   if (target.hp > 0 || target.deathProcessed) return;
 
-  killMonster(target, w.respawnMs);
-  applyRewards(w.inventory, rollCombatRewards(monster.drops, w.random));
-  enableM3SupplyCache(w.m3);
+  if (w.m4 && target.entityId === M4_ENTITY_IDS.boss) {
+    target.hp = 0;
+    target.alive = false;
+    target.mode = 'idle';
+    target.respawnRemainingMs = null;
+    resetMonsterAttack(target);
+    markBossCleared(w.m4.boss);
+    completeM4Quest(w.m4);
+  } else {
+    killMonster(target, w.respawnMs);
+  }
+  applyRewards(w.inventory, rollCombatRewards(definition.drops, w.random));
+  if (w.scenario === 'skirmish') enableM3SupplyCache(w.m3);
+  if (w.m4 && target.entityId === M4_ENTITY_IDS.elite) {
+    w.m4.gateUnlocked = true;
+    w.m4.objective = 'enter_boss_room';
+  }
   target.deathProcessed = true;
   stopCombat(w.player);
 }
@@ -259,22 +382,55 @@ export function tick(w: WorldState, dt: number): void {
 
   drainIntents(w);
   const elapsedMs = dt * 1_000;
+  const boss = w.m4 ? w.monsters.get(M4_ENTITY_IDS.boss) : undefined;
+  const bossDefinition = boss ? getMonsterDefinition(w, boss) : undefined;
+  if (
+    w.m4 &&
+    boss &&
+    boss.alive &&
+    isMonsterActive(w, boss) &&
+    bossDefinition?.bossStateModifiers
+  ) {
+    tickBossState(w.m4.boss, elapsedMs, bossDefinition.bossStateModifiers);
+  }
   for (const monster of w.monsters.values()) {
-    tickMonsterRespawn(monster, elapsedMs, w.content.monster.maxHp);
+    if (!isMonsterActive(w, monster)) continue;
+    tickMonsterRespawn(monster, elapsedMs, getMonsterDefinition(w, monster).maxHp);
   }
 
   tickPlayer(w, dt, elapsedMs);
   for (const monster of w.monsters.values()) {
-    tickMonsterAi(monster, w.player.pos, w.content.monster, dt);
+    if (!isMonsterActive(w, monster)) continue;
+    const definition = getMonsterDefinition(w, monster);
+    const policy =
+      w.m4 && monster.entityId === M4_ENTITY_IDS.boss && definition.bossStateModifiers
+        ? bossCombatPolicy(w.m4.boss, definition.bossStateModifiers, definition.baseDefense)
+        : { canAct: true };
+    if (!policy.canAct) {
+      monster.mode = 'idle';
+      resetMonsterAttack(monster);
+      continue;
+    }
+    tickMonsterAi(monster, w.player.pos, definition, dt);
   }
   for (const monster of w.monsters.values()) {
+    if (!isMonsterActive(w, monster)) continue;
+    const definition = getMonsterDefinition(w, monster);
+    const policy =
+      w.m4 && monster.entityId === M4_ENTITY_IDS.boss && definition.bossStateModifiers
+        ? bossCombatPolicy(w.m4.boss, definition.bossStateModifiers, definition.baseDefense)
+        : { canAct: true };
+    if (!policy.canAct) {
+      resetMonsterAttack(monster);
+      continue;
+    }
     tickMonsterAttack(
       monster,
       w.player,
       {
-        baseDamage: w.content.monster.baseDamage,
-        attackMotionMs: w.content.monster.attackMotionMs,
-        hitFrameMs: w.content.monster.hitFrameMs,
+        baseDamage: definition.baseDamage,
+        attackMotionMs: definition.attackMotionMs,
+        hitFrameMs: definition.hitFrameMs,
         playerDefense: w.content.player.combatProfile.defenseFromStr,
       },
       elapsedMs,
