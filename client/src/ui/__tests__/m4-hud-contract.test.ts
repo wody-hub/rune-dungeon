@@ -10,4 +10,9 @@ describe('M4 HUD contract', () => {
     expect(m3Source).toContain('snapshot.currentGyeolId === M3_IDS.letter');
     expect(m3Source).toContain('{#if !isCompletedCheckpoint}');
   });
+
+  it('stacks the M4 target and objective panels without overlap at 390px', () => {
+    expect(hudSource).toContain('.target-panel { top: 120px;');
+    expect(hudSource).toContain('.quest-objective { top: 224px;');
+  });
 });

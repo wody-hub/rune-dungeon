@@ -248,8 +248,8 @@
 
   @media (max-width: 720px) {
     .player-panel { width: calc(100vw - var(--rd-panel-mobile-gutter)); }
-    .target-panel { top: var(--rd-panel-mobile-target-top); width: calc(100vw - var(--rd-panel-mobile-gutter)); }
-    .quest-objective { top: 188px; width: calc(100vw - var(--rd-panel-mobile-gutter)); }
+    .target-panel { top: 120px; width: calc(100vw - var(--rd-panel-mobile-gutter)); }
+    .quest-objective { top: 224px; width: calc(100vw - var(--rd-panel-mobile-gutter)); }
     .resource-panel { width: calc(100vw - var(--rd-panel-mobile-gutter)); }
   }
 
