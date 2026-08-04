@@ -1,4 +1,7 @@
-import type { WorldState } from '../game/sim/world';
+import {
+  getMonsterDefinition,
+  type WorldState,
+} from '../game/sim/world';
 import type { PlayerMode } from '../game/sim/fsm/player-fsm';
 import type { EumStack } from '../game/types/data';
 import {
@@ -6,6 +9,7 @@ import {
   getM3Stage,
   type M3Stage,
 } from '../game/sim/m3-progression';
+import { m4ObjectiveText } from '../game/sim/m4-scenario';
 
 export interface TargetHudSnapshot {
   id: string;
@@ -31,6 +35,18 @@ export interface M3HudSnapshot {
   transformationSequence: number;
 }
 
+export interface M4BossHudSnapshot {
+  phase: 'armored' | 'exposed' | 'groggy';
+  remainingMs: number;
+}
+
+export interface M4HudSnapshot {
+  area: string;
+  objective: string;
+  gateUnlocked: boolean;
+  boss: M4BossHudSnapshot | null;
+}
+
 export interface HudSnapshot {
   playerMode: PlayerMode;
   autoAttackEnabled: boolean;
@@ -39,6 +55,7 @@ export interface HudSnapshot {
   gold: number;
   eum: EumStack[];
   target: TargetHudSnapshot | null;
+  m4: M4HudSnapshot | null;
   m3: M3HudSnapshot;
 }
 
@@ -51,15 +68,32 @@ export function isDebugHudEnabled(dev: boolean, search: string): boolean {
   return dev && new URLSearchParams(search).has('debugHud');
 }
 
+function createM4HudSnapshot(world: WorldState): M4HudSnapshot | null {
+  if (!world.m4) return null;
+  const boss = world.m4.area === 'pencil_knight_boss_room' && world.m4.boss.phase !== 'cleared'
+    ? {
+        phase: world.m4.boss.phase,
+        remainingMs: world.m4.boss.remainingMs,
+      }
+    : null;
+
+  return {
+    area: world.m4.area === 'blackheart_mine' ? '흑심 채굴장' : '기사단장 보스방',
+    objective: m4ObjectiveText(world.m4),
+    gateUnlocked: world.m4.gateUnlocked,
+    boss,
+  };
+}
+
 export function createHudSnapshot(world: WorldState): HudSnapshot {
   const selectedId = world.player.combatTargetId;
   const selected = selectedId ? world.monsters.get(selectedId) : undefined;
   const target = selected?.alive
     ? {
         id: selected.entityId,
-        name: world.content.monster.name,
+        name: getMonsterDefinition(world, selected).name,
         hp: selected.hp,
-        maxHp: world.content.monster.maxHp,
+        maxHp: getMonsterDefinition(world, selected).maxHp,
       }
     : null;
 
@@ -73,6 +107,7 @@ export function createHudSnapshot(world: WorldState): HudSnapshot {
       .map((stack) => ({ ...stack }))
       .sort((left, right) => left.symbol.localeCompare(right.symbol, 'ko')),
     target,
+    m4: createM4HudSnapshot(world),
     m3: {
       stage: getM3Stage(world.m3, world.inventory),
       statusMessage: world.m3.statusMessage,
@@ -94,6 +129,19 @@ export function createHudSnapshot(world: WorldState): HudSnapshot {
       transformationSequence: world.m3.transformationSequence,
     },
   };
+}
+
+function m4SnapshotsEqual(
+  left: M4HudSnapshot | null,
+  right: M4HudSnapshot | null,
+): boolean {
+  return (
+    left?.area === right?.area &&
+    left?.objective === right?.objective &&
+    left?.gateUnlocked === right?.gateUnlocked &&
+    left?.boss?.phase === right?.boss?.phase &&
+    left?.boss?.remainingMs === right?.boss?.remainingMs
+  );
 }
 
 function m3SnapshotsEqual(left: M3HudSnapshot, right: M3HudSnapshot): boolean {
@@ -144,5 +192,5 @@ export function hudSnapshotsEqual(
   )) {
     return false;
   }
-  return m3SnapshotsEqual(left.m3, right.m3);
+  return m4SnapshotsEqual(left.m4, right.m4) && m3SnapshotsEqual(left.m3, right.m3);
 }

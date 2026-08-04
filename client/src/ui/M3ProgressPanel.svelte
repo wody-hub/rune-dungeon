@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { M3Action, M3Stage } from '../game/sim/m3-progression';
+  import { M3_IDS, type M3Action, type M3Stage } from '../game/sim/m3-progression';
   import type { M3HudSnapshot } from './hud-model';
 
   let {
@@ -11,6 +11,7 @@
   } = $props();
 
   let action = $derived(actionFor(snapshot.stage));
+  let isCompletedCheckpoint = $derived(snapshot.currentGyeolId === M3_IDS.letter);
 
   const steps: Record<
     M3Stage,
@@ -70,29 +71,36 @@
   }
 </script>
 
-<section class="m3-progress-panel" aria-label="M3 첫 각인 진행">
-  {#key snapshot.inscriptionSequence}
-    {#if snapshot.inscriptionSequence > 0}
-      <div class="inscription-flash" aria-hidden="true">印</div>
-    {/if}
-  {/key}
-  {#key snapshot.acquisitionSequence}
-    {#if snapshot.acquisitionSequence > 0}
-      <div class="acquisition-chips" aria-hidden="true">
-        <span>음 · ㅎ</span><span>음 · ㅘ</span><span>돌: 새김</span>
-      </div>
-    {/if}
-  {/key}
+<section
+  class="m3-progress-panel"
+  aria-label={isCompletedCheckpoint ? '현재 결과 화 변신' : 'M3 첫 각인 진행'}
+>
+  {#if !isCompletedCheckpoint}
+    {#key snapshot.inscriptionSequence}
+      {#if snapshot.inscriptionSequence > 0}
+        <div class="inscription-flash" aria-hidden="true">印</div>
+      {/if}
+    {/key}
+    {#key snapshot.acquisitionSequence}
+      {#if snapshot.acquisitionSequence > 0}
+        <div class="acquisition-chips" aria-hidden="true">
+          <span>음 · ㅎ</span><span>음 · ㅘ</span><span>돌: 새김</span>
+        </div>
+      {/if}
+    {/key}
+  {/if}
 
-  <span class="panel-kicker">M3 · 첫 각인</span>
+  <span class="panel-kicker">{isCompletedCheckpoint ? '현재 결' : 'M3 · 첫 각인'}</span>
   <h2>{stepFor(snapshot.stage).title}</h2>
   <p>{stepFor(snapshot.stage).detail}</p>
-  <div class="requirements" aria-label="제작 재료">
-    <span>음 · ㅎ {snapshot.hwaInitial}/1</span>
-    <span>음 · ㅘ {snapshot.hwaMedial}/1</span>
-    <span>돌: 새김 {snapshot.stone}/1</span>
-    <span>골드 {snapshot.gold}/20</span>
-  </div>
+  {#if !isCompletedCheckpoint}
+    <div class="requirements" aria-label="제작 재료">
+      <span>음 · ㅎ {snapshot.hwaInitial}/1</span>
+      <span>음 · ㅘ {snapshot.hwaMedial}/1</span>
+      <span>돌: 새김 {snapshot.stone}/1</span>
+      <span>골드 {snapshot.gold}/20</span>
+    </div>
+  {/if}
   {#if snapshot.currentGyeolId}
     <p class="current-gyeol">현재 결 · 화</p>
   {/if}

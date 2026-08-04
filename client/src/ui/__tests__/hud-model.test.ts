@@ -45,6 +45,7 @@ describe('HUD model', () => {
         { symbol: 'ㅇ', quantity: 2 },
       ],
       target: null,
+      m4: null,
       m3: expect.objectContaining({
         stage: 'defeat_slime',
         gold: 15,
@@ -135,6 +136,25 @@ describe('HUD model', () => {
         m3: { ...snapshot.m3, statusMessage: 'changed' },
       }),
     ).toBe(false);
+  });
+
+  it('publishes M4 objective and boss phase only for the M4 scenario', () => {
+    const m4 = createWorld({ scenario: 'm4' });
+    expect(createHudSnapshot(m4).m4).toMatchObject({
+      area: '흑심 채굴장',
+      objective: expect.stringContaining('오타 요정'),
+      gateUnlocked: false,
+      boss: null,
+    });
+
+    m4.m4!.gateUnlocked = true;
+    enqueueIntent(m4, { type: 'enter_m4_boss_room' });
+    tick(m4, 1 / 60);
+
+    const boss = createHudSnapshot(m4).m4?.boss;
+    expect(boss?.phase).toBe('armored');
+    expect(boss?.remainingMs).toBeCloseTo(6_000 - 1_000 / 60);
+    expect(createHudSnapshot(createWorld()).m4).toBeNull();
   });
 
   it.each([

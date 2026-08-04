@@ -52,6 +52,27 @@
             style:width={`${Math.max(0, snapshot.target.hp / snapshot.target.maxHp) * 100}%`}
           ></div>
         </div>
+        {#if snapshot.m4?.boss}
+          <p
+            class="boss-state"
+            class:boss-exposed={snapshot.m4.boss.phase === 'exposed'}
+            class:boss-groggy={snapshot.m4.boss.phase === 'groggy'}
+          >
+            {snapshot.m4.boss.phase === 'armored'
+              ? '단단한 심'
+              : snapshot.m4.boss.phase === 'exposed'
+                ? '약점 노출'
+                : '그로기'}
+            · {Math.ceil(snapshot.m4.boss.remainingMs / 1000)}초
+          </p>
+        {/if}
+      </section>
+    {/if}
+
+    {#if snapshot.m4}
+      <section class="quest-objective" aria-label="현재 의뢰">
+        <span>의뢰 · 흑심 채굴장의 기사단장</span>
+        <strong>{snapshot.m4?.objective}</strong>
       </section>
     {/if}
 
@@ -148,6 +169,48 @@
 
   .target-heading { justify-content: center; }
 
+  .boss-state {
+    margin: var(--rd-space-sm) 0 0;
+    color: var(--rd-muted-text);
+    font: 700 var(--rd-type-label-size)/1.2 var(--rd-font-data);
+  }
+
+  .boss-exposed { color: var(--rd-fire-gyeol); }
+  .boss-groggy { color: var(--rd-crystal-glow); }
+
+  .quest-objective {
+    box-sizing: border-box;
+    position: absolute;
+    top: 92px;
+    left: 50%;
+    width: min(330px, calc(100vw - 300px));
+    padding: var(--rd-space-sm) var(--rd-panel-padding-inline);
+    transform: translateX(-50%);
+    pointer-events: none;
+    border: var(--rd-panel-border-width) solid color-mix(in srgb, var(--rd-paper-text) 15%, transparent);
+    border-left-color: var(--rd-fire-gyeol);
+    border-radius: var(--rd-radius-sm);
+    background: linear-gradient(135deg, rgb(24 35 40 / 90%), rgb(13 20 24 / 86%));
+    box-shadow: 0 12px 32px rgb(0 0 0 / 28%), inset 2px 0 var(--rd-fire-gyeol);
+    text-align: center;
+  }
+
+  .quest-objective span,
+  .quest-objective strong {
+    display: block;
+  }
+
+  .quest-objective span {
+    color: var(--rd-muted-text);
+    font: 600 var(--rd-type-label-size)/1.2 var(--rd-font-data);
+    letter-spacing: 0.08em;
+  }
+
+  .quest-objective strong {
+    margin-top: var(--rd-space-xs);
+    font: 700 var(--rd-type-body-size)/1.3 var(--rd-font-display);
+  }
+
   .resource-panel { right: var(--rd-panel-inset); bottom: var(--rd-panel-inset); width: var(--rd-panel-resource-width); }
 
   .gold-row {
@@ -186,6 +249,7 @@
   @media (max-width: 720px) {
     .player-panel { width: calc(100vw - var(--rd-panel-mobile-gutter)); }
     .target-panel { top: var(--rd-panel-mobile-target-top); width: calc(100vw - var(--rd-panel-mobile-gutter)); }
+    .quest-objective { top: 188px; width: calc(100vw - var(--rd-panel-mobile-gutter)); }
     .resource-panel { width: calc(100vw - var(--rd-panel-mobile-gutter)); }
   }
 
