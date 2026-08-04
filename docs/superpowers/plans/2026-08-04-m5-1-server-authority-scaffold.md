@@ -15,11 +15,19 @@
 - Use JSON text WebSocket frames and Serde’s externally tagged enum representation. Do not add MessagePack, wasm-pack, axum, REST routes, database storage, account authentication, multiplayer visibility, prediction, or combat migration.
 - Keep shared/Cargo.toml crate-type = ["cdylib", "rlib"] although M5.1 builds only the Rust library.
 - PROTOCOL_VERSION is 1. ClientInfo is the required first message; exact-version mismatch sends AuthError and closes with code 4001.
+- Each session progresses exactly through AwaitingClientInfo, AwaitingGuestJoin, and Joined { player_id }. A repeated or out-of-order application message sends AuthError and closes with code 4001; one socket can create at most one player.
 - Keep the ClientInfo and AuthError field shapes frozen. New information belongs in a new message variant.
 - The only accepted game intent is MoveToGround. It changes a server target and never teleports the player.
 - Tick the server every 200ms (5Hz) with PLAYER_MOVE_SPEED = 6.0, matching client/src/game/sim/world.ts.
+- Use Tokio MissedTickBehavior::Skip so a delayed runtime never applies several fixed 200ms movement steps in one burst.
+- Per-player snapshots use a bounded mailbox of capacity 1. A full mailbox drops the current snapshot, while JoinAccepted and AuthError retain ordered direct delivery.
+- Reader end, writer failure, and outbound-channel end all finish through one idempotent session cleanup that removes the same player from both WorldState and SessionRegistry.
 - Keep client/src/game free of Svelte, Three.js, Threlte, browser globals, and WebSocket references.
 - A server URL must never quietly fall back to local movement. Connection loss retries with full-jitter exponential backoff (1s base, 30s cap, 10 attempts); code 4001 stops retries and offers a reload action.
+- Treat a present but invalid server URL as a failed authority-mode connection, not as an absent URL: show a recoverable error and never enable local movement. Ignore and warn on non-text browser WebSocket messages.
+- A successful JoinAccepted begins a new client session: reset the accepted-snapshot tick watermark, apply its server position, and ignore callbacks from an older socket generation.
+- With a server URL, M5.1 is a movement-authority demonstration: ground clicks are the only enabled gameplay input. Monster combat, M3 actions, and M4 gate entry are disabled with an explanatory notice; the no-server M1–M4 POC remains fully playable.
+- WebSocket Ping/Pong frames are ignored. Before join, malformed JSON or binary application frames receive AuthError then 4001; after join, malformed/binary application frames are logged and ignored without changing world state; Close/EOF ends normally.
 - Do not modify or stage the already user-modified root .gitignore. Do not stage generated target/, client/dist/, .DS_Store, or .superpowers artifacts.
 - Use Node.js 22.12.0 or newer for client commands and the installed Rust toolchain for Cargo commands.
 
@@ -37,20 +45,23 @@
 | shared/src/world.rs | Vec2, PLAYER_MOVE_SPEED, deterministic step_toward, and movement tests. |
 | shared/fixtures/protocol-v1.json | Golden JSON frames loaded by both Cargo and Vitest. |
 | server/Cargo.toml | Tokio WebSocket server manifest. |
-| server/src/main.rs | Address parsing, TCP accept loop, 200ms tick task, and session registry. |
+| server/src/main.rs | Address parsing, TCP accept loop, skip-on-delay 200ms tick task, and session registry. |
 | server/src/world/mod.rs | In-memory player ownership, target application, movement tick, snapshots. |
-| server/src/session/mod.rs | First-message validation, guest join lifecycle, WebSocket read/write loop. |
+| server/src/session/mod.rs | Three-phase protocol validation, bounded outbound mailbox, WebSocket read/write loop, terminal cleanup, and loopback integration tests. |
 | client/src/net/protocol.ts | Intentional TypeScript mirror, JSON encode/decode guards, shared-fixture parser. |
-| client/src/net/connection.ts | Browser-only WebSocket lifecycle, snapshots, retry policy, and state notifications. |
+| client/src/net/connection.ts | Browser-only generation-safe WebSocket lifecycle, join-boundary snapshots, retry policy, invalid-URL/non-text-frame handling, and state notifications. |
 | client/src/net/__tests__/protocol.test.ts | Golden fixture and malformed-frame coverage. |
-| client/src/net/__tests__/connection.test.ts | Handshake order, 4001 refusal, and deterministic backoff coverage. |
-| client/src/game/sim/world.ts | Optional player-movement authority mode, pure snapshot-position application, and 200ms render interpolation state. |
+| client/src/net/__tests__/connection.test.ts | Handshake order, join-boundary snapshot filtering, invalid-URL/non-text-frame handling, 4001 refusal, and deterministic backoff coverage. |
+| client/src/game/sim/world.ts | Optional player-movement authority mode, pure snapshot-position application, 200ms render interpolation state, and authority-mode guards for all non-ground position paths. |
 | client/src/game/sim/__tests__/world.test.ts | Local movement preservation and authoritative-mode regression tests. |
 | client/src/scene/PlayerLayer.svelte | Draws the interpolated authoritative position while retaining current combat effects. |
 | client/src/scene/IsoCamera.svelte | Follows that same rendered position so the player remains visually centered. |
-| client/src/scene/GameScene.svelte | Owns the optional connection and routes ground clicks to exactly one authority. |
+| client/src/scene/GameScene.svelte | Owns the optional connection, routes ground clicks to exactly one authority, and blocks M2–M4 input in the server-authority demonstration. |
+| client/src/scene/MonsterLayer.svelte, client/src/scene/MonsterEntity.svelte | Receive the authority-demo input gate and suppress monster selection/auto-attack gestures when it is active. |
+| client/src/scene/M3SupplyCache.svelte, client/src/scene/M4BossGate.svelte | Receive the authority-demo input gate and suppress M3 cache collection and M4 gate entry when it is active. |
 | client/src/scene/__tests__/server-authority-contract.test.ts | Static scene boundary and no-local-fallback contract. |
-| client/src/ui/ConnectionNotice.svelte | Small, accessible connection/reload notice outside game logic. |
+| client/src/ui/ConnectionNotice.svelte | Small, accessible connection/reload and server-authority-scope notice outside game logic. |
+| client/src/ui/Hud.svelte, client/src/ui/M3ProgressPanel.svelte | Pass the authority-demo gate into the M3 action control and render it as a disabled control. |
 | client/src/ui/__tests__/connection-notice-contract.test.ts | State-copy, token, and reduced-motion style contract. |
 | client/src/App.svelte | Reads the optional server URL, passes connection state to the HUD shell, owns reload action. |
 | client/README.md | Documents M5.1 run commands and the server URL switch. |
@@ -137,6 +148,10 @@ fn step_toward_handles_normal_arrival_and_zero_distance() {
         step_toward(Vec2 { x: 2.0, z: -3.0 }, Vec2 { x: 2.0, z: -3.0 }, 0.2),
         Vec2 { x: 2.0, z: -3.0 },
     );
+    assert_eq!(
+        step_toward(Vec2 { x: 2.0, z: -3.0 }, Vec2 { x: 9.0, z: 4.0 }, -0.2),
+        Vec2 { x: 2.0, z: -3.0 },
+    );
 }
 ~~~
 
@@ -180,7 +195,7 @@ futures-util = "0.3"
 rune-dungeon-shared = { path = "../shared" }
 serde_json = "1.0"
 tokio = { version = "1.0", features = ["macros", "net", "rt-multi-thread", "sync", "time"] }
-tokio-tungstenite = "0.26"
+tokio-tungstenite = { version = "0.26", features = ["connect"] }
 ~~~
 
 Use these stable shared types. Fields remain snake_case so the fixture is the direct Serde output.
@@ -258,7 +273,7 @@ Create server/src/main.rs with fn main() that emits the exact message Server boo
 
 Run: cargo test -p rune-dungeon-shared
 
-Expected: PASS. The fixture decodes and re-encodes without JSON-shape drift; movement advances 1.2 units in 200ms, snaps on arrival, and avoids division by zero.
+Expected: PASS. The fixture decodes and re-encodes without JSON-shape drift; movement advances 1.2 units in 200ms, snaps on arrival, avoids division by zero, and never moves for a negative delta.
 
 - [ ] **Step 5: Commit the shared contract**
 
@@ -451,116 +466,206 @@ git commit -m "feat: add authoritative player movement world"
 - Modify: server/src/main.rs
 - Modify: server/src/world/mod.rs
 - Test: server/src/session/mod.rs
+- Test: server/src/main.rs
 
 **Interfaces:**
 - Consumes: shared protocol types and WorldState from Task 2.
-- Produces: validate_handshake, run_session, SessionRegistry, and the runnable rune-dungeon-server binary.
+- Produces: decide_message, run_session, finalize_session, SessionRegistry, and the runnable rune-dungeon-server binary.
 - Consumed by: manual M5.1 browser validation and client/src/net/connection.ts.
 
-- [ ] **Step 1: Write RED tests for the immutable handshake boundary**
+- [ ] **Step 1: Write RED tests for the immutable session boundary**
 
 Add these pure session tests before opening a socket:
 
 ~~~rust
 #[test]
-fn rejects_every_non_client_info_first_message_with_the_frozen_error_shape() {
-    let result = validate_handshake(
-        HandshakeState::AwaitingClientInfo,
-        &ClientMessage::JoinAsGuest { nickname: "모험가".to_owned() },
+fn session_phase_accepts_exactly_one_ordered_join() {
+    let client_info = ClientMessage::ClientInfo {
+        protocol_version: PROTOCOL_VERSION,
+        client_kind: "web".to_owned(),
+        client_version: "0.0.0".to_owned(),
+    };
+    let join = ClientMessage::JoinAsGuest { nickname: "모험가".to_owned() };
+
+    assert_eq!(
+        decide_message(&SessionPhase::AwaitingClientInfo, &client_info),
+        SessionDecision::AwaitGuestJoin,
     );
-    assert_eq!(result, HandshakeDecision::Refuse {
-        error: ServerMessage::AuthError {
-            message: "Send ClientInfo first. Reload this client.".to_owned(),
-        },
-        close_code: CLOSE_CODE_PROTOCOL_MISMATCH,
-    });
+    assert_eq!(
+        decide_message(&SessionPhase::AwaitingGuestJoin, &join),
+        SessionDecision::JoinGuest { nickname: "모험가".to_owned() },
+    );
+    assert!(matches!(
+        decide_message(&SessionPhase::Joined { player_id: 1 }, &join),
+        SessionDecision::Refuse { close_code: CLOSE_CODE_PROTOCOL_MISMATCH, .. },
+    ));
 }
 
 #[test]
-fn rejects_a_wrong_protocol_version_and_accepts_exactly_v1() {
-    let wrong = validate_handshake(
-        HandshakeState::AwaitingClientInfo,
-        &ClientMessage::ClientInfo {
-            protocol_version: 2,
-            client_kind: "web".to_owned(),
-            client_version: "0.0.0".to_owned(),
-        },
-    );
-    assert!(matches!(wrong, HandshakeDecision::Refuse { close_code: 4001, .. }));
+fn session_phase_refuses_wrong_version_and_every_out_of_order_message() {
+    let wrong_version = ClientMessage::ClientInfo {
+        protocol_version: PROTOCOL_VERSION + 1,
+        client_kind: "web".to_owned(),
+        client_version: "0.0.0".to_owned(),
+    };
+    let join = ClientMessage::JoinAsGuest { nickname: "모험가".to_owned() };
+    let intent = ClientMessage::Intent(GameIntent::MoveToGround {
+        point: Vec2 { x: 6.0, z: 0.0 },
+    });
 
-    let accepted = validate_handshake(
-        HandshakeState::AwaitingClientInfo,
-        &ClientMessage::ClientInfo {
-            protocol_version: PROTOCOL_VERSION,
-            client_kind: "web".to_owned(),
-            client_version: "0.0.0".to_owned(),
-        },
-    );
-    assert_eq!(accepted, HandshakeDecision::Advance);
+    for (phase, message) in [
+        (SessionPhase::AwaitingClientInfo, &wrong_version),
+        (SessionPhase::AwaitingClientInfo, &join),
+        (SessionPhase::AwaitingGuestJoin, &intent),
+        (SessionPhase::Joined { player_id: 1 }, &wrong_version),
+    ] {
+        assert!(matches!(
+            decide_message(&phase, message),
+            SessionDecision::Refuse { close_code: CLOSE_CODE_PROTOCOL_MISMATCH, .. },
+        ));
+    }
 }
 ~~~
+
+Also create the RED integration tests named `loopback_refusal_sends_auth_error_before_4001_close`, `loopback_join_receives_its_snapshot_and_disconnect_cleans_up`, `malformed_or_binary_before_join_is_refused`, `ping_before_client_info_does_not_break_join`, and `malformed_or_binary_after_join_is_ignored`. Their complete frames, assertions, and ephemeral-listener helpers are specified later in this task; write those tests now, before the production session loop.
 
 - [ ] **Step 2: Run the focused handshake tests to verify they fail**
 
 Run: cargo test -p rune-dungeon-server session::
 
-Expected: FAIL because the session module, state machine, and validation result do not exist.
+Expected: FAIL because the session module, three-phase state machine, and decision result do not exist.
 
 - [ ] **Step 3: Implement a single-owner WebSocket session and server loop**
 
 Keep protocol validation pure and side-effect free. The socket layer serializes a refusal error as text first, then closes with 4001. After a valid ClientInfo, only JoinAsGuest creates a player; only Intent forwards to WorldState::apply_intent.
 
 ~~~rust
-// server/src/session/mod.rs: handshake decision
+// server/src/session/mod.rs: pure application-message decision
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum HandshakeState {
+pub enum SessionPhase {
     AwaitingClientInfo,
-    Ready,
+    AwaitingGuestJoin,
+    Joined { player_id: u64 },
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum HandshakeDecision {
-    Advance,
+pub enum SessionDecision {
+    AwaitGuestJoin,
+    JoinGuest { nickname: String },
+    ApplyIntent { player_id: u64, intent: GameIntent },
     Refuse { error: ServerMessage, close_code: u16 },
 }
 
-pub fn validate_handshake(
-    state: HandshakeState,
-    message: &ClientMessage,
-) -> HandshakeDecision {
-    if state == HandshakeState::Ready {
-        return HandshakeDecision::Advance;
+fn protocol_refusal(message: &str) -> SessionDecision {
+    SessionDecision::Refuse {
+        error: ServerMessage::AuthError { message: message.to_owned() },
+        close_code: CLOSE_CODE_PROTOCOL_MISMATCH,
     }
-    match message {
-        ClientMessage::ClientInfo { protocol_version, .. }
-            if *protocol_version == PROTOCOL_VERSION => HandshakeDecision::Advance,
-        ClientMessage::ClientInfo { .. } => HandshakeDecision::Refuse {
-            error: ServerMessage::AuthError {
-                message: "Protocol v1 required. Reload this client.".to_owned(),
-            },
-            close_code: CLOSE_CODE_PROTOCOL_MISMATCH,
-        },
-        _ => HandshakeDecision::Refuse {
-            error: ServerMessage::AuthError {
-                message: "Send ClientInfo first. Reload this client.".to_owned(),
-            },
-            close_code: CLOSE_CODE_PROTOCOL_MISMATCH,
-        },
+}
+
+pub fn decide_message(phase: &SessionPhase, message: &ClientMessage) -> SessionDecision {
+    match (phase, message) {
+        (
+            SessionPhase::AwaitingClientInfo,
+            ClientMessage::ClientInfo { protocol_version, .. },
+        ) if *protocol_version == PROTOCOL_VERSION => SessionDecision::AwaitGuestJoin,
+        (SessionPhase::AwaitingClientInfo, ClientMessage::ClientInfo { .. }) => {
+            protocol_refusal("Protocol v1 required. Reload this client.")
+        }
+        (SessionPhase::AwaitingClientInfo, _) => {
+            protocol_refusal("Send ClientInfo first. Reload this client.")
+        }
+        (SessionPhase::AwaitingGuestJoin, ClientMessage::JoinAsGuest { nickname }) => {
+            SessionDecision::JoinGuest { nickname: nickname.clone() }
+        }
+        (SessionPhase::AwaitingGuestJoin, _) => {
+            protocol_refusal("Send JoinAsGuest next. Reload this client.")
+        }
+        (SessionPhase::Joined { player_id }, ClientMessage::Intent(intent)) => {
+            SessionDecision::ApplyIntent { player_id: *player_id, intent: intent.clone() }
+        }
+        (SessionPhase::Joined { .. }, _) => {
+            protocol_refusal("Session is already joined. Reload this client.")
+        }
     }
 }
 ~~~
 
-In run_session, use tokio_tungstenite::accept_async, futures_util::StreamExt and SinkExt, and a tokio::select loop that owns the split socket writer. Serialize every ServerMessage with serde_json::to_string. On a malformed inbound text frame, write a warning and continue; on a malformed or missing first message, apply validate_handshake and close. On a valid JoinAsGuest:
+In run_session, use tokio_tungstenite::accept_async, futures_util::StreamExt and SinkExt, and one labeled tokio::select loop that owns the split socket writer. Serialize every ServerMessage with serde_json::to_string. Maintain `phase: SessionPhase`, initialized to AwaitingClientInfo, and `player_id: Option<u64>`, initialized to None. Apply these frame rules before calling decide_message:
+
+~~~rust
+match inbound_frame {
+    Some(Ok(Message::Ping(_))) | Some(Ok(Message::Pong(_))) => continue,
+    Some(Ok(Message::Close(_))) | Some(Err(_)) | None => break 'session,
+    Some(Ok(Message::Text(text))) => match serde_json::from_str::<ClientMessage>(&text) {
+        Ok(message) => message,
+        Err(_error) if !matches!(phase, SessionPhase::Joined { .. }) => {
+            let _ = refuse(&mut writer, ServerMessage::AuthError {
+                message: "Send ClientInfo first. Reload this client.".to_owned(),
+            }, CLOSE_CODE_PROTOCOL_MISMATCH).await;
+            break 'session;
+        }
+        Err(error) => {
+            eprintln!("ignoring malformed joined-session text frame: {error}");
+            continue;
+        }
+    },
+    Some(Ok(Message::Binary(_))) if !matches!(phase, SessionPhase::Joined { .. }) => {
+        let _ = refuse(&mut writer, ServerMessage::AuthError {
+            message: "Send ClientInfo first. Reload this client.".to_owned(),
+        }, CLOSE_CODE_PROTOCOL_MISMATCH).await;
+        break 'session;
+    }
+    Some(Ok(Message::Binary(_))) => {
+        eprintln!("ignoring binary frame after join");
+        continue;
+    }
+    Some(Ok(_)) => continue,
+};
+~~~
+
+When decide_message returns AwaitGuestJoin, set phase to AwaitingGuestJoin. When it returns Refuse, call `let _ = refuse(...).await;` and break the labeled loop; never use `?` inside a terminal branch. Only JoinGuest creates a player and advances to `Joined { player_id }`; only ApplyIntent calls `WorldState::apply_intent`.
+
+Create `let (outbound_tx, mut outbound_rx) = mpsc::channel::<ServerMessage>(1);` before entering the select loop. On a valid JoinGuest, queue JoinAccepted before inserting the mailbox into the registry so the initial response is always first. The select loop's outbound branch is the only normal writer owner:
 
 ~~~rust
 let player = world.lock().await.join_guest(nickname.clone());
-registry.insert(player.id, outbound_tx.clone()).await;
-send_message(&mut writer, ServerMessage::JoinAccepted {
+outbound_tx.try_send(ServerMessage::JoinAccepted {
     player_id: player.id,
     nickname,
     position: player.position,
-}).await?;
+}).expect("a fresh session mailbox has one free slot");
+registry.insert(player.id, outbound_tx.clone()).await;
+drop(outbound_tx);
 player_id = Some(player.id);
+phase = SessionPhase::Joined { player_id: player.id };
+~~~
+
+The select loop has `message = outbound_rx.recv()` alongside the reader branch. Serialize and write that message there; a writer error or `None` from the outbound receiver breaks the same labeled loop. Dropping the session's original sender after registration means that a registry removal can close the joined-session receiver. `refuse` may write directly only before it returns and terminates that session, so it never races the select-owned writer. Enforce the single cleanup tail mechanically: no reader, writer, serialization, or refusal failure may return from `run_session` after a player has been created.
+
+~~~rust
+'session: loop {
+    tokio::select! {
+        inbound = reader.next() => {
+            // Apply the frame policy above. Every terminal arm uses `break 'session`,
+            // including `let _ = refuse(&mut writer, error, code).await`.
+        }
+        outbound = outbound_rx.recv() => match outbound {
+            Some(message) => {
+                let Ok(text) = serde_json::to_string(&message) else {
+                    eprintln!("could not serialize server message");
+                    break 'session;
+                };
+                if writer.send(Message::Text(text.into())).await.is_err() {
+                    break 'session;
+                }
+            }
+            None => break 'session,
+        },
+    }
+}
+finalize_session(player_id, &world, &registry).await;
+Ok(())
 ~~~
 
 Use this main-loop shape. It deliberately starts the first simulation round after 200ms, not immediately at connection time:
@@ -568,6 +673,20 @@ Use this main-loop shape. It deliberately starts the first simulation round afte
 ~~~rust
 const DEFAULT_ADDR: &str = "127.0.0.1:8080";
 const SERVER_TICK: Duration = Duration::from_millis(200);
+
+fn server_interval() -> tokio::time::Interval {
+    let mut interval = tokio::time::interval_at(Instant::now() + SERVER_TICK, SERVER_TICK);
+    interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+    interval
+}
+
+#[test]
+fn server_interval_skips_missed_ticks() {
+    assert_eq!(
+        server_interval().missed_tick_behavior(),
+        tokio::time::MissedTickBehavior::Skip,
+    );
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -585,12 +704,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn run_tick_loop(world: Arc<Mutex<WorldState>>, registry: SessionRegistry) {
-    let mut interval = tokio::time::interval_at(Instant::now() + SERVER_TICK, SERVER_TICK);
+    let mut interval = server_interval();
     loop {
         interval.tick().await;
         let snapshots = world.lock().await.tick(SERVER_TICK_SECONDS);
         for (player_id, message) in snapshots {
-            registry.send(player_id, message).await;
+            registry.send_snapshot(player_id, message).await;
         }
     }
 }
@@ -601,11 +720,11 @@ Use this registry so the tick task can send only a player’s own snapshot witho
 ~~~rust
 #[derive(Clone, Default)]
 pub struct SessionRegistry {
-    senders: Arc<Mutex<BTreeMap<u64, mpsc::UnboundedSender<ServerMessage>>>>,
+    senders: Arc<Mutex<BTreeMap<u64, mpsc::Sender<ServerMessage>>>>,
 }
 
 impl SessionRegistry {
-    pub async fn insert(&self, player_id: u64, sender: mpsc::UnboundedSender<ServerMessage>) {
+    pub async fn insert(&self, player_id: u64, sender: mpsc::Sender<ServerMessage>) {
         self.senders.lock().await.insert(player_id, sender);
     }
 
@@ -613,10 +732,14 @@ impl SessionRegistry {
         self.senders.lock().await.remove(&player_id);
     }
 
-    pub async fn send(&self, player_id: u64, message: ServerMessage) {
+    pub async fn send_snapshot(&self, player_id: u64, message: ServerMessage) {
         let sender = self.senders.lock().await.get(&player_id).cloned();
-        if sender.is_some_and(|sender| sender.send(message).is_err()) {
-            self.remove(player_id).await;
+        let Some(sender) = sender else { return };
+        match sender.try_send(message) {
+            Ok(()) | Err(mpsc::error::TrySendError::Full(_)) => {}
+            Err(mpsc::error::TrySendError::Closed(_)) => {
+                self.remove(player_id).await;
+            }
         }
     }
 }
@@ -631,7 +754,130 @@ fn parse_address(mut args: impl Iterator<Item = String>) -> Result<String, Strin
 }
 ~~~
 
-On cleanup after the WebSocket reader closes, call registry.remove(player_id).await and world.lock().await.remove_player(player_id) when player_id is Some. A protocol refusal has no player_id and therefore removes neither.
+After the labeled loop ends for reader close, writer error, closed outbound receiver, or protocol refusal, call this function exactly once. `remove` and `remove_player` are idempotent, so repeated transport signals cannot leave a ghost player or make cleanup unsafe:
+
+~~~rust
+async fn finalize_session(
+    player_id: Option<u64>,
+    world: &Arc<Mutex<WorldState>>,
+    registry: &SessionRegistry,
+) {
+    if let Some(player_id) = player_id {
+        registry.remove(player_id).await;
+        world.lock().await.remove_player(player_id);
+    }
+}
+~~~
+
+Complete the Step 1 RED test module in `server/src/session/mod.rs` with the following mailbox, cleanup, and ephemeral-port loopback cases. The production code above names the helpers these tests exercise; in execution order, put these tests in the file before that production code:
+
+~~~rust
+#[tokio::test]
+async fn full_snapshot_mailbox_drops_a_new_snapshot_without_growing() {
+    let (tx, mut rx) = mpsc::channel(1);
+    let registry = SessionRegistry::default();
+    let snapshot = |tick| ServerMessage::WorldSnapshot {
+        tick,
+        player: PlayerSnapshot {
+            id: 1,
+            position: Vec2 { x: tick as f32, z: 0.0 },
+            target: None,
+        },
+    };
+    registry.insert(1, tx).await;
+    registry.send_snapshot(1, snapshot(1)).await;
+    registry.send_snapshot(1, snapshot(2)).await;
+    assert!(matches!(rx.recv().await, Some(ServerMessage::WorldSnapshot { tick: 1, .. })));
+}
+
+#[tokio::test]
+async fn closed_snapshot_mailbox_is_unregistered() {
+    let (tx, rx) = mpsc::channel(1);
+    let registry = SessionRegistry::default();
+    registry.insert(1, tx).await;
+    drop(rx);
+    registry.send_snapshot(1, ServerMessage::WorldSnapshot {
+        tick: 1,
+        player: PlayerSnapshot {
+            id: 1,
+            position: Vec2 { x: 0.0, z: 0.0 },
+            target: None,
+        },
+    }).await;
+    assert!(!registry.senders.lock().await.contains_key(&1));
+}
+
+#[tokio::test]
+async fn removing_the_last_joined_sender_closes_the_outbound_mailbox() {
+    let (tx, mut rx) = mpsc::channel::<ServerMessage>(1);
+    let registry = SessionRegistry::default();
+    registry.insert(1, tx).await;
+    registry.remove(1).await;
+    assert!(rx.recv().await.is_none());
+}
+
+#[tokio::test]
+async fn finalizer_removes_the_same_player_once_from_world_and_registry() {
+    let world = Arc::new(Mutex::new(WorldState::default()));
+    let player = world.lock().await.join_guest("모험가".to_owned());
+    let registry = SessionRegistry::default();
+    let (tx, _rx) = mpsc::channel(1);
+    registry.insert(player.id, tx).await;
+    finalize_session(Some(player.id), &world, &registry).await;
+    finalize_session(Some(player.id), &world, &registry).await;
+    assert!(world.lock().await.player(player.id).is_none());
+    assert!(!registry.senders.lock().await.contains_key(&player.id));
+}
+
+#[tokio::test]
+async fn loopback_refusal_sends_auth_error_before_4001_close() {
+    let (url, _world, _registry, server) = start_one_session().await;
+    let (mut client, _) = tokio_tungstenite::connect_async(url).await.unwrap();
+    client.send(Message::Text(
+        serde_json::to_string(&ClientMessage::ClientInfo {
+            protocol_version: PROTOCOL_VERSION + 1,
+            client_kind: "web".to_owned(),
+            client_version: "0.0.0".to_owned(),
+        }).unwrap().into(),
+    )).await.unwrap();
+    assert!(matches!(client.next().await.unwrap().unwrap(), Message::Text(text)
+        if matches!(serde_json::from_str(&text), Ok(ServerMessage::AuthError { .. }))));
+    assert!(matches!(client.next().await.unwrap().unwrap(), Message::Close(Some(frame))
+        if frame.code == CloseCode::Library(CLOSE_CODE_PROTOCOL_MISMATCH)));
+    tokio::time::timeout(std::time::Duration::from_secs(1), server)
+        .await
+        .expect("session should close")
+        .expect("session task should not panic")
+        .expect("session should not return an error");
+}
+
+#[tokio::test]
+async fn loopback_join_receives_its_snapshot_and_disconnect_cleans_up() {
+    let (url, world, registry, server) = start_one_session().await;
+    let (mut client, _) = tokio_tungstenite::connect_async(url).await.unwrap();
+    send_client_info_then_join(&mut client).await;
+    let player_id = receive_join_accepted(&mut client).await;
+    registry.send_snapshot(player_id, ServerMessage::WorldSnapshot {
+        tick: 1,
+        player: PlayerSnapshot {
+            id: player_id,
+            position: Vec2 { x: 1.2, z: 0.0 },
+            target: None,
+        },
+    }).await;
+    assert!(matches!(receive_server_message(&mut client).await,
+        ServerMessage::WorldSnapshot { player: PlayerSnapshot { id, .. }, .. } if id == player_id));
+    client.close(None).await.unwrap();
+    tokio::time::timeout(std::time::Duration::from_secs(1), server)
+        .await
+        .expect("session should close")
+        .expect("session task should not panic")
+        .expect("session should not return an error");
+    assert!(world.lock().await.player(player_id).is_none());
+}
+~~~
+
+Under `cfg(test)`, `start_one_session` must bind `TcpListener` to `127.0.0.1:0`, spawn exactly one `run_session`, and return its `ws://` URL plus cloned world, registry, and JoinHandle. `send_client_info_then_join`, `receive_join_accepted`, and `receive_server_message` are local test helpers that use the same JSON text frames as the fixture. Add focused tests that send a malformed/binary first application frame and assert AuthError then 4001; send Ping before ClientInfo and assert the subsequent normal Join succeeds; and send malformed/binary joined-session frames followed by a valid MoveToGround, asserting the target is the valid move only.
 
 Write protocol closes through this exact ordered helper:
 
@@ -649,13 +895,13 @@ async fn refuse(
 }
 ~~~
 
-parse_address accepts no arguments or the exact pair --addr ADDRESS. Return a user-readable Err for unknown flags and a missing address, then let main print it through Result handling. The writer type alias is SplitSink<WebSocketStream<TcpStream>, Message>; import CloseFrame, CloseCode, Message, and tungstenite from tokio_tungstenite::tungstenite.
+Add pure `parse_address` tests for no arguments, `--addr 127.0.0.1:0`, a missing address, an unknown flag, and an extra argument. `parse_address` accepts no arguments or the exact pair --addr ADDRESS. Return a user-readable Err for unknown flags and a missing address, then let main print it through Result handling. The writer type alias is SplitSink<WebSocketStream<TcpStream>, Message>; import CloseFrame, CloseCode, Message, and tungstenite from tokio_tungstenite::tungstenite.
 
 - [ ] **Step 4: Run all server tests and the binary help-path check**
 
 Run: cargo test -p rune-dungeon-server
 
-Expected: PASS. The server enforces ClientInfo ordering and v1, world ownership tests remain green, and no networking test depends on a fixed port.
+Expected: PASS. The server enforces every session phase, v1, malformed-frame policy, bounded snapshot delivery, writer/reader cleanup, and loopback WebSocket frame ordering without a fixed port.
 
 Run: cargo run -p rune-dungeon-server -- --addr 127.0.0.1:0
 
@@ -689,6 +935,7 @@ Use Node file reads in Vitest so the test loads the actual shared fixture rather
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  clientInfoMessage,
   encodeClientMessage,
   parseServerMessage,
   type ServerMessage,
@@ -702,6 +949,11 @@ describe('M5.1 protocol mirror', () => {
   it('parses the shared server frames and emits the shared client frames', () => {
     const accepted = parseServerMessage(JSON.stringify(fixture.join_accepted));
     expect(accepted).toEqual(fixture.join_accepted);
+    expect(parseServerMessage(JSON.stringify(fixture.world_snapshot))).toEqual(fixture.world_snapshot);
+    expect(parseServerMessage(JSON.stringify(fixture.auth_error))).toEqual(fixture.auth_error);
+    expect(encodeClientMessage(clientInfoMessage('0.0.0'))).toBe(
+      JSON.stringify(fixture.client_info),
+    );
     expect(encodeClientMessage(fixture.move_to_ground as never)).toBe(
       JSON.stringify(fixture.move_to_ground),
     );
@@ -710,6 +962,16 @@ describe('M5.1 protocol mirror', () => {
   it('drops malformed and unknown server frames without throwing', () => {
     expect(parseServerMessage('{not json')).toBeNull();
     expect(parseServerMessage(JSON.stringify({ Unknown: {} }))).toBeNull();
+    expect(parseServerMessage(JSON.stringify({ AuthError: { message: 1 } }))).toBeNull();
+    expect(parseServerMessage(JSON.stringify({
+      WorldSnapshot: { tick: 1.5, player: { id: 1, position: { x: 0, z: 0 }, target: null } },
+    }))).toBeNull();
+    expect(parseServerMessage(JSON.stringify({
+      WorldSnapshot: { tick: 1, player: { id: 1, position: { x: 1e309, z: 0 }, target: null } },
+    }))).toBeNull();
+    expect(parseServerMessage(JSON.stringify({
+      JoinAccepted: { player_id: 1, nickname: '모험가', position: { x: 0, z: 0 }, extra: true },
+    }))).toBeNull();
   });
 });
 ~~~
@@ -736,6 +998,34 @@ it('authoritative movement consumes the intent but only a snapshot changes posit
   expect(getRenderedPlayerPosition(world)).toEqual({ x: 0.6, z: -0.2 });
   tick(world, 0.1);
   expect(getRenderedPlayerPosition(world)).toEqual({ x: 1.2, z: -0.4 });
+});
+
+it('authoritative mode refuses every M2–M4 input and freezes local gameplay simulation', () => {
+  const world = createWorld({ scenario: 'm4', playerMovement: 'authoritative' });
+  const elite = world.monsters.get(M4_ENTITY_IDS.elite)!;
+  const originalPosition = { ...world.player.pos };
+  const before = {
+    playerHp: world.player.hp,
+    elite: structuredClone(elite),
+    m3: structuredClone(world.m3),
+    m4: structuredClone(world.m4),
+    inventory: structuredClone(world.inventory),
+  };
+  enqueueIntent(world, { type: 'enter_m4_boss_room' });
+  enqueueIntent(world, { type: 'toggle_auto_attack' });
+  enqueueIntent(world, { type: 'toggle_m3_transformation' });
+  tick(world, 10);
+  expect(world.player.pos).toEqual(originalPosition);
+  expect(world.m4?.area).toBe('blackheart_mine');
+  expect(world.player.autoAttackEnabled).toBe(false);
+  expect(world.m3.transformed).toBe(false);
+  expect({
+    playerHp: world.player.hp,
+    elite,
+    m3: world.m3,
+    m4: world.m4,
+    inventory: world.inventory,
+  }).toEqual(before);
 });
 ~~~
 
@@ -832,7 +1122,25 @@ function tickAuthoritativeRenderPosition(w: WorldState, dt: number): void {
 }
 ~~~
 
-Initialize playerMovement to options.playerMovement ?? 'local'. In tickPlayer, return before any position-integrating player branch when w.playerMovement is authoritative. drainIntents still clears the queued ground intent, so a connected browser never accumulates a fallback command; monster AI, monster counterattack, M3 actions, and M4 state continue to tick against the latest snapshot position.
+Initialize playerMovement to options.playerMovement ?? 'local'. At the start of `drainIntents`, retain the existing local behavior unchanged. When `w.playerMovement === 'authoritative'`, discard every queued intent instead of applying it, including MoveToGround, select_target, toggle_auto_attack, every M3 action, and enter_m4_boss_room. This guards the simulation boundary as well as the scene boundary: `w.player.pos = { ...M4_SPAWNS.bossPlayer }` must remain reachable only in local mode.
+
+Make the authoritative-mode branch a complete local-simulation stop, not only a player-motion stop. Its only effects are discarding queued local intents and advancing the render interpolation; it must run before boss state, respawn, player combat, monster AI, and monster attack processing:
+
+~~~ts
+export function tick(w: WorldState, dt: number): void {
+  if (dt <= 0) return;
+  if (w.playerMovement === 'authoritative') {
+    drainIntents(w);
+    tickAuthoritativeRenderPosition(w, dt);
+    return;
+  }
+
+  drainIntents(w);
+  // Preserve the existing local-only boss, respawn, player, AI, and attack loops below.
+}
+~~~
+
+This leaves server-confirmed player position updates exclusively to `applyAuthoritativePlayerPosition` and prevents disabled M2–M4 controls from being undermined by background local combat. Monster AI, monster counterattack, M3 state, and M4 state are frozen in authority mode; their full behavior remains unchanged in local mode.
 
 Modify PlayerLayer.svelte and IsoCamera.svelte to import getRenderedPlayerPosition and use its result at their existing group.position.set and camera follow sites. No Svelte component or scene file writes player.pos. This makes the player and camera move together over 200ms between snapshots; local mode returns world.player.pos and preserves the existing direct rendering path.
 
@@ -840,7 +1148,7 @@ Modify PlayerLayer.svelte and IsoCamera.svelte to import getRenderedPlayerPositi
 
 Run: cd client && npx vitest run src/net/__tests__/protocol.test.ts src/game/sim/__tests__/world.test.ts
 
-Expected: PASS. Both languages load the same fixture, malformed inbound data is harmless, local movement retains 6 m/s, and authoritative mode changes logical position only through the pure application function while rendering reaches it over 200ms.
+Expected: PASS. Both languages load the same fixture, malformed inbound data is harmless, local movement retains 6 m/s, parser validation rejects malformed variant fields, and authoritative mode changes logical position only through the pure application function while rendering reaches it over 200ms.
 
 - [ ] **Step 5: Commit the protocol mirror and pure-world adapter**
 
@@ -857,12 +1165,18 @@ git commit -m "feat: add client authority protocol adapter"
 - Create: client/src/ui/ConnectionNotice.svelte
 - Create: client/src/ui/__tests__/connection-notice-contract.test.ts
 - Modify: client/src/scene/GameScene.svelte
+- Modify: client/src/scene/MonsterLayer.svelte
+- Modify: client/src/scene/MonsterEntity.svelte
+- Modify: client/src/scene/M3SupplyCache.svelte
+- Modify: client/src/scene/M4BossGate.svelte
 - Create: client/src/scene/__tests__/server-authority-contract.test.ts
 - Modify: client/src/App.svelte
+- Modify: client/src/ui/Hud.svelte
+- Modify: client/src/ui/M3ProgressPanel.svelte
 
 **Interfaces:**
 - Consumes: protocol helpers from Task 4, applyAuthoritativePlayerPosition, and the existing GameScene HUD callback.
-- Produces: ServerConnection, ConnectionState, optional GameScene serverUrl/onConnectionStateChange props, and ConnectionNotice.
+- Produces: generation-safe ServerConnection with onJoin/onSnapshot callbacks, ConnectionState, optional GameScene serverUrl/onConnectionStateChange props, authority-demo input gates, and ConnectionNotice.
 - Consumed by: M5.1 manual browser validation.
 
 - [ ] **Step 1: Write failing connection and scene-boundary tests**
@@ -881,6 +1195,7 @@ it('sends ClientInfo then JoinAsGuest when the socket opens', () => {
     schedule: () => 1,
     clearSchedule: () => undefined,
     onState: () => undefined,
+    onJoin: () => undefined,
     onSnapshot: () => undefined,
   });
   connection.connect();
@@ -902,25 +1217,113 @@ it('does not reconnect after protocol close code 4001', () => {
   expect(scheduled).toEqual([]);
 });
 
-it('forwards increasing snapshots and ignores an out-of-order snapshot tick', () => {
+it('ignores pre-join and wrong-player snapshots, then forwards only increasing joined-player ticks', () => {
+  const received: number[] = [];
+  const joinedPositions: Array<{ x: number; z: number }> = [];
+  const socket = new FakeSocket();
+  const connection = createTestConnection(
+    socket,
+    [],
+    (snapshot) => received.push(snapshot.tick),
+    (position) => joinedPositions.push(position),
+  );
+  connection.connect();
+  socket.open();
+  socket.message(snapshotFrame(1, 2));
+  socket.message(joinAcceptedFrame(1, { x: 0, z: 0 }));
+  socket.message(snapshotFrame(1, 2));
+  socket.message(snapshotFrame(1, 1));
+  socket.message(snapshotFrame(2, 3));
+  expect(received).toEqual([2]);
+  expect(joinedPositions).toEqual([{ x: 0, z: 0 }]);
+});
+
+it('uses full jitter under the 1s-to-30s exponential cap and stops after ten retries', () => {
+    expect(reconnectDelayMs(1, () => 0.5)).toBe(500);
+    expect(reconnectDelayMs(6, () => 1)).toBe(30_000);
+    expect(reconnectDelayMs(10, () => 1)).toBe(30_000);
+});
+
+it('accepts tick 1 after a new JoinAccepted and ignores the old socket', () => {
+  const scheduler = new FakeScheduler();
+  const first = new FakeSocket();
+  const second = new FakeSocket();
+  const connection = createTestConnection([first, second], scheduler);
+  connection.connect();
+  first.open();
+  first.message(joinAcceptedFrame(1, { x: 0, z: 0 }));
+  first.message(snapshotFrame(1, 20));
+  first.close(1006);
+  scheduler.runNext();
+  second.open();
+  second.message(joinAcceptedFrame(2, { x: 0, z: 0 }));
+  second.message(snapshotFrame(2, 1));
+  first.message(snapshotFrame(1, 21));
+  expect(connection.acceptedTicks).toEqual([20, 1]);
+  expect(connection.state).toMatchObject({ kind: 'connected', playerId: 2 });
+});
+
+it('creates exactly ten reconnect sockets, then fails without another timer', () => {
+  const scheduler = new FakeScheduler();
+  const sockets = Array.from({ length: 11 }, () => new FakeSocket());
+  const connection = createTestConnection(sockets, scheduler);
+  connection.connect();
+  for (const socket of sockets) {
+    socket.open();
+    socket.close(1006);
+    scheduler.runNextIfPresent();
+  }
+  expect(connection.state).toMatchObject({ kind: 'failed' });
+  expect(scheduler.pendingCount).toBe(0);
+  expect(connection.socketFactoryCalls).toBe(11);
+});
+
+it('dispose cancels a pending reconnect without creating another socket', () => {
+  const scheduler = new FakeScheduler();
+  const socket = new FakeSocket();
+  const connection = createTestConnection([socket], scheduler);
+  connection.connect();
+  socket.open();
+  socket.close(1006);
+  connection.dispose();
+  scheduler.runAll();
+  expect(connection.socketFactoryCalls).toBe(1);
+  expect(scheduler.pendingCount).toBe(0);
+});
+
+it('keeps authority mode failed when socket creation throws for an invalid server URL', () => {
+  const scheduled: number[] = [];
+  const connection = new ServerConnection({
+    url: 'not-a-websocket-url',
+    clientVersion: '0.0.0',
+    nickname: '모험가',
+    socketFactory: () => { throw new SyntaxError('Invalid URL'); },
+    random: () => 0.5,
+    schedule: () => { scheduled.push(1); return 1; },
+    clearSchedule: () => undefined,
+    onState: () => undefined,
+    onJoin: () => undefined,
+    onSnapshot: () => undefined,
+  });
+  connection.connect();
+  expect(connection.state).toMatchObject({ kind: 'failed' });
+  expect(scheduled).toEqual([]);
+});
+
+it('warns and ignores a non-text browser WebSocket message', () => {
   const received: number[] = [];
   const socket = new FakeSocket();
   const connection = createTestConnection(socket, [], (snapshot) => received.push(snapshot.tick));
   connection.connect();
   socket.open();
-  socket.message('{"WorldSnapshot":{"tick":2,"player":{"id":1,"position":{"x":1.2,"z":0},"target":null}}}');
-  socket.message('{"WorldSnapshot":{"tick":1,"player":{"id":1,"position":{"x":0,"z":0},"target":null}}}');
-  expect(received).toEqual([2]);
-});
-
-it('uses full jitter under the 1s-to-30s exponential cap and stops after ten retries', () => {
-  expect(reconnectDelayMs(1, () => 0.5)).toBe(500);
-  expect(reconnectDelayMs(6, () => 1)).toBe(30_000);
-  expect(reconnectDelayMs(10, () => 1)).toBe(30_000);
+  socket.message(new ArrayBuffer(1));
+  expect(received).toEqual([]);
 });
 ~~~
 
-Add raw-source contract checks that GameScene creates the world in authoritative mode only when serverUrl exists, calls connection.sendMove for ground clicks, calls applyAuthoritativePlayerPosition only for WorldSnapshot, and contains no local enqueue fallback in that server branch. Test ConnectionNotice for aria-live, the Korean reload copy 다시 불러오기, the error and info CSS tokens, pointer-events: auto, and a prefers-reduced-motion rule.
+`FakeScheduler` stores scheduled callbacks by numeric handle, exposes `runNext`, `runNextIfPresent`, and `runAll`, and removes each callback before invoking it. `createTestConnection` accepts a socket array and scheduler, records `acceptedTicks` through onSnapshot, forwards its optional fourth `onJoin` callback, and exposes the factory-call count. `FakeSocket.message` accepts `unknown` so non-text `MessageEvent.data` is exercised. `snapshotFrame(playerId, tick)` and `joinAcceptedFrame(playerId, position)` serialize the actual externally tagged JSON frames.
+
+Add raw-source contract checks that GameScene creates the world in authoritative mode only when serverUrl exists, calls connection.sendMove for ground clicks, applies the initial position on JoinAccepted and subsequent positions only from accepted WorldSnapshot frames, and contains no local enqueue fallback in that server branch. Also assert that the authority-demo gate reaches MonsterEntity, M3SupplyCache, M4BossGate, and M3ProgressPanel; their handlers must refuse input and the M3 button must use a real `disabled` attribute. Test ConnectionNotice for aria-live, the Korean reload copy 다시 불러오기, the authority-demo copy `서버 권위 이동 모드`, the error and info CSS tokens, pointer-events: auto, and a prefers-reduced-motion rule.
 
 - [ ] **Step 2: Run the client connection RED tests**
 
@@ -942,14 +1345,14 @@ export type ConnectionState =
   | { kind: 'protocol_mismatch'; message: string };
 ~~~
 
-ServerConnection.connect creates one WebSocket through the injected SocketFactory. On open it sends clientInfoMessage(clientVersion) and joinGuestMessage(nickname) in that order. On inbound data:
+ServerConnection has `onJoin: (position: Vec2) => void` in addition to onState and onSnapshot. It keeps `generation: number`, `currentSocket: Socket | null`, `joinedPlayerId: number | null`, and `lastAcceptedSnapshotTick: number | null`. `connect` increments generation, clears joinedPlayerId, and then creates one WebSocket through the injected SocketFactory inside try/catch. If factory construction throws (for example, an invalid `?server=` value), set `{ kind: 'failed', message: '서버 주소가 올바르지 않습니다. 로컬 이동으로 전환하지 않았습니다.' }`, leave `currentSocket` null, and schedule no retry; `serverUrl` remains non-null so GameScene stays authoritative. Every event handler captures that generation and returns immediately unless it still equals generation and its socket is currentSocket. On open it sends clientInfoMessage(clientVersion) and joinGuestMessage(nickname) in that order. On inbound data, first reject `typeof event.data !== 'string'` with console.warn; only a string proceeds to the JSON parser:
 
 1. Ignore and console.warn malformed frames.
-2. On JoinAccepted publish connected with the server-issued ID and nickname.
-3. On WorldSnapshot with a tick greater than the last accepted snapshot tick, call onSnapshot with the contained player snapshot. Ignore an older or duplicate tick so a delayed frame cannot rewind the client.
+2. On JoinAccepted set joinedPlayerId, reset lastAcceptedSnapshotTick to null, call onJoin with its position, then publish connected with the server-issued ID and nickname. This is the only boundary that admits a lower tick from a restarted server.
+3. On WorldSnapshot, first ignore and warn unless joinedPlayerId equals player.id. Otherwise, when lastAcceptedSnapshotTick is null or the tick is greater, save the tick and call onSnapshot with the contained player snapshot. Ignore an older or duplicate tick from the current socket so a delayed frame cannot rewind the client.
 4. On AuthError retain its message for a subsequent close state.
 
-On any non-4001 close, schedule min(30000, 1000 * 2 to the power of attempt minus 1) multiplied by random(), incrementing attempts from 1 through 10. Once the tenth retry closes, publish failed with 서버에 연결하지 못했습니다. 로컬 이동으로 전환하지 않았습니다. Dispose clears a timer, marks the connection closed by the caller, and suppresses retries. On 4001, publish protocol_mismatch with the received AuthError message or 프로토콜 버전이 맞지 않습니다. 다시 불러오세요. and schedule nothing.
+On any non-4001 close, schedule min(30000, 1000 * 2 to the power of attempt minus 1) multiplied by random(), incrementing attempts from 1 through 10. After the initial connection and exactly ten reconnect sockets have closed, publish failed with 서버에 연결하지 못했습니다. 로컬 이동으로 전환하지 않았습니다. and schedule nothing. Dispose clears a timer, increments generation, clears currentSocket, marks the connection closed by the caller, and suppresses retries. On 4001, publish protocol_mismatch with the received AuthError message or 프로토콜 버전이 맞지 않습니다. 다시 불러오세요. and schedule nothing.
 
 In GameScene, add these props and setup:
 
@@ -970,9 +1373,13 @@ const world = createWorld({
 });
 ~~~
 
-Create ServerConnection only inside onMount when serverUrl is non-null. Use client version 0.0.0 and guest nickname 모험가. Its snapshot callback calls applyAuthoritativePlayerPosition(world, snapshot.position) followed by publishHud(). Its state callback passes the state to App. In the ground-click callback, call connection.sendMove({ x, z }) when serverUrl exists; otherwise retain the existing enqueueIntent local branch. Do not send M2–M4 actions to the server in this milestone.
+Create ServerConnection only inside onMount when serverUrl is non-null. Use client version 0.0.0 and guest nickname 모험가. Its onJoin and snapshot callbacks both call applyAuthoritativePlayerPosition(world, position) followed by publishHud(). Its state callback passes the state to App. In the ground-click callback, call connection.sendMove({ x, z }) when serverUrl exists; otherwise retain the existing enqueueIntent local branch.
 
-Create ConnectionNotice.svelte as a status-only overlay. Render it only for reconnecting, failed, and protocol_mismatch states; the normal local POC therefore has no new visual element. Use an assertive aria-live region for failed/refused states, Crystal Glow plus --rd-info for retrying, --rd-danger plus a textual 상태 label for failures, and a real button only for protocol mismatch:
+Set `const authorityDemo = serverUrl !== null`. In GameScene, `requestM3Action` and `handleMonsterGesture` must return immediately when authorityDemo, and the M4 gate callback must likewise return before enqueueing enter_m4_boss_room. Pass `inputEnabled={!authorityDemo}` to MonsterLayer, M3SupplyCache, and M4BossGate. Thread that prop to MonsterEntity, whose click and double-click handlers return before `onGesture` when false. In M3SupplyCache and M4BossGate, click handlers also return before their callbacks when false. This blocks input in the scene and protects against future callers; the WorldState authoritative intent guard from Task 4 is the final defense.
+
+In App.svelte compute the same authorityDemo from serverUrl. Pass it to Hud and ConnectionNotice. Add `authorityDemo = false` to Hud's props and pass `disabled={authorityDemo}` to M3ProgressPanel. Add `disabled = false` to M3ProgressPanel's props and render the M3 action as `<button type="button" disabled={disabled} onclick={() => onAction(action)}>` so keyboard and pointer input are both disabled. This preserves every existing local-mode handler and visual treatment.
+
+Create ConnectionNotice.svelte as a status-only overlay with `authorityDemo = false`. Render it for authorityDemo, reconnecting, failed, and protocol_mismatch states; the normal local POC therefore has no new visual element. When authorityDemo is true and the connection is not failed/refused, show `서버 권위 이동 모드` and `전투·M3·M4 상호작용은 로컬 POC에서만 사용할 수 있습니다.` as an info notice. Use an assertive aria-live region for failed/refused states, Crystal Glow plus --rd-info for informational states, --rd-danger plus a textual 상태 label for failures, and a real button only for protocol mismatch:
 
 ~~~svelte
 {#if state?.kind === 'protocol_mismatch'}
@@ -986,13 +1393,13 @@ Create ConnectionNotice.svelte as a status-only overlay. Render it only for reco
 
 Place the desktop notice at the top right. At 720px or below, place it below the player panel; its visibility only during an unusable connection means error guidance takes priority over temporarily obscured combat HUD. Give it pointer-events: auto, theme typography/spacing/radius variables, and disable transition/animation in prefers-reduced-motion.
 
-In App.svelte, read new URLSearchParams(window.location.search).get('server') once. Pass it as serverUrl, retain debugHud behavior, store ConnectionState | null, render ConnectionNotice outside Canvas, and pass onReload={() => window.location.reload()}. A missing parameter supplies null and leaves both the connection and notice absent.
+In App.svelte, read new URLSearchParams(window.location.search).get('server') once. Pass it as serverUrl, retain debugHud behavior, store ConnectionState | null, render ConnectionNotice outside Canvas, and pass onReload={() => window.location.reload()}. A missing parameter supplies null, authorityDemo false, and leaves both the connection and notice absent.
 
 - [ ] **Step 4: Run client integration and static UI tests**
 
 Run: cd client && npx vitest run src/net/__tests__/connection.test.ts src/scene/__tests__/server-authority-contract.test.ts src/ui/__tests__/connection-notice-contract.test.ts
 
-Expected: PASS. The first two frames are ordered, stale snapshots cannot rewind a newer state, parser failures are non-fatal, retry delays are bounded/full-jitter, 4001 never retries, and a server URL cannot enqueue local ground movement.
+Expected: PASS. The first two frames are ordered; pre-join, wrong-player, stale, and old-socket snapshots cannot mutate state; a new join immediately applies its spawn and accepts tick 1; an invalid URL remains visibly failed without a retry or local fallback; non-text and malformed frames are non-fatal; exactly ten reconnect sockets are attempted; dispose cancels a pending retry; 4001 never retries; and a server URL cannot enqueue local ground movement.
 
 Run: cd client && npm run check
 
@@ -1001,7 +1408,7 @@ Expected: PASS with no Svelte or TypeScript diagnostics.
 - [ ] **Step 5: Commit the browser authority integration**
 
 ~~~bash
-git add client/src/net/connection.ts client/src/net/__tests__/connection.test.ts client/src/scene/GameScene.svelte client/src/scene/__tests__/server-authority-contract.test.ts client/src/ui/ConnectionNotice.svelte client/src/ui/__tests__/connection-notice-contract.test.ts client/src/App.svelte
+git add client/src/net/connection.ts client/src/net/__tests__/connection.test.ts client/src/scene/GameScene.svelte client/src/scene/MonsterLayer.svelte client/src/scene/MonsterEntity.svelte client/src/scene/M3SupplyCache.svelte client/src/scene/M4BossGate.svelte client/src/scene/__tests__/server-authority-contract.test.ts client/src/ui/ConnectionNotice.svelte client/src/ui/Hud.svelte client/src/ui/M3ProgressPanel.svelte client/src/ui/__tests__/connection-notice-contract.test.ts client/src/App.svelte
 git commit -m "feat: connect authoritative movement snapshots"
 ~~~
 
@@ -1030,7 +1437,7 @@ cd client
 npm run dev
 ~~~
 
-Document that normal http://localhost:5173 retains M1–M4 local simulation and http://localhost:5173/?server=ws://127.0.0.1:8080 makes only player ground movement authoritative. State explicitly that an unavailable server is visibly reported and does not revert to local movement.
+Document that normal http://localhost:5173 retains the full M1–M4 local simulation and http://localhost:5173/?server=ws://127.0.0.1:8080 makes only player ground movement authoritative. State explicitly that the server URL path is an M5.1 movement demonstration: combat, M3 actions, and M4 gate entry are disabled and remain available in the no-server POC. State explicitly that an unavailable server is visibly reported and does not revert to local movement.
 
 In progress.md, replace the next implementation sentence with a dated M5.1 completion note listing protocol v1, guest IDs, 5Hz target movement, authoritative snapshots, and the no-server local POC preservation. The next handoff is M5.2: migrate a selected combat rule into shared Rust plus WASM/MessagePack only when that scope is designed.
 
@@ -1063,10 +1470,11 @@ Expected: both searches print nothing and exit 0.
 - [ ] **Step 3: Perform the manual two-path verification**
 
 1. Start only the client and open http://localhost:5173. Click the ground, then verify M4 player movement, monsters, M3/M4 HUD, and local gameplay remain unchanged.
-2. Start the server at 127.0.0.1:8080 and open http://localhost:5173/?server=ws://127.0.0.1:8080. Ground-click once and verify Network shows a JoinAccepted before WorldSnapshot frames, each 200ms server snapshot advances the logical position by 1.2 units, and the player plus camera interpolate smoothly over each 200ms interval.
+2. Start the server at 127.0.0.1:8080 and open http://localhost:5173/?server=ws://127.0.0.1:8080. Verify the `서버 권위 이동 모드` notice explains that combat, M3, and M4 interactions are disabled. Ground-click once and verify Network shows a JoinAccepted before WorldSnapshot frames, each 200ms server snapshot advances the logical position by 1.2 units, and the player plus camera interpolate smoothly over each 200ms interval. Monster clicks, M3 controls, and an unlocked M4 gate must not alter local world state.
 3. Stop the server while the server URL remains open. Verify reconnect copy appears and the player does not move after additional ground clicks.
-4. Restart the server. Verify reconnect succeeds within ten attempts and movement resumes from a newly joined origin position.
+4. Restart the server. Verify reconnect succeeds within ten attempts, JoinAccepted resets the player to the newly joined origin immediately, and the first tick-1 WorldSnapshot resumes movement without waiting for the previous server's tick count.
 5. Temporarily set the TypeScript protocol constant to 2 without committing it, reload the server URL, and verify AuthError copy plus a 다시 불러오기 button appear; verify no retry timer is scheduled. Restore the constant to 1 before proceeding.
+6. Open http://localhost:5173/?server=not-a-websocket-url. Verify a visible connection failure states that local movement was not enabled, the authority-demo interaction restrictions remain active, and no retry timer starts.
 
 - [ ] **Step 4: Commit only M5.1 documentation**
 
@@ -1084,13 +1492,16 @@ Expected: the status output may still list the user’s pre-existing .gitignore,
 | --- | --- |
 | Root shared/server workspace, cdylib plus rlib, no empty future directories | Task 1 |
 | JSON protocol, v1 exact match, first-message rule, frozen error shape, 4001 | Tasks 1 and 3 |
+| One-player session lifecycle, malformed-frame policy, ordered refusal frame then close | Task 3 pure and loopback session tests |
 | Guest ID, origin spawn, target-only movement, 200ms snapshots, client interpolation | Tasks 2, 3, and 4 |
 | Per-player rather than broadcast snapshot | Tasks 2 and 3 |
+| Slow receiver memory bound, writer/reader cleanup, and skipped delayed ticks | Task 3 bounded mailbox, finalizer, and server interval |
 | Shared deterministic movement and cross-language golden fixture | Tasks 1 and 4 |
 | game/ browser-free authority adapter | Task 4 plus Task 6 purity gate |
 | URL-gated authority mode preserving no-server POC | Tasks 4 and 5 |
-| 1s/30s/10 retry policy, malformed-frame handling, refusal reload | Task 5 |
+| Server URL movement-only boundary and disabled M2–M4 controls | Tasks 4 and 5 |
+| 1s/30s/10 retry policy, join-boundary tick reset, old-socket isolation, invalid-server failure, and refusal reload | Task 5 |
 | Required automated gates and manual local/server/error flows | Task 6 |
 | M5.2 boundaries remain outside the milestone | Global Constraints and Task 6 handoff |
 
-The plan contains no unspecified implementation step, conflicting protocol name, or unresolved file ownership. Player-position writes are confined to server world ticks or applyAuthoritativePlayerPosition; the connected ground-click path never invokes the local enqueue branch.
+The plan contains no unspecified implementation step, conflicting protocol name, or unresolved file ownership. After WorldState initialization, authoritative-mode player-position writes are confined to JoinAccepted/WorldSnapshot application, the connected ground-click path never invokes local enqueue, and every M2–M4 input route is blocked both in the scene and the pure world.
