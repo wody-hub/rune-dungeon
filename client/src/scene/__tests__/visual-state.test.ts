@@ -34,6 +34,17 @@ describe('scene visual state', () => {
     });
   });
 
+  it('uses text-supported fire exposure and still groggy visual roles for the placeholder boss', () => {
+    expect(monsterVisualState(false, 'BOSS', 'exposed')).toMatchObject({
+      core: visualTheme.colors.fireGyeol,
+      ringVisible: true,
+    });
+    expect(monsterVisualState(false, 'BOSS', 'groggy')).toMatchObject({
+      core: visualTheme.colors.crystalGlow,
+      coreBoost: 0.42,
+    });
+  });
+
   it('decays combat feedback across the approved short duration', () => {
     expect(transientPulse(1_000, 1_000, false)).toBe(1);
     expect(transientPulse(1_100, 1_000, false)).toBe(0.5);

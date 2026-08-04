@@ -4,14 +4,18 @@
   import { BackSide, Color, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial } from 'three';
   import { visualTheme } from '../design/visual-theme';
   import type { MonsterState } from '../game/sim/entities/monster';
+  import type { BossPhase } from '../game/sim/boss-state';
+  import type { RuntimeMonster } from '../game/sim/runtime-content';
   import type { MonsterGesture } from './monster-input';
   import { glowPulse, monsterVisualState, transientPulse } from './visual-state';
 
   let {
     monster,
+    definition,
     onGesture,
   }: {
     monster: MonsterState;
+    definition: RuntimeMonster;
     onGesture: (gesture: MonsterGesture) => void;
   } = $props();
 
@@ -24,13 +28,22 @@
   const impactColor = new Color(visualTheme.colors.paperText);
   let previousHp: number | null = null;
   let damageStartedAtMs: number | null = null;
+  let activeNow = false;
+  let currentBossPhase: BossPhase | undefined;
 
-  export function update(selected: boolean, nowMs: number): void {
+  export function update(
+    selected: boolean,
+    nextActive: boolean,
+    nowMs: number,
+    nextBossPhase?: BossPhase,
+  ): void {
     if (!group) return;
+    activeNow = nextActive;
+    currentBossPhase = nextBossPhase;
     if (previousHp !== null && monster.hp < previousHp) damageStartedAtMs = nowMs;
     group.position.set(monster.pos.x, 0, monster.pos.z);
-    group.visible = monster.alive;
-    const visual = monsterVisualState(selected);
+    group.visible = activeNow && monster.alive;
+    const visual = monsterVisualState(selected, definition.rank, currentBossPhase);
     const damagePulse = transientPulse(nowMs, damageStartedAtMs, reducedMotion);
     bodyMaterial?.color.set(visual.body).lerp(impactColor, damagePulse * 0.48);
     if (coreMaterial) {
@@ -39,35 +52,50 @@
       coreMaterial.emissiveIntensity =
         glowPulse(nowMs, reducedMotion) + visual.coreBoost + damagePulse * 0.72;
     }
-    if (selectionRing) selectionRing.visible = monster.alive && visual.ringVisible;
+    if (selectionRing) selectionRing.visible = activeNow && monster.alive && visual.ringVisible;
     if (selectionRingMaterial) selectionRingMaterial.color.set(visual.ring);
     previousHp = monster.hp;
   }
 </script>
 
-<T.Group bind:ref={group}>
-  <T.Mesh position.y={0.55} scale={[0.95, 0.7, 0.95]}>
-    <T.SphereGeometry args={[0.65, 20, 14]} />
+<T.Group bind:ref={group} visible={false}>
+  <!-- 모든 rank 도형은 최종 아트가 아닌 기능·발광 검증용 임시 실루엣이다. -->
+  <T.Mesh
+    position.y={definition.rank === 'BOSS' ? 0.9 : 0.55}
+    scale={definition.rank === 'BOSS' ? [1.45, 1.45, 1.2] : [0.95, 0.7, 0.95]}
+  >
+    {#if definition.rank === 'BOSS'}
+      <T.BoxGeometry args={[0.86, 1.1, 0.78]} />
+    {:else}
+      <T.SphereGeometry args={[0.65, 20, 14]} />
+    {/if}
     <T.MeshBasicMaterial color="#46585F" side={BackSide} />
   </T.Mesh>
   <T.Mesh
-    position.y={0.55}
-    scale={[0.9, 0.65, 0.9]}
+    position.y={definition.rank === 'BOSS' ? 0.9 : 0.55}
+    scale={definition.rank === 'BOSS' ? [1.4, 1.4, 1.15] : [0.9, 0.65, 0.9]}
     onclick={(event: IntersectionEvent<MouseEvent>) => {
-      if (!monster.alive) return;
+      if (!activeNow || !monster.alive) return;
       event.stopPropagation();
       onGesture('select');
     }}
     ondblclick={(event: IntersectionEvent<MouseEvent>) => {
-      if (!monster.alive) return;
+      if (!activeNow || !monster.alive) return;
       event.stopPropagation();
       onGesture('start_auto_attack');
     }}
   >
-    <T.SphereGeometry args={[0.65, 20, 14]} />
+    {#if definition.rank === 'BOSS'}
+      <T.BoxGeometry args={[0.86, 1.1, 0.78]} />
+    {:else}
+      <T.SphereGeometry args={[0.65, 20, 14]} />
+    {/if}
     <T.MeshStandardMaterial bind:ref={bodyMaterial} color="#344349" metalness={0.22} roughness={0.72} />
   </T.Mesh>
-  <T.Mesh position={[0.16, 0.59, 0.48]} scale={[0.16, 0.2, 0.1]}>
+  <T.Mesh
+    position={definition.rank === 'BOSS' ? [0.24, 0.94, 0.54] : [0.16, 0.59, 0.48]}
+    scale={definition.rank === 'BOSS' ? [0.25, 0.3, 0.16] : [0.16, 0.2, 0.1]}
+  >
     <T.OctahedronGeometry args={[0.5, 0]} />
     <T.MeshStandardMaterial
       bind:ref={coreMaterial}
@@ -76,16 +104,22 @@
       emissiveIntensity={0.35}
     />
   </T.Mesh>
-  <T.Mesh position={[-0.16, 0.67, 0.55]} scale={[0.035, 0.08, 0.025]}>
+  <T.Mesh
+    position={definition.rank === 'BOSS' ? [-0.22, 1.04, 0.65] : [-0.16, 0.67, 0.55]}
+    scale={definition.rank === 'BOSS' ? [0.055, 0.12, 0.04] : [0.035, 0.08, 0.025]}
+  >
     <T.SphereGeometry args={[1, 8, 6]} />
     <T.MeshBasicMaterial color={visualTheme.colors.paperText} />
   </T.Mesh>
-  <T.Mesh position={[0.02, 0.67, 0.58]} scale={[0.035, 0.08, 0.025]}>
+  <T.Mesh
+    position={definition.rank === 'BOSS' ? [0.04, 1.04, 0.65] : [0.02, 0.67, 0.58]}
+    scale={definition.rank === 'BOSS' ? [0.055, 0.12, 0.04] : [0.035, 0.08, 0.025]}
+  >
     <T.SphereGeometry args={[1, 8, 6]} />
     <T.MeshBasicMaterial color={visualTheme.colors.paperText} />
   </T.Mesh>
   <T.Mesh bind:ref={selectionRing} position.y={0.04} rotation.x={Math.PI / 2} visible={false}>
-    <T.TorusGeometry args={[0.78, 0.035, 8, 32]} />
+    <T.TorusGeometry args={[definition.rank === 'BOSS' ? 1.2 : 0.78, 0.035, 8, 32]} />
     <T.MeshBasicMaterial bind:ref={selectionRingMaterial} color={visualTheme.colors.sealVermilion} />
   </T.Mesh>
 </T.Group>

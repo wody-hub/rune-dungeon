@@ -4,6 +4,7 @@
   import { onMount } from 'svelte';
   import { createWorld, enqueueIntent, tick } from '../game/sim/world';
   import type { M3Action } from '../game/sim/m3-progression';
+  import type { M4Area } from '../game/sim/m4-scenario';
   import { createFrameTimer, FRAME_TIME_MS } from '../game/loop/fixed-step';
   import {
     createHudSnapshot,
@@ -14,6 +15,7 @@
   import GroundLayer from './GroundLayer.svelte';
   import MonsterLayer from './MonsterLayer.svelte';
   import M3SupplyCache from './M3SupplyCache.svelte';
+  import M4BossGate from './M4BossGate.svelte';
   import PlayerLayer from './PlayerLayer.svelte';
   import {
     intentsForMonsterGesture,
@@ -33,7 +35,7 @@
 
   // 월드 상태는 반응성 그래프 밖의 plain object다. 프레임마다 바뀌는 값을
   // Svelte 반응성에 올리지 않고, 루프가 레이어 update()를 직접 호출한다.
-  const world = createWorld();
+  const world = createWorld({ scenario: 'm4' });
   if (import.meta.env.DEV) {
     (window as unknown as { __world: unknown }).__world = world;
   }
@@ -44,6 +46,9 @@
     update: (nowMs: number, transformed: boolean, transformationSequence: number) => void;
   }>();
   let supplyCache = $state<{ update: (visible: boolean, nowMs: number) => void }>();
+  let bossGate = $state<{
+    update: (area: M4Area, unlocked: boolean, nowMs: number) => void;
+  }>();
 
   export function requestM3Action(action: M3Action): void {
     enqueueIntent(world, { type: action });
@@ -75,6 +80,7 @@
       playerLayer?.update(now, world.m3.transformed, world.m3.transformationSequence);
       monsterLayer?.update(now);
       supplyCache?.update(world.m3.cacheAvailable && !world.m3.cacheCollected, now);
+      if (world.m4) bossGate?.update(world.m4.area, world.m4.gateUnlocked, now);
       camera?.update();
       publishHud();
       advance();
@@ -91,6 +97,10 @@
 
 <GroundLayer
   onGroundClick={(x, z) => enqueueIntent(world, { type: 'move_to_ground', point: { x, z } })}
+/>
+<M4BossGate
+  bind:this={bossGate}
+  onEnter={() => enqueueIntent(world, { type: 'enter_m4_boss_room' })}
 />
 <MonsterLayer bind:this={monsterLayer} {world} onMonsterGesture={handleMonsterGesture} />
 <M3SupplyCache bind:this={supplyCache} onCollect={requestM3Action} />
