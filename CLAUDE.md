@@ -8,6 +8,12 @@ Do not deviate without explicit user approval.
 In QA mode, flag any code that does not match `DESIGN.md`.
 The player and monster character shapes shown in design previews are placeholders, not approved final character designs.
 
+## Engineering standards
+
+Before modifying or reviewing code, read `docs/engineering/code-standards.md`.
+For Clean Code and architecture reviews, also follow `docs/engineering/review-guide.md`.
+Approved product, protocol, and design contracts take precedence when a general convention conflicts with them.
+
 ## Skill routing
 
 When the user's request matches an available skill, invoke it via the Skill tool. When in doubt, invoke the skill.
