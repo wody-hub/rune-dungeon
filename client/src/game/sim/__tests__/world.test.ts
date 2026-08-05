@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { MonsterItem, PlayerData, WeaponItem } from '../../types/data';
 import {
   applyAuthoritativePlayerPosition,
+  applyAuthoritativePlayerSnapshot,
   createWorld,
   enqueueIntent,
   getRenderedPlayerPosition,
@@ -61,6 +62,23 @@ describe('M5.1 player movement authority', () => {
       m4: world.m4,
       inventory: world.inventory,
     }).toEqual(before);
+  });
+
+  it('projects a confirmed transformed snapshot into position and temporary M3 presentation', () => {
+    const world = createWorld({ scenario: 'm4', playerMovement: 'authoritative' });
+    applyAuthoritativePlayerSnapshot(world, {
+      id: 1,
+      position: { x: 1.2, z: -0.4 },
+      target: null,
+      transformation: {
+        in_id: M3_IDS.fireIn,
+        combat_mode: 'TRANSFORMED',
+        revision: 1,
+      },
+    });
+    expect(world.player.pos).toEqual({ x: 1.2, z: -0.4 });
+    expect(world.m3.transformed).toBe(true);
+    expect(world.m3.transformationSequence).toBe(1);
   });
 });
 

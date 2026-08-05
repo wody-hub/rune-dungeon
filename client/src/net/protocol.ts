@@ -1,4 +1,4 @@
-export const PROTOCOL_VERSION = 1;
+export const PROTOCOL_VERSION = 2;
 export const CLOSE_CODE_PROTOCOL_MISMATCH = 4001;
 
 export interface Vec2 {
@@ -15,12 +15,22 @@ export type ClientMessage =
       };
     }
   | { JoinAsGuest: { nickname: string } }
-  | { Intent: { MoveToGround: { point: Vec2 } } };
+  | { Intent: { MoveToGround: { point: Vec2 } } }
+  | { Intent: 'ToggleTransformation' };
+
+export type CombatMode = 'NORMAL' | 'TRANSFORMED';
+
+export interface TransformationSnapshot {
+  in_id: string;
+  combat_mode: CombatMode;
+  revision: number;
+}
 
 export interface PlayerSnapshot {
   id: number;
   position: Vec2;
   target: Vec2 | null;
+  transformation: TransformationSnapshot;
 }
 
 export type ServerMessage =
@@ -42,6 +52,10 @@ export const joinGuestMessage = (nickname: string): ClientMessage => ({
 
 export const moveToGroundMessage = (point: Vec2): ClientMessage => ({
   Intent: { MoveToGround: { point: { ...point } } },
+});
+
+export const toggleTransformationMessage = (): ClientMessage => ({
+  Intent: 'ToggleTransformation',
 });
 
 export const encodeClientMessage = (message: ClientMessage): string => JSON.stringify(message);
@@ -79,10 +93,11 @@ export function parseServerMessage(text: string): ServerMessage | null {
     if (
       !hasExactKeys(snapshot, ['tick', 'player']) ||
       !isNonNegativeInteger(snapshot.tick) ||
-      !hasExactKeys(snapshot.player, ['id', 'position', 'target']) ||
+      !hasExactKeys(snapshot.player, ['id', 'position', 'target', 'transformation']) ||
       !isNonNegativeInteger(snapshot.player.id) ||
       !isVec2(snapshot.player.position) ||
-      !(snapshot.player.target === null || isVec2(snapshot.player.target))
+      !(snapshot.player.target === null || isVec2(snapshot.player.target)) ||
+      !isTransformationSnapshot(snapshot.player.transformation)
     ) {
       return null;
     }
@@ -116,5 +131,15 @@ function isVec2(value: unknown): value is Vec2 {
     Number.isFinite(value.x) &&
     typeof value.z === 'number' &&
     Number.isFinite(value.z)
+  );
+}
+
+function isTransformationSnapshot(value: unknown): value is TransformationSnapshot {
+  return (
+    hasExactKeys(value, ['in_id', 'combat_mode', 'revision']) &&
+    typeof value.in_id === 'string' &&
+    value.in_id.length > 0 &&
+    (value.combat_mode === 'NORMAL' || value.combat_mode === 'TRANSFORMED') &&
+    isNonNegativeInteger(value.revision)
   );
 }

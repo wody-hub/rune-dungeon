@@ -39,6 +39,7 @@ import {
   createM3Progress,
   enableM3SupplyCache,
   isM3Action,
+  M3_IDS,
   type M3Progress,
 } from './m3-progression';
 import {
@@ -59,6 +60,7 @@ import {
   createRuntimeMonster,
   type RuntimeMonster,
 } from './runtime-content';
+import type { PlayerSnapshot } from '../../net/protocol';
 
 export const PLAYER_SPEED = 6; // m/s, 화면 보고 조정
 
@@ -240,6 +242,21 @@ export function applyAuthoritativePlayerPosition(w: WorldState, position: Vec2):
   w.player.pos = { ...position };
   w.player.moveTarget = null;
   if (!w.player.autoAttackEnabled) w.player.mode = 'idle';
+}
+
+export function applyAuthoritativePlayerSnapshot(
+  world: WorldState,
+  snapshot: PlayerSnapshot,
+): void {
+  applyAuthoritativePlayerPosition(world, snapshot.position);
+  if (snapshot.transformation.in_id !== M3_IDS.fireIn) return;
+
+  const transformed = snapshot.transformation.combat_mode === 'TRANSFORMED';
+  world.m3.transformed = transformed;
+  world.m3.transformationSequence = snapshot.transformation.revision;
+  world.m3.statusMessage = transformed
+    ? '서버가 화 변신을 확정했습니다.'
+    : '서버가 변신 해제를 확정했습니다.';
 }
 
 export function getRenderedPlayerPosition(w: WorldState): Vec2 {

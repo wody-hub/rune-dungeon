@@ -66,7 +66,12 @@ class FakeScheduler {
   }
 }
 
-function snapshotFrame(playerId: number, tick: number): string {
+function snapshotFrame(
+  playerId: number,
+  tick: number,
+  combatMode: 'NORMAL' | 'TRANSFORMED' = 'NORMAL',
+  revision = 0,
+): string {
   return JSON.stringify({
     WorldSnapshot: {
       tick,
@@ -74,6 +79,11 @@ function snapshotFrame(playerId: number, tick: number): string {
         id: playerId,
         position: { x: tick, z: 0 },
         target: null,
+        transformation: {
+          in_id: 'in_fire_001',
+          combat_mode: combatMode,
+          revision,
+        },
       },
     },
   });
@@ -143,7 +153,7 @@ describe('M5.1 server connection', () => {
     connection.connect();
     socket.open();
     expect(socket.sent).toEqual([
-      '{"ClientInfo":{"protocol_version":1,"client_kind":"web","client_version":"0.0.0"}}',
+      '{"ClientInfo":{"protocol_version":2,"client_kind":"web","client_version":"0.0.0"}}',
       '{"JoinAsGuest":{"nickname":"모험가"}}',
     ]);
   });
@@ -184,6 +194,22 @@ describe('M5.1 server connection', () => {
     expect(reconnectDelayMs(1, () => 0.5)).toBe(500);
     expect(reconnectDelayMs(6, () => 1)).toBe(30_000);
     expect(reconnectDelayMs(10, () => 1)).toBe(30_000);
+  });
+
+  it('lets only newer joined-player snapshots carry transformation state', () => {
+    const modes: string[] = [];
+    const socket = new FakeSocket();
+    const harness = createTestConnection(socket, [], (snapshot) =>
+      modes.push(snapshot.transformation.combat_mode),
+    );
+    harness.connection.connect();
+    socket.open();
+    socket.message(snapshotFrame(1, 1, 'TRANSFORMED', 1));
+    socket.message(joinAcceptedFrame(1, { x: 0, z: 0 }));
+    socket.message(snapshotFrame(2, 2, 'TRANSFORMED', 1));
+    socket.message(snapshotFrame(1, 2, 'TRANSFORMED', 1));
+    socket.message(snapshotFrame(1, 1, 'NORMAL', 0));
+    expect(modes).toEqual(['TRANSFORMED']);
   });
 
   it('accepts tick 1 after a new JoinAccepted and ignores the old socket', () => {

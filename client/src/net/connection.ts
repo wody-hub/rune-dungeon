@@ -5,6 +5,7 @@ import {
   joinGuestMessage,
   moveToGroundMessage,
   parseServerMessage,
+  toggleTransformationMessage,
   type ServerMessage,
   type Vec2,
 } from './protocol';
@@ -104,6 +105,11 @@ export class ServerConnection {
   sendMove(point: Vec2): void {
     if (!this.canSendJoinedIntent()) return;
     this.currentSocket?.send(encodeClientMessage(moveToGroundMessage(point)));
+  }
+
+  sendToggleTransformation(): void {
+    if (!this.canSendJoinedIntent()) return;
+    this.currentSocket?.send(encodeClientMessage(toggleTransformationMessage()));
   }
 
   dispose(): void {
