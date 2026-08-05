@@ -145,6 +145,8 @@ for (const data of [gyeol, consumables, materials, transformationIns]) {
 const typeSource = readText("client/src/game/types/data.ts");
 for (const requiredTerm of [
   "export interface CharacterVisualState",
+  'baseFormTierName: "씨앗"',
+  "inTierName: TierName",
   "orientationRadians: number",
   "modelKey: string",
   "rigKey: string",
@@ -166,6 +168,8 @@ for (const staleTerm of [
 ]) {
   assert.ok(!typeSource.includes(staleTerm), `runtime types must not include stale 2D visual term ${staleTerm}`);
 }
+assert.equal(player.visual.baseFormTierName, "씨앗", "NORMAL base form must always use the 씨앗 tier");
+assert.equal(typeof player.visual.inTierName, "string", "player visual inTierName");
 assert.equal(typeof player.visual.orientationRadians, "number", "player visual orientationRadians");
 assert.equal(typeof player.visual.modelKey, "string", "player visual modelKey");
 assert.equal(typeof player.visual.rigKey, "string", "player visual rigKey");
@@ -293,6 +297,17 @@ for (const id of player.equipped.incantationIds) {
   assert.ok(incantationIndex.has(id), `player incantationId ${id} must reference incantation data`);
 }
 assert.ok(inIndex.has(player.equipped.inId), "player inId must reference transformation-ins.json");
+const equippedIn = inIndex.get(player.equipped.inId);
+assert.equal(
+  player.visual.inTierName,
+  equippedIn.tierName,
+  "player visual inTierName must match the equipped 인 tierName",
+);
+assert.equal(
+  equippedIn.visual.inTierName,
+  undefined,
+  "transformation visual must not duplicate its 인 tierName",
+);
 for (const id of player.inventory.items) {
   const found =
     consumableIndex.has(id) ||

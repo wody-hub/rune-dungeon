@@ -7,7 +7,6 @@
     "element": "FIRE",
     "combatMode": "TRANSFORMED",
     "visual": {
-      "baseFormTierName": "움결",
       "auraEffectKey": "aura_fire_ungyeol_001"
     }
   }

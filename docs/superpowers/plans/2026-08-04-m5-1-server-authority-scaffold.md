@@ -65,7 +65,7 @@
 | client/src/ui/__tests__/connection-notice-contract.test.ts | State-copy, token, and reduced-motion style contract. |
 | client/src/App.svelte | Reads the optional server URL, passes connection state to the HUD shell, owns reload action. |
 | client/README.md | Documents M5.1 run commands and the server URL switch. |
-| progress.md | Records M5.1 completion and hands off M5.2 combat migration. |
+| progress.md | Records M5.1 completion and hands off M5.2 transformation migration. |
 
 ## Protocol v1 Contract
 
@@ -1422,7 +1422,7 @@ git commit -m "feat: connect authoritative movement snapshots"
 **Interfaces:**
 - Consumes: the completed server, shared contract, client adapter, and UI from Tasks 1–5.
 - Produces: a documented M5.1 handoff with reproducible local and server-authority launch paths.
-- Consumed by: M5.2 combat-rule migration planning.
+- Consumed by: M5.2 server-authoritative transformation planning.
 
 - [ ] **Step 1: Write the documentation assertions and completion text**
 
@@ -1439,7 +1439,7 @@ npm run dev
 
 Document that normal http://localhost:5173 retains the full M1–M4 local simulation and http://localhost:5173/?server=ws://127.0.0.1:8080 makes only player ground movement authoritative. State explicitly that the server URL path is an M5.1 movement demonstration: combat, M3 actions, and M4 gate entry are disabled and remain available in the no-server POC. State explicitly that an unavailable server is visibly reported and does not revert to local movement.
 
-In progress.md, replace the next implementation sentence with a dated M5.1 completion note listing protocol v1, guest IDs, 5Hz target movement, authoritative snapshots, and the no-server local POC preservation. The next handoff is M5.2: migrate a selected combat rule into shared Rust plus WASM/MessagePack only when that scope is designed.
+In progress.md, replace the next implementation sentence with a dated M5.1 completion note listing protocol v1, guest IDs, 5Hz target movement, authoritative snapshots, and the no-server local POC preservation. The next handoff is M5.2: move the fixed MVP fire transformation into server ownership through protocol v2 while leaving combat and WASM/MessagePack for a later bounded plan.
 
 - [ ] **Step 2: Run static and automated gates**
 
@@ -1502,6 +1502,6 @@ Expected: the status output may still list the user’s pre-existing .gitignore,
 | Server URL movement-only boundary and disabled M2–M4 controls | Tasks 4 and 5 |
 | 1s/30s/10 retry policy, join-boundary tick reset, old-socket isolation, invalid-server failure, and refusal reload | Task 5 |
 | Required automated gates and manual local/server/error flows | Task 6 |
-| M5.2 boundaries remain outside the milestone | Global Constraints and Task 6 handoff |
+| M5.2 server-authoritative transformation remains outside the milestone | Global Constraints and Task 6 handoff |
 
 The plan contains no unspecified implementation step, conflicting protocol name, or unresolved file ownership. After WorldState initialization, authoritative-mode player-position writes are confined to JoinAccepted/WorldSnapshot application, the connected ground-click path never invokes local enqueue, and every M2–M4 input route is blocked both in the scene and the pure world.

@@ -51,15 +51,15 @@
     ]
   },
   "visual": {
-    "baseFormTierName": "움결",
+    "baseFormTierName": "씨앗",
+    "inTierName": "움결",
     "inElement": "FIRE",
     "combatMode": "NORMAL",
     "orientationRadians": 0.7853981633974483,
-    "modelKey": "player_base_umgyeol",
+    "modelKey": "player_base_seed",
     "rigKey": "humanoid_mvp",
     "animationClipKey": "idle",
     "weaponModelKey": "weapon_greatsword_bronze",
-    "materialVariantKey": "fire_normal",
-    "auraEffectKey": "aura_fire_umgyeol"
+    "materialVariantKey": "fire_normal"
   }
 }

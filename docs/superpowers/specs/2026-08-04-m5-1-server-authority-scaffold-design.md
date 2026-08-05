@@ -32,7 +32,7 @@ M1~M4로 검증된 클라이언트 단독 POC 위에, `Rust + WebSocket` 권위 
 
 - 현재 클라이언트는 Rust 없이 `npm run dev`로 동작하며, 이는 M1~M4 로컬 POC의 핵심 가치다. `wasm-pack`을 넣으면 오프라인 플레이에도 Rust 툴체인이 필요해진다.
 - M5.1의 메시지는 6종뿐이다. 이 규모에서 바이너리 프레임은 브라우저 Network 탭에서 읽히지 않아 브링업 디버깅에 순손해다.
-- WASM이 처음으로 값을 하는 시점은 클라이언트가 **직렬화가 아니라 규칙**을 공유해야 할 때, 즉 전투가 서버로 이관되는 M5.2다.
+- WASM이 처음으로 값을 하는 시점은 클라이언트가 **직렬화가 아니라 규칙**을 공유해야 할 때, 즉 전투가 서버로 이관되는 M5.3 이후다.
 
 따라서 M5.1은 JSON 텍스트 프레임과 수작성 TypeScript 미러 타입을 쓰되, 나중의 전환이 모듈 교체로 끝나도록 다음을 지금 고정한다.
 
@@ -61,7 +61,7 @@ server/
 
 아키텍처 문서 §11.3의 `combat/`, `inventory/`, `crafting/`, `content/`, `persistence/`는 **빈 디렉토리로 미리 만들지 않는다.** 규칙이 실제로 이사 올 때 만든다.
 
-`shared/src/world.rs`의 `step_toward()`가 규칙 단일본의 첫 사례다. 이동 수식은 Rust에 한 벌만 존재하고 서버가 그것을 쓴다. M5.2에서 WASM을 켜면 클라이언트도 같은 함수를 호출하게 되며, 그 시점에 `client/src/game/sim/movement.ts`가 삭제된다. 가장 작은 규칙으로 그 경로를 미리 증명하는 것이 목적이다.
+`shared/src/world.rs`의 `step_toward()`가 규칙 단일본의 첫 사례다. 이동 수식은 Rust에 한 벌만 존재하고 서버가 그것을 쓴다. 전투를 이관하는 M5.3 이후에 WASM을 켜면 클라이언트도 같은 함수를 호출하게 되며, 그 시점에 `client/src/game/sim/movement.ts`가 삭제된다. 가장 작은 규칙으로 그 경로를 미리 증명하는 것이 목적이다.
 
 `PLAYER_MOVE_SPEED`는 현재 클라이언트의 `PLAYER_SPEED = 6`과 같은 값으로 둔다. 조작감은 M1~M4에서 이미 화면으로 확정한 값이며, 이번 단계에서 재조정하지 않는다.
 
@@ -169,4 +169,6 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 ## 다음 단계
 
-M5.2는 전투 규칙을 `shared`로 이관하면서 `wasm-pack`과 MessagePack을 함께 도입한다. 그 시점에 `client/src/game/sim/`의 해당 TypeScript 구현과 단위 테스트는 Rust로 옮겨지며, 클라이언트는 같은 규칙을 WASM으로 호출한다.
+M5.2는 전투보다 먼저 변신을 서버 권위로 이관한다. 서버는 고정 MVP 장착 인 `in_fire_001`과 `NORMAL`/`TRANSFORMED` 상태를 소유하고, 클라이언트는 서버 스냅샷을 받아 임시 화염 오라·무기광을 표시한다. M5.2가 끝나기 전에는 변신을 서버 권위 수직 슬라이스 완료 항목으로 판정하지 않는다.
+
+전투 규칙의 `shared` 이관, `wasm-pack`, MessagePack은 M5.3 이후에 별도 설계한다. 변신 토글은 결정적 전투 수식 공유를 요구하지 않으므로, M5.2에 이 복잡도를 앞당기지 않는다.

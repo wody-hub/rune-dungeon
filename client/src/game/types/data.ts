@@ -235,13 +235,13 @@ export interface TransformationInItem {
   element: ElementType;
   combatMode: "TRANSFORMED";
   visual: {
-    baseFormTierName: TierName;
     auraEffectKey: string;
   };
 }
 
 export interface CharacterVisualState {
-  baseFormTierName: TierName;
+  baseFormTierName: "씨앗";
+  inTierName: TierName;
   inElement?: ElementType;
   combatMode: "NORMAL" | "TRANSFORMED";
   orientationRadians: number;

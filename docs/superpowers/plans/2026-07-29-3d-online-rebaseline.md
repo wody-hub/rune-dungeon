@@ -483,7 +483,8 @@ Use this public shape and migrate `player.json` to it:
 
 ```ts
 interface CharacterVisualState {
-  baseFormTierName: TierName;
+  baseFormTierName: "씨앗";
+  inTierName: TierName;
   inElement?: ElementType;
   combatMode: "NORMAL" | "TRANSFORMED";
   orientationRadians: number;
@@ -495,6 +496,10 @@ interface CharacterVisualState {
   auraEffectKey?: string;
 }
 ```
+
+`baseFormTierName`은 항상 `씨앗`으로 고정하고, 장착한 인의 실제 티어는
+정본 `tierName`에서 `inTierName`으로 파생한다. 표시 폼은 `NORMAL -> 씨앗`,
+`TRANSFORMED -> inTierName`으로 파생한다.
 
 Remove `Direction8`, spritesheet/frame-sheet contracts, `weaponSpriteKey`, and
 2D frame references from active runtime types and architecture prose.
