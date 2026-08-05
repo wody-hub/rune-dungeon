@@ -1,6 +1,6 @@
 # Rune Dungeon Client (POC)
 
-Svelte 5 + TypeScript + Vite + Threlte 8(WebGL) 클라이언트. 현재 클라 단독 POC 단계로, 서버 없이 로컬 로직만으로 플레이 루프를 검증한다.
+Svelte 5 + TypeScript + Vite + Threlte 8(WebGL) 클라이언트. 서버 URL이 없으면 M1~M4 로컬 POC를 유지하고, 서버 URL이 있으면 M5.1 이동 권위 데모로 실행한다.
 
 ## 실행
 
@@ -10,6 +10,21 @@ npm run dev        # 개발 서버
 npm run check      # svelte-check + tsc
 npx vitest run     # 순수 로직 단위 테스트
 ```
+
+### M5.1 로컬/서버 권위 실행 경로
+
+```bash
+# terminal A, repository root
+cargo run -p rune-dungeon-server -- --addr 127.0.0.1:8080
+
+# terminal B
+cd client
+npm run dev
+```
+
+- `http://localhost:5173`은 이동, 전투, 수집·제작·변신, M4 보스 진행을 포함한 기존 M1~M4 로컬 시뮬레이션을 그대로 실행한다.
+- `http://localhost:5173/?server=ws://127.0.0.1:8080`은 플레이어의 지면 이동만 서버 권위로 실행하는 M5.1 데모다. 이 경로에서는 전투, M3 행동, M4 관문 진입을 비활성화하며 해당 기능은 서버 URL이 없는 로컬 POC에서 계속 사용할 수 있다.
+- 지정한 서버가 없거나 연결이 끊기면 오류와 재연결 상태를 표시하며 로컬 이동으로 전환하지 않는다.
 
 ## 디렉토리 설계
 
@@ -59,6 +74,7 @@ src/
 | POC 디자인 체크포인트 | `먹빛 결정` 토큰, HUD 계층, 임시 플레이어·슬라임 재질, 결정 발광 | **완료** (2026-08-03) |
 | M3 | 수집 → 제작(`결: 화`) → 현재 결 장착 → 화 변신 on/off | **완료** (2026-08-03) |
 | M4 | 흑심 채굴장 정예·문, 몽당연필 기사단장 단단한 심/약점 노출/그로기, 목표 HUD | **완료** (2026-08-04) |
+| M5.1 | 프로토콜 v1, 게스트 세션, 5Hz 서버 권위 지면 이동, 연결/재시도 경계 | **완료** (2026-08-05) |
 
 M2 순수 전투 코어는 `game/sim/fsm/`의 플레이어 상태기계(`idle` / `moving` / `attacking`), 먹물 슬라임 런타임 상태, 타깃 선택·자동 접근/공격, 피해, 사망당 1회 보상(골드·음), 재스폰까지 구현했다. 기본 재스폰 지연은 `5000ms`다.
 
