@@ -4,6 +4,7 @@
   import { onMount, untrack } from 'svelte';
   import {
     applyAuthoritativePlayerPosition,
+    applyAuthoritativePlayerSnapshot,
     createWorld,
     enqueueIntent,
     tick,
@@ -67,7 +68,12 @@
   let connection: ServerConnection | null = null;
 
   export function requestM3Action(action: M3Action): void {
-    if (authorityDemo) return;
+    if (authorityDemo) {
+      if (action === 'toggle_m3_transformation') {
+        connection?.sendToggleTransformation();
+      }
+      return;
+    }
     enqueueIntent(world, { type: action });
   }
 
@@ -110,7 +116,7 @@
           publishHud();
         },
         onSnapshot: (snapshot) => {
-          applyAuthoritativePlayerPosition(world, snapshot.player.position);
+          applyAuthoritativePlayerSnapshot(world, snapshot.player);
           publishHud();
         },
       });

@@ -92,7 +92,12 @@
     </section>
 
     {#if authorityDemo}
-      <M3ProgressPanel snapshot={snapshot.m3} disabled={authorityDemo} onAction={onM3Action} />
+      <M3ProgressPanel
+        snapshot={snapshot.m3}
+        authorityMode={authorityDemo}
+        serverTransformationEnabled={authorityDemo}
+        onAction={onM3Action}
+      />
     {:else}
       <M3ProgressPanel snapshot={snapshot.m3} onAction={onM3Action} />
     {/if}

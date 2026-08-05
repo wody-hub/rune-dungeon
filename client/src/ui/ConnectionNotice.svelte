@@ -25,8 +25,8 @@
   </aside>
 {:else if authorityDemo}
   <aside class="connection-notice info" aria-live="polite">
-    <strong>서버 권위 이동 모드</strong>
-    <span>전투·M3·M4 상호작용은 로컬 POC에서만 사용할 수 있습니다.</span>
+    <strong>서버 권위 이동·변신 모드</strong>
+    <span>이동과 화 변신은 서버가 확정합니다. 제작·전투·보스 상호작용은 아직 사용할 수 없습니다.</span>
     {#if state?.kind === 'reconnecting'}
       <small>{state.message} ({state.attempt}/10)</small>
     {:else if state?.kind === 'connecting' || state?.kind === 'joining'}

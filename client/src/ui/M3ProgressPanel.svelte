@@ -4,11 +4,13 @@
 
   let {
     snapshot,
-    disabled = false,
+    authorityMode = false,
+    serverTransformationEnabled = false,
     onAction,
   }: {
     snapshot: M3HudSnapshot;
-    disabled?: boolean;
+    authorityMode?: boolean;
+    serverTransformationEnabled?: boolean;
     onAction: (action: M3Action) => void;
   } = $props();
 
@@ -110,7 +112,7 @@
   {#if action}
     <button
       type="button"
-      disabled={disabled}
+      disabled={authorityMode && (action !== 'toggle_m3_transformation' || !serverTransformationEnabled)}
       onclick={() => onAction(action)}
     >{actionLabel(action)}</button>
   {/if}
