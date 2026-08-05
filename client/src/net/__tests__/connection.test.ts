@@ -196,6 +196,24 @@ describe('M5.1 server connection', () => {
     expect(reconnectDelayMs(10, () => 1)).toBe(30_000);
   });
 
+  it('sends a parameterless toggle only from the current open joined socket', () => {
+    const socket = new FakeSocket();
+    const { connection } = createTestConnection(socket, []);
+    connection.connect();
+    connection.sendToggleTransformation();
+    socket.open();
+    connection.sendToggleTransformation();
+    expect(socket.sent).toHaveLength(2);
+
+    socket.message(joinAcceptedFrame(1, { x: 0, z: 0 }));
+    connection.sendToggleTransformation();
+    expect(socket.sent.at(-1)).toBe('{"Intent":"ToggleTransformation"}');
+
+    socket.close(1006);
+    connection.sendToggleTransformation();
+    expect(socket.sent).toHaveLength(3);
+  });
+
   it('lets only newer joined-player snapshots carry transformation state', () => {
     const modes: string[] = [];
     const socket = new FakeSocket();
