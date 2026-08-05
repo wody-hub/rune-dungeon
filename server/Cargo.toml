@@ -1,0 +1,11 @@
+[package]
+name = "rune-dungeon-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures-util = "0.3"
+rune-dungeon-shared = { path = "../shared" }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["macros", "net", "rt-multi-thread", "sync", "time"] }
+tokio-tungstenite = { version = "0.26", features = ["connect"] }

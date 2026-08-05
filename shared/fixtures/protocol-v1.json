@@ -1,0 +1,8 @@
+{
+  "client_info": {"ClientInfo":{"protocol_version":1,"client_kind":"web","client_version":"0.0.0"}},
+  "join_as_guest": {"JoinAsGuest":{"nickname":"모험가"}},
+  "move_to_ground": {"Intent":{"MoveToGround":{"point":{"x":6.0,"z":-2.0}}}},
+  "join_accepted": {"JoinAccepted":{"player_id":1,"nickname":"모험가","position":{"x":0.0,"z":0.0}}},
+  "world_snapshot": {"WorldSnapshot":{"tick":1,"player":{"id":1,"position":{"x":1.2,"z":0.0},"target":{"x":6.0,"z":-2.0}}}},
+  "auth_error": {"AuthError":{"message":"Protocol v1 required. Reload this client."}}
+}
