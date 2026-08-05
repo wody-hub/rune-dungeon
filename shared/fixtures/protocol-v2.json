@@ -1,0 +1,9 @@
+{
+  "client_info": {"ClientInfo":{"protocol_version":2,"client_kind":"web","client_version":"0.0.0"}},
+  "join_as_guest": {"JoinAsGuest":{"nickname":"모험가"}},
+  "move_to_ground": {"Intent":{"MoveToGround":{"point":{"x":6.0,"z":-2.0}}}},
+  "toggle_transformation": {"Intent":"ToggleTransformation"},
+  "join_accepted": {"JoinAccepted":{"player_id":1,"nickname":"모험가","position":{"x":0.0,"z":0.0}}},
+  "snapshot_normal": {"WorldSnapshot":{"tick":1,"player":{"id":1,"position":{"x":0.0,"z":0.0},"target":null,"transformation":{"in_id":"in_fire_001","combat_mode":"NORMAL","revision":0}}}},
+  "snapshot_transformed": {"WorldSnapshot":{"tick":2,"player":{"id":1,"position":{"x":0.0,"z":0.0},"target":null,"transformation":{"in_id":"in_fire_001","combat_mode":"TRANSFORMED","revision":1}}}}
+}
