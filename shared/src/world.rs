@@ -29,35 +29,19 @@ mod tests {
     #[test]
     fn step_toward_handles_normal_arrival_and_zero_distance() {
         assert_eq!(
-            step_toward(
-                Vec2 { x: 0.0, z: 0.0 },
-                Vec2 { x: 10.0, z: 0.0 },
-                0.2,
-            ),
+            step_toward(Vec2 { x: 0.0, z: 0.0 }, Vec2 { x: 10.0, z: 0.0 }, 0.2,),
             Vec2 { x: 1.2, z: 0.0 },
         );
         assert_eq!(
-            step_toward(
-                Vec2 { x: 5.9, z: 0.0 },
-                Vec2 { x: 6.0, z: 0.0 },
-                0.2,
-            ),
+            step_toward(Vec2 { x: 5.9, z: 0.0 }, Vec2 { x: 6.0, z: 0.0 }, 0.2,),
             Vec2 { x: 6.0, z: 0.0 },
         );
         assert_eq!(
-            step_toward(
-                Vec2 { x: 2.0, z: -3.0 },
-                Vec2 { x: 2.0, z: -3.0 },
-                0.2,
-            ),
+            step_toward(Vec2 { x: 2.0, z: -3.0 }, Vec2 { x: 2.0, z: -3.0 }, 0.2,),
             Vec2 { x: 2.0, z: -3.0 },
         );
         assert_eq!(
-            step_toward(
-                Vec2 { x: 2.0, z: -3.0 },
-                Vec2 { x: 9.0, z: 4.0 },
-                -0.2,
-            ),
+            step_toward(Vec2 { x: 2.0, z: -3.0 }, Vec2 { x: 9.0, z: 4.0 }, -0.2,),
             Vec2 { x: 2.0, z: -3.0 },
         );
     }
