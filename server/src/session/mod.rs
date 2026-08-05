@@ -253,8 +253,8 @@ mod tests {
 
     use futures_util::{SinkExt, StreamExt};
     use rune_dungeon_shared::{
-        ClientMessage, GameIntent, PlayerSnapshot, ServerMessage, Vec2,
-        CLOSE_CODE_PROTOCOL_MISMATCH, PROTOCOL_VERSION,
+        ClientMessage, CombatMode, GameIntent, PlayerSnapshot, ServerMessage,
+        TransformationSnapshot, Vec2, CLOSE_CODE_PROTOCOL_MISMATCH, PROTOCOL_VERSION,
     };
     use tokio::{
         net::{TcpListener, TcpStream},
@@ -267,7 +267,7 @@ mod tests {
     };
 
     use super::*;
-    use crate::world::WorldState;
+    use crate::world::{WorldState, SERVER_TICK_SECONDS};
 
     type TestClient = WebSocketStream<MaybeTlsStream<TcpStream>>;
     type SessionResult = Result<(), Box<dyn std::error::Error + Send + Sync>>;
@@ -345,6 +345,7 @@ mod tests {
                     z: 0.0,
                 },
                 target: None,
+                transformation: normal_transformation(),
             },
         };
         registry.insert(1, tx).await;
@@ -371,6 +372,7 @@ mod tests {
                         id: 1,
                         position: Vec2 { x: 0.0, z: 0.0 },
                         target: None,
+                        transformation: normal_transformation(),
                     },
                 },
             )
@@ -442,6 +444,7 @@ mod tests {
                         id: player_id,
                         position: Vec2 { x: 1.2, z: 0.0 },
                         target: None,
+                        transformation: normal_transformation(),
                     },
                 },
             )
@@ -528,6 +531,61 @@ mod tests {
         wait_for_session(server).await;
     }
 
+    #[tokio::test]
+    async fn loopback_toggle_is_confirmed_by_a_transformed_snapshot() {
+        let (url, world, registry, server) = start_one_session().await;
+        let (mut client, _) = tokio_tungstenite::connect_async(url).await.unwrap();
+        send_client_info_then_join(&mut client).await;
+        let player_id = receive_join_accepted(&mut client).await;
+        client
+            .send(Message::Text(r#"{"Intent":"ToggleTransformation"}"#.into()))
+            .await
+            .unwrap();
+
+        tokio::time::timeout(std::time::Duration::from_secs(1), async {
+            loop {
+                let transformed =
+                    world
+                        .lock()
+                        .await
+                        .snapshot_for(player_id)
+                        .is_some_and(|snapshot| {
+                            snapshot.transformation.combat_mode == CombatMode::Transformed
+                        });
+                if transformed {
+                    break;
+                }
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .expect("toggle should be applied");
+        let message = world
+            .lock()
+            .await
+            .tick(SERVER_TICK_SECONDS)
+            .into_iter()
+            .find_map(|(id, message)| (id == player_id).then_some(message))
+            .unwrap();
+        registry.send_snapshot(player_id, message).await;
+        assert!(matches!(
+            receive_server_message(&mut client).await,
+            ServerMessage::WorldSnapshot {
+                player: PlayerSnapshot {
+                    transformation: TransformationSnapshot {
+                        combat_mode: CombatMode::Transformed,
+                        revision: 1,
+                        ..
+                    },
+                    ..
+                },
+                ..
+            }
+        ));
+        client.close(None).await.unwrap();
+        wait_for_session(server).await;
+    }
+
     async fn start_one_session() -> (
         String,
         Arc<Mutex<WorldState>>,
@@ -590,5 +648,13 @@ mod tests {
             .expect("session should close")
             .expect("session task should not panic")
             .expect("session should not return an error");
+    }
+
+    fn normal_transformation() -> TransformationSnapshot {
+        TransformationSnapshot {
+            in_id: "in_fire_001".to_owned(),
+            combat_mode: CombatMode::Normal,
+            revision: 0,
+        }
     }
 }
