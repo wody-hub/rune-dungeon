@@ -33,6 +33,7 @@ impl WorldState {
         snapshot
     }
 
+    #[cfg(test)]
     pub fn player(&self, player_id: u64) -> Option<&PlayerState> {
         self.players.get(&player_id)
     }
