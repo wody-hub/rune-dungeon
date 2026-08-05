@@ -12,10 +12,12 @@
   let {
     monster,
     definition,
+    inputEnabled = true,
     onGesture,
   }: {
     monster: MonsterState;
     definition: RuntimeMonster;
+    inputEnabled?: boolean;
     onGesture: (gesture: MonsterGesture) => void;
   } = $props();
 
@@ -75,13 +77,15 @@
     position.y={definition.rank === 'BOSS' ? 0.9 : 0.55}
     scale={definition.rank === 'BOSS' ? [1.4, 1.4, 1.15] : [0.9, 0.65, 0.9]}
     onclick={(event: IntersectionEvent<MouseEvent>) => {
-      if (!activeNow || !monster.alive) return;
       event.stopPropagation();
+      if (!inputEnabled) return;
+      if (!activeNow || !monster.alive) return;
       onGesture('select');
     }}
     ondblclick={(event: IntersectionEvent<MouseEvent>) => {
-      if (!activeNow || !monster.alive) return;
       event.stopPropagation();
+      if (!inputEnabled) return;
+      if (!activeNow || !monster.alive) return;
       onGesture('start_auto_attack');
     }}
   >

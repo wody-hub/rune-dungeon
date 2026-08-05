@@ -4,9 +4,11 @@
 
   let {
     snapshot,
+    disabled = false,
     onAction,
   }: {
     snapshot: M3HudSnapshot;
+    disabled?: boolean;
     onAction: (action: M3Action) => void;
   } = $props();
 
@@ -108,6 +110,7 @@
   {#if action}
     <button
       type="button"
+      disabled={disabled}
       onclick={() => onAction(action)}
     >{actionLabel(action)}</button>
   {/if}
@@ -183,6 +186,13 @@
   button:focus-visible {
     outline: 2px solid var(--rd-paper-text);
     outline-offset: 2px;
+  }
+
+  button:disabled {
+    color: var(--rd-muted-text);
+    background: color-mix(in srgb, var(--rd-metal-surface) 86%, var(--rd-ink-950));
+    border-color: color-mix(in srgb, var(--rd-muted-text) 30%, transparent);
+    cursor: not-allowed;
   }
 
   .acquisition-chips,

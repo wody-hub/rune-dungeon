@@ -6,7 +6,13 @@
   import type { M3Action } from '../game/sim/m3-progression';
   import { glowPulse } from './visual-state';
 
-  let { onCollect }: { onCollect: (action: M3Action) => void } = $props();
+  let {
+    inputEnabled = true,
+    onCollect,
+  }: {
+    inputEnabled?: boolean;
+    onCollect: (action: M3Action) => void;
+  } = $props();
   let group = $state<Group>();
   let coreMaterial = $state<MeshStandardMaterial>();
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -24,6 +30,7 @@
     position.y={0.3}
     onclick={(event: IntersectionEvent<MouseEvent>) => {
       event.stopPropagation();
+      if (!inputEnabled) return;
       onCollect('collect_m3_supply_cache');
     }}
   >

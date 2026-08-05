@@ -10,9 +10,11 @@
 
   let {
     world,
+    inputEnabled = true,
     onMonsterGesture,
   }: {
     world: WorldState;
+    inputEnabled?: boolean;
     onMonsterGesture: (monsterId: string, gesture: MonsterGesture) => void;
   } = $props();
 
@@ -46,6 +48,7 @@
     bind:this={entities[index]}
     {monster}
     definition={getMonsterDefinition(world, monster)}
+    {inputEnabled}
     onGesture={(gesture) => onMonsterGesture(monster.entityId, gesture)}
   />
 {/each}

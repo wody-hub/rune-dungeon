@@ -1,10 +1,17 @@
 <script lang="ts">
   import { T } from '@threlte/core';
+  import type { IntersectionEvent } from '@threlte/extras';
   import type { Group, MeshStandardMaterial } from 'three';
   import { visualTheme } from '../design/visual-theme';
   import type { M4Area } from '../game/sim/m4-scenario';
 
-  let { onEnter }: { onEnter: () => void } = $props();
+  let {
+    inputEnabled = true,
+    onEnter,
+  }: {
+    inputEnabled?: boolean;
+    onEnter: () => void;
+  } = $props();
   let group = $state<Group>();
   let seal = $state<MeshStandardMaterial>();
   let open = false;
@@ -28,7 +35,9 @@
   <T.Mesh
     position.y={1.1}
     scale={[2.2, 2.2, 0.25]}
-    onclick={() => {
+    onclick={(event: IntersectionEvent<MouseEvent>) => {
+      event.stopPropagation();
+      if (!inputEnabled) return;
       if (open) onEnter();
     }}
   >

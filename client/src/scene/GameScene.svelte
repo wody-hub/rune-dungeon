@@ -1,8 +1,13 @@
 <script lang="ts">
   import { T, useThrelte } from '@threlte/core';
   import { interactivity } from '@threlte/extras';
-  import { onMount } from 'svelte';
-  import { createWorld, enqueueIntent, tick } from '../game/sim/world';
+  import { onMount, untrack } from 'svelte';
+  import {
+    applyAuthoritativePlayerPosition,
+    createWorld,
+    enqueueIntent,
+    tick,
+  } from '../game/sim/world';
   import type { M3Action } from '../game/sim/m3-progression';
   import type { M4Area } from '../game/sim/m4-scenario';
   import { createFrameTimer, FRAME_TIME_MS } from '../game/loop/fixed-step';
@@ -21,21 +26,31 @@
     intentsForMonsterGesture,
     type MonsterGesture,
   } from './monster-input';
+  import { ServerConnection, type ConnectionState } from '../net/connection';
 
   interactivity();
   const { advance } = useThrelte();
 
   let {
     onHudChange,
+    serverUrl = null,
+    onConnectionStateChange,
   }: {
     onHudChange: (snapshot: HudSnapshot) => void;
+    serverUrl?: string | null;
+    onConnectionStateChange: (state: ConnectionState | null) => void;
   } = $props();
 
   let lastHud: HudSnapshot | undefined;
+  const initialServerUrl = untrack(() => serverUrl);
+  const authorityDemo = initialServerUrl !== null;
 
   // 월드 상태는 반응성 그래프 밖의 plain object다. 프레임마다 바뀌는 값을
   // Svelte 반응성에 올리지 않고, 루프가 레이어 update()를 직접 호출한다.
-  const world = createWorld({ scenario: 'm4' });
+  const world = createWorld({
+    scenario: 'm4',
+    playerMovement: authorityDemo ? 'authoritative' : 'local',
+  });
   if (import.meta.env.DEV) {
     (window as unknown as { __world: unknown }).__world = world;
   }
@@ -49,8 +64,10 @@
   let bossGate = $state<{
     update: (area: M4Area, unlocked: boolean, nowMs: number) => void;
   }>();
+  let connection: ServerConnection | null = null;
 
   export function requestM3Action(action: M3Action): void {
+    if (authorityDemo) return;
     enqueueIntent(world, { type: action });
   }
 
@@ -62,12 +79,43 @@
   }
 
   function handleMonsterGesture(monsterId: string, gesture: MonsterGesture): void {
+    if (authorityDemo) return;
     for (const intent of intentsForMonsterGesture(monsterId, gesture)) {
       enqueueIntent(world, intent);
     }
   }
 
+  function handleGroundClick(x: number, z: number): void {
+    if (authorityDemo) {
+      connection?.sendMove({ x, z });
+      return;
+    }
+    enqueueIntent(world, { type: 'move_to_ground', point: { x, z } });
+  }
+
+  function handleBossGateEntry(): void {
+    if (authorityDemo) return;
+    enqueueIntent(world, { type: 'enter_m4_boss_room' });
+  }
+
   onMount(() => {
+    if (initialServerUrl !== null) {
+      connection = new ServerConnection({
+        url: initialServerUrl,
+        clientVersion: '0.0.0',
+        nickname: '모험가',
+        onState: onConnectionStateChange,
+        onJoin: (position) => {
+          applyAuthoritativePlayerPosition(world, position);
+          publishHud();
+        },
+        onSnapshot: (snapshot) => {
+          applyAuthoritativePlayerPosition(world, snapshot.player.position);
+          publishHud();
+        },
+      });
+      connection.connect();
+    }
     publishHud();
     const timer = createFrameTimer(performance.now());
     const dt = FRAME_TIME_MS / 1000;
@@ -86,7 +134,12 @@
       advance();
     };
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      connection?.dispose();
+      connection = null;
+      onConnectionStateChange(null);
+    };
   });
 </script>
 
@@ -95,13 +148,21 @@
 <T.AmbientLight color="#A9C5C2" intensity={0.34} />
 <T.DirectionalLight color="#D9D2BD" position={[10, 20, 10]} intensity={1.05} />
 
-<GroundLayer
-  onGroundClick={(x, z) => enqueueIntent(world, { type: 'move_to_ground', point: { x, z } })}
-/>
+<GroundLayer onGroundClick={handleGroundClick} />
 <M4BossGate
   bind:this={bossGate}
-  onEnter={() => enqueueIntent(world, { type: 'enter_m4_boss_room' })}
+  inputEnabled={!authorityDemo}
+  onEnter={handleBossGateEntry}
 />
-<MonsterLayer bind:this={monsterLayer} {world} onMonsterGesture={handleMonsterGesture} />
-<M3SupplyCache bind:this={supplyCache} onCollect={requestM3Action} />
+<MonsterLayer
+  bind:this={monsterLayer}
+  {world}
+  inputEnabled={!authorityDemo}
+  onMonsterGesture={handleMonsterGesture}
+/>
+<M3SupplyCache
+  bind:this={supplyCache}
+  inputEnabled={!authorityDemo}
+  onCollect={requestM3Action}
+/>
 <PlayerLayer bind:this={playerLayer} {world} />

@@ -6,10 +6,12 @@
   let {
     snapshot,
     showDebug = false,
+    authorityDemo = false,
     onM3Action,
   }: {
     snapshot: HudSnapshot | null;
     showDebug?: boolean;
+    authorityDemo?: boolean;
     onM3Action: (action: M3Action) => void;
   } = $props();
 
@@ -89,7 +91,11 @@
       </div>
     </section>
 
-    <M3ProgressPanel snapshot={snapshot.m3} onAction={onM3Action} />
+    {#if authorityDemo}
+      <M3ProgressPanel snapshot={snapshot.m3} disabled={authorityDemo} onAction={onM3Action} />
+    {:else}
+      <M3ProgressPanel snapshot={snapshot.m3} onAction={onM3Action} />
+    {/if}
 
     {#if showDebug}
       <aside class="hud-panel debug-panel" aria-label="개발 정보">
