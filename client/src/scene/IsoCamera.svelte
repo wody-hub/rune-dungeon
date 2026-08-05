@@ -2,7 +2,7 @@
   import { T } from '@threlte/core';
   import type { OrthographicCamera } from 'three';
   import { deriveCameraOffset, ISO_PITCH, ISO_YAW, ISO_DISTANCE } from '../game/sim/camera';
-  import type { WorldState } from '../game/sim/world';
+  import { getRenderedPlayerPosition, type WorldState } from '../game/sim/world';
 
   let { world }: { world: WorldState } = $props();
 
@@ -12,7 +12,7 @@
 
   export function update(): void {
     if (!ref) return;
-    const p = world.player.pos;
+    const p = getRenderedPlayerPosition(world);
     ref.position.set(p.x + offset.x, offset.y, p.z + offset.z);
     ref.lookAt(p.x, 0, p.z);
   }

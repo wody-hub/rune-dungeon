@@ -86,11 +86,22 @@ export interface WorldOptions {
   random?: RandomSource;
   respawnMs?: number;
   scenario?: WorldScenario;
+  playerMovement?: PlayerMovement;
 }
 
 export type WorldScenario = 'skirmish' | 'm4';
+export type PlayerMovement = 'local' | 'authoritative';
+
+interface AuthoritativeRenderState {
+  position: Vec2;
+  start: Vec2;
+  target: Vec2;
+  elapsedSeconds: number;
+}
 
 export interface WorldState {
+  playerMovement: PlayerMovement;
+  authoritativeRender: AuthoritativeRenderState;
   content: RuntimeCombatContent;
   scenario: WorldScenario;
   monsterDefinitions: Map<string, RuntimeMonster>;
@@ -175,7 +186,16 @@ export function createWorld(options: WorldOptions = {}): WorldState {
     playerState.pos = { ...M4_SPAWNS.minePlayer };
   }
 
+  const authoritativePosition = { ...playerState.pos };
+
   return {
+    playerMovement: options.playerMovement ?? 'local',
+    authoritativeRender: {
+      position: { ...authoritativePosition },
+      start: { ...authoritativePosition },
+      target: { ...authoritativePosition },
+      elapsedSeconds: 0,
+    },
     content,
     scenario,
     monsterDefinitions,
@@ -213,6 +233,21 @@ export function enqueueIntent(w: WorldState, intent: GameIntent): void {
   w.pendingIntents.push(intent);
 }
 
+export function applyAuthoritativePlayerPosition(w: WorldState, position: Vec2): void {
+  w.authoritativeRender.start = { ...w.authoritativeRender.position };
+  w.authoritativeRender.target = { ...position };
+  w.authoritativeRender.elapsedSeconds = 0;
+  w.player.pos = { ...position };
+  w.player.moveTarget = null;
+  if (!w.player.autoAttackEnabled) w.player.mode = 'idle';
+}
+
+export function getRenderedPlayerPosition(w: WorldState): Vec2 {
+  return w.playerMovement === 'authoritative'
+    ? w.authoritativeRender.position
+    : w.player.pos;
+}
+
 function selectedMonster(w: WorldState): MonsterState | undefined {
   if (!w.player.combatTargetId) return undefined;
   const monster = w.monsters.get(w.player.combatTargetId);
@@ -220,6 +255,10 @@ function selectedMonster(w: WorldState): MonsterState | undefined {
 }
 
 function drainIntents(w: WorldState): void {
+  if (w.playerMovement === 'authoritative') {
+    w.pendingIntents.length = 0;
+    return;
+  }
   for (const intent of w.pendingIntents) {
     if (intent.type === 'move_to_ground') {
       beginGroundMove(w.player, intent.point);
@@ -243,6 +282,16 @@ function drainIntents(w: WorldState): void {
     }
   }
   w.pendingIntents.length = 0;
+}
+
+function tickAuthoritativeRenderPosition(w: WorldState, dt: number): void {
+  const render = w.authoritativeRender;
+  render.elapsedSeconds = Math.min(0.2, render.elapsedSeconds + dt);
+  const t = render.elapsedSeconds / 0.2;
+  render.position = {
+    x: render.start.x + (render.target.x - render.start.x) * t,
+    z: render.start.z + (render.target.z - render.start.z) * t,
+  };
 }
 
 function tickGroundMovement(player: PlayerState, dt: number): void {
@@ -379,6 +428,11 @@ function tickPlayer(w: WorldState, dt: number, elapsedMs: number): void {
 
 export function tick(w: WorldState, dt: number): void {
   if (dt <= 0) return;
+  if (w.playerMovement === 'authoritative') {
+    drainIntents(w);
+    tickAuthoritativeRenderPosition(w, dt);
+    return;
+  }
 
   drainIntents(w);
   const elapsedMs = dt * 1_000;

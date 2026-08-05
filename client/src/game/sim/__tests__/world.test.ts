@@ -1,14 +1,68 @@
 import { describe, it, expect } from 'vitest';
 import type { MonsterItem, PlayerData, WeaponItem } from '../../types/data';
 import {
+  applyAuthoritativePlayerPosition,
   createWorld,
   enqueueIntent,
+  getRenderedPlayerPosition,
   resolveCombatDefinitions,
   tick,
   PLAYER_SPEED,
   type WorldState,
 } from '../world';
 import { M3_IDS } from '../m3-progression';
+import { M4_ENTITY_IDS } from '../m4-scenario';
+
+describe('M5.1 player movement authority', () => {
+  it('keeps local movement unchanged by default', () => {
+    const world = createWorld();
+    enqueueIntent(world, { type: 'move_to_ground', point: { x: 10, z: 0 } });
+    tick(world, 0.1);
+    expect(world.player.pos.x).toBeCloseTo(PLAYER_SPEED * 0.1);
+  });
+
+  it('authoritative movement consumes the intent but only a snapshot changes position', () => {
+    const world = createWorld({ playerMovement: 'authoritative' });
+    enqueueIntent(world, { type: 'move_to_ground', point: { x: 10, z: 0 } });
+    tick(world, 0.1);
+    expect(world.player.pos).toEqual({ x: 0, z: 0 });
+    applyAuthoritativePlayerPosition(world, { x: 1.2, z: -0.4 });
+    expect(world.player.pos).toEqual({ x: 1.2, z: -0.4 });
+    expect(getRenderedPlayerPosition(world)).toEqual({ x: 0, z: 0 });
+    tick(world, 0.1);
+    expect(getRenderedPlayerPosition(world)).toEqual({ x: 0.6, z: -0.2 });
+    tick(world, 0.1);
+    expect(getRenderedPlayerPosition(world)).toEqual({ x: 1.2, z: -0.4 });
+  });
+
+  it('authoritative mode refuses every M2–M4 input and freezes local gameplay simulation', () => {
+    const world = createWorld({ scenario: 'm4', playerMovement: 'authoritative' });
+    const elite = world.monsters.get(M4_ENTITY_IDS.elite)!;
+    const originalPosition = { ...world.player.pos };
+    const before = {
+      playerHp: world.player.hp,
+      elite: structuredClone(elite),
+      m3: structuredClone(world.m3),
+      m4: structuredClone(world.m4),
+      inventory: structuredClone(world.inventory),
+    };
+    enqueueIntent(world, { type: 'enter_m4_boss_room' });
+    enqueueIntent(world, { type: 'toggle_auto_attack' });
+    enqueueIntent(world, { type: 'toggle_m3_transformation' });
+    tick(world, 10);
+    expect(world.player.pos).toEqual(originalPosition);
+    expect(world.m4?.area).toBe('blackheart_mine');
+    expect(world.player.autoAttackEnabled).toBe(false);
+    expect(world.m3.transformed).toBe(false);
+    expect({
+      playerHp: world.player.hp,
+      elite,
+      m3: world.m3,
+      m4: world.m4,
+      inventory: world.inventory,
+    }).toEqual(before);
+  });
+});
 
 describe('world intents', () => {
   it('move_to_ground 인텐트는 틱에서 소비되어 이동 목표가 된다', () => {

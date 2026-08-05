@@ -9,7 +9,7 @@
     type MeshStandardMaterial,
   } from 'three';
   import { visualTheme } from '../design/visual-theme';
-  import type { WorldState } from '../game/sim/world';
+  import { getRenderedPlayerPosition, type WorldState } from '../game/sim/world';
   import { glowPulse, transformationProgress, transientPulse } from './visual-state';
 
   let { world }: { world: WorldState } = $props();
@@ -39,7 +39,8 @@
     ) {
       attackStartedAtMs = nowMs;
     }
-    group.position.set(world.player.pos.x, 0, world.player.pos.z);
+    const position = getRenderedPlayerPosition(world);
+    group.position.set(position.x, 0, position.z);
     const damagePulse = transientPulse(nowMs, damageStartedAtMs, reducedMotion);
     const attackPulse = transientPulse(nowMs, attackStartedAtMs, reducedMotion);
     if (transformationSequence > previousTransformationSequence) transformationStartedAtMs = nowMs;
