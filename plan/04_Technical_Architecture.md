@@ -144,6 +144,7 @@ interface CharacterVisualState {
 
 - `CharacterVisualState`에는 레벨, 티어, 장착 아이템을 넣지 않는다. 시각 상태는 `combatMode`와 현재 `inElement`에서만 파생한다.
 - `materialVariantKey`와 `auraEffectKey`는 서버가 파일 경로나 임의 문자열을 보내는 값이 아니라 클라이언트의 검증된 상태 키다.
+- 프로토콜 v2의 `combatMode: NORMAL | TRANSFORMED`는 MVP 기본형/1단계 변신 계약이다. 후속 다단계 변신은 서버 권위 `transformationStage: 0 | 1 | 2 | 3 | 4` 같은 별도 버전 계약으로 확장하며, 클라이언트가 레벨·티어에서 단계를 추론하지 않는다.
 - 렌더러는 `combatMode`로 표시 폼을 파생한다: `NORMAL -> baseFormTierName(씨앗)`, `TRANSFORMED -> inTierName`.
 - `modelKey`, `materialVariantKey`, `auraEffectKey`는 위 표시 폼을 기준으로 선택하며, `NORMAL` 상태에 상위 티어 모델이나 오라 키를 남기지 않는다.
 
@@ -269,7 +270,7 @@ interface CharacterVisualState {
 - **Core Framework:** `Three.js/Threlte`
 - **View Style:** 제한된 줌을 가진 고정 아이소메트릭 3D 카메라; 자유 카메라는 제공하지 않는다.
 - **Character Rendering:** 저폴리 3D 모델, 리그 애니메이션, 무기 메시와 속성 오라/VFX 조합
-- **Layer Composition:** `단일 캐릭터 메시와 고정 의상·경갑 + 무기 메시 + 기본형/변신형 상태 머티리얼 + 속성 오라`
+- **Layer Composition:** `MVP 단일 캐릭터 메시와 고정 의상·경갑 + 후속 변신 단계 메시 + 무기 메시 + 상태 머티리얼 + 속성 오라`
 - **Effects:** emissive 머티리얼, 절제된 블룸, 파티클과 색상 오버레이로 결 발광과 변신 위상을 표현한다.
 
 ## 7. 캐릭터 구현 원칙
@@ -285,6 +286,7 @@ interface CharacterVisualState {
 - 대검은 손 소켓에 탈착할 수 있는 별도 GLB `1개`로 둔다. 기본형과 화염형은 동일 대검 메시를 공유하고 머티리얼 변형·발광·VFX로 상태를 구분한다.
 - MVP에서 애니메이션 팩을 별도 GLB로 분리하거나 런타임 리타게팅 시스템을 만들지 않는다. 캐릭터·스킨 종류가 실제로 늘어 공통화 이점이 생길 때 분리한다.
 - Blender 원본, 입력 이미지, 고해상도 텍스처와 생성 도구 출력은 제작 원본으로 보관하고 웹 클라이언트 번들에 넣지 않는다. 클라이언트에는 최적화된 런타임 GLB와 필요한 텍스처만 둔다.
+- 후속 2~4단계 메시의 GLB 패키징과 로딩 전략은 각 단계 구현 계획에서 정한다. 다만 모든 단계는 동일한 본 이름·계층, inverse bind 기준, 애니메이션 클립 이름, `Weapon_R` 소켓을 유지한다.
 
 ### 7.2. 좌표·스케일·노드 계약
 - `1 Blender unit = 1 meter = 1 Three.js world unit`을 사용한다.
@@ -292,11 +294,11 @@ interface CharacterVisualState {
 - 캐릭터 원점은 두 발 사이 지면 중앙 `(0, 0, 0)`으로 둔다. 대검 원점은 주 손이 잡는 손잡이 중심이며, 로컬 `+Y`가 손잡이에서 칼끝 방향을 가리킨다.
 - 게이트 A에서 승인한 실제 캐릭터 높이를 `PLAYER_VISUAL_HEIGHT_M` 단일 상수로 기록하고, Blender·Three.js에서 별도 임의 스케일 보정을 중복 적용하지 않는다.
 - 최상위 노드는 `PlayerRoot`, 스켈레톤 루트는 `Armature`, 스킨 기준 루트 본은 `Hips`로 표준화한다.
-- 변형 가능한 메시와 상태 요소에는 역할이 드러나는 안정적인 이름을 사용한다. 캐릭터 GLB의 MVP 필수 노드는 `Body`, `Crystal`이며, 별도 대검 GLB의 최상위 노드는 `Greatsword`다. `ArmorFire` 같은 변신 전용 메시 노드는 만들지 않는다.
+- 변형 가능한 메시와 상태 요소에는 역할이 드러나는 안정적인 이름을 사용한다. 캐릭터 GLB의 MVP 필수 노드는 `Body`, `Crystal`이며, 별도 대검 GLB의 최상위 노드는 `Greatsword`다. MVP 1단계를 위한 `ArmorFire` 같은 별도 메시 노드는 만들지 않는다. 후속 단계 메시 이름은 `BodyStage2`처럼 단계가 드러나게 한다.
 
 ### 7.3. 리그·무기 소켓 계약
 - Mixamo 접두어와 구분자는 Blender 보정 단계에서 제거해 본 이름을 `Hips`, `Spine`, `Chest`, `Neck`, `Head`, `LeftHand`, `RightHand`, `LeftFoot`, `RightFoot` 형식으로 표준화한다.
-- 기본형과 화염 변신형은 동일한 메시, 본 계층, inverse bind matrix, 스킨 가중치를 공유한다. 변신 때문에 별도 메시나 스켈레톤을 만들지 않는다.
+- 기본형과 화염 1단계 변신형은 동일한 메시, 본 계층, inverse bind matrix, 스킨 가중치를 공유한다. 후속 2~4단계는 별도 메시를 허용하지만 스켈레톤 계약은 공유한다.
 - 변형 본은 MVP 기준 `75개 이하`로 유지하고 한 정점에 영향을 주는 본은 최대 `4개`로 제한한다.
 - 대검 부착 기준은 `RightHand` 아래의 비변형 소켓 `Weapon_R`이다. 대검은 `Weapon_R`에 한 번만 부착하고, 왼손은 애니메이션 포즈 또는 후속 IK로 손잡이를 맞춘다.
 - A 포즈, 기본형, 화염형, 모든 애니메이션에서 본 이름과 계층이 바뀌지 않아야 한다.
@@ -320,7 +322,7 @@ interface CharacterVisualState {
 - `modelKey`, `rigKey`, `weaponModelKey`는 서버가 파일 경로를 직접 보내는 값이 아니라 클라이언트의 검증된 에셋 매니페스트 키다.
 - 클라이언트는 각 GLB를 URL당 한 번만 로드·파싱해 캐시하고 플레이어별로 스킨드 메시 인스턴스를 복제한다. 상태별 머티리얼 변경이 필요한 경우에만 해당 머티리얼을 복제한다.
 - 캐릭터 또는 대검 로드가 실패해도 월드 상태와 네트워크 세션을 중단하지 않는다. 캐릭터는 기존 플레이스홀더, 대검은 단순 저폴리 대검으로 대체하고 개발 로그에 매니페스트 키와 원인을 남긴다.
-- 기본형·화염 변신형 전환은 새 GLB 네트워크 요청이나 메시 교체 없이 이미 로드한 머티리얼·VFX 상태만 전환한다.
+- 기본형·화염 1단계 변신형 전환은 새 GLB 네트워크 요청이나 메시 교체 없이 이미 로드한 머티리얼·VFX 상태만 전환한다. 후속 단계의 메시 로딩·전환 실패 시에는 마지막으로 검증된 하위 변신 단계 메시를 유지하고 정확한 단계·에셋 키를 로그로 남긴다.
 
 ### 7.7. 에셋 인수 검증
 - Khronos glTF Validator에서 오류가 없어야 하며, 경고는 원인과 수용 이유를 `docs/assets/characters.md`에 기록한다.

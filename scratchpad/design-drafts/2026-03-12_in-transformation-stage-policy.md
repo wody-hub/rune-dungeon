@@ -1,6 +1,6 @@
 # 인 변신 단계 정책
 
-> 폐기된 초안(2026-08-06): 티어별 외형 단계는 사용하지 않는다. 현재 정본은 `plan/06_Art_Direction.md`, `plan/07_Item_Visual_Progression.md`, `plan/16_Character_and_Leveling.md`의 단일 메시 변신 on/off 계약이다.
+> 폐기된 초안(2026-08-06): 티어별 외형 단계는 사용하지 않는다. 현재 정본은 `plan/06_Art_Direction.md`, `plan/07_Item_Visual_Progression.md`, `plan/16_Character_and_Leveling.md`다. MVP 1단계는 단일 메시 상태 전환이고, 후속 2~4단계 변신은 티어와 무관한 별도 실루엣 메시를 허용한다.
 
 ## 목적
 `인: [티어] [속성]`이 외형과 전투 상태에서 어떻게 읽히는지 단계별로 고정한다.
