@@ -130,8 +130,6 @@ interface SupportItem {
 type CombatMode = "NORMAL" | "TRANSFORMED";
 
 interface CharacterVisualState {
-  baseFormTierName: "씨앗";
-  inTierName: "씨앗" | "움결" | "무늬" | "물결" | "울림" | "숨결" | "빛살" | "여울" | "온결";
   inElement?: "FIRE" | "WATER" | "EARTH" | "WIND" | "LIGHT" | "DARK";
   combatMode: CombatMode;
   orientationRadians: number;
@@ -144,8 +142,8 @@ interface CharacterVisualState {
 }
 ```
 
-- `baseFormTierName`은 진행도와 무관하게 항상 `씨앗`으로 고정한다.
-- `inTierName`은 현재 장착한 `인`의 정본 `tierName`에서 시각 상태를 만들 때 파생한다. `인.visual` 안에 같은 값을 중복 저장하지 않는다.
+- `CharacterVisualState`에는 레벨, 티어, 장착 아이템을 넣지 않는다. 시각 상태는 `combatMode`와 현재 `inElement`에서만 파생한다.
+- `materialVariantKey`와 `auraEffectKey`는 서버가 파일 경로나 임의 문자열을 보내는 값이 아니라 클라이언트의 검증된 상태 키다.
 - 렌더러는 `combatMode`로 표시 폼을 파생한다: `NORMAL -> baseFormTierName(씨앗)`, `TRANSFORMED -> inTierName`.
 - `modelKey`, `materialVariantKey`, `auraEffectKey`는 위 표시 폼을 기준으로 선택하며, `NORMAL` 상태에 상위 티어 모델이나 오라 키를 남기지 않는다.
 
@@ -271,7 +269,7 @@ interface CharacterVisualState {
 - **Core Framework:** `Three.js/Threlte`
 - **View Style:** 제한된 줌을 가진 고정 아이소메트릭 3D 카메라; 자유 카메라는 제공하지 않는다.
 - **Character Rendering:** 저폴리 3D 모델, 리그 애니메이션, 무기 메시와 속성 오라/VFX 조합
-- **Layer Composition:** `기본 메시와 고정 의상·경갑 + 무기 메시 + 제한적 변신 갑주 메시 + 속성 오라`
+- **Layer Composition:** `단일 캐릭터 메시와 고정 의상·경갑 + 무기 메시 + 기본형/변신형 상태 머티리얼 + 속성 오라`
 - **Effects:** emissive 머티리얼, 절제된 블룸, 파티클과 색상 오버레이로 결 발광과 변신 위상을 표현한다.
 
 ## 7. 캐릭터 구현 원칙
@@ -283,7 +281,7 @@ interface CharacterVisualState {
 
 ### 7.1. MVP GLB 에셋 구성
 - 런타임 형식은 glTF 2.0 바이너리인 `.glb`로 고정한다.
-- 시그니처 주인공 GLB `1개`에 기본 몸체, 공통 휴머노이드 리그, 기본형·화염형 선택 메시, `idle`, `walk`, `attack` 애니메이션을 포함한다.
+- 시그니처 주인공 GLB `1개`에 단일 몸체 메시, 공통 휴머노이드 리그, 기본형·화염 변신형 머티리얼에 필요한 UV/정점 속성, `idle`, `walk`, `attack` 애니메이션을 포함한다.
 - 대검은 손 소켓에 탈착할 수 있는 별도 GLB `1개`로 둔다. 기본형과 화염형은 동일 대검 메시를 공유하고 머티리얼 변형·발광·VFX로 상태를 구분한다.
 - MVP에서 애니메이션 팩을 별도 GLB로 분리하거나 런타임 리타게팅 시스템을 만들지 않는다. 캐릭터·스킨 종류가 실제로 늘어 공통화 이점이 생길 때 분리한다.
 - Blender 원본, 입력 이미지, 고해상도 텍스처와 생성 도구 출력은 제작 원본으로 보관하고 웹 클라이언트 번들에 넣지 않는다. 클라이언트에는 최적화된 런타임 GLB와 필요한 텍스처만 둔다.
@@ -294,11 +292,11 @@ interface CharacterVisualState {
 - 캐릭터 원점은 두 발 사이 지면 중앙 `(0, 0, 0)`으로 둔다. 대검 원점은 주 손이 잡는 손잡이 중심이며, 로컬 `+Y`가 손잡이에서 칼끝 방향을 가리킨다.
 - 게이트 A에서 승인한 실제 캐릭터 높이를 `PLAYER_VISUAL_HEIGHT_M` 단일 상수로 기록하고, Blender·Three.js에서 별도 임의 스케일 보정을 중복 적용하지 않는다.
 - 최상위 노드는 `PlayerRoot`, 스켈레톤 루트는 `Armature`, 스킨 기준 루트 본은 `Hips`로 표준화한다.
-- 변형 가능한 메시와 상태 파츠에는 역할이 드러나는 안정적인 이름을 사용한다. 캐릭터 GLB의 MVP 필수 노드는 `Body`, `Crystal`, `ArmorFire`이며, 별도 대검 GLB의 최상위 노드는 `Greatsword`다.
+- 변형 가능한 메시와 상태 요소에는 역할이 드러나는 안정적인 이름을 사용한다. 캐릭터 GLB의 MVP 필수 노드는 `Body`, `Crystal`이며, 별도 대검 GLB의 최상위 노드는 `Greatsword`다. `ArmorFire` 같은 변신 전용 메시 노드는 만들지 않는다.
 
 ### 7.3. 리그·무기 소켓 계약
 - Mixamo 접두어와 구분자는 Blender 보정 단계에서 제거해 본 이름을 `Hips`, `Spine`, `Chest`, `Neck`, `Head`, `LeftHand`, `RightHand`, `LeftFoot`, `RightFoot` 형식으로 표준화한다.
-- 기본형과 화염형은 동일한 본 계층, inverse bind matrix, 스킨 가중치를 공유한다. 변신 때문에 별도 스켈레톤을 만들지 않는다.
+- 기본형과 화염 변신형은 동일한 메시, 본 계층, inverse bind matrix, 스킨 가중치를 공유한다. 변신 때문에 별도 메시나 스켈레톤을 만들지 않는다.
 - 변형 본은 MVP 기준 `75개 이하`로 유지하고 한 정점에 영향을 주는 본은 최대 `4개`로 제한한다.
 - 대검 부착 기준은 `RightHand` 아래의 비변형 소켓 `Weapon_R`이다. 대검은 `Weapon_R`에 한 번만 부착하고, 왼손은 애니메이션 포즈 또는 후속 IK로 손잡이를 맞춘다.
 - A 포즈, 기본형, 화염형, 모든 애니메이션에서 본 이름과 계층이 바뀌지 않아야 한다.
@@ -314,7 +312,7 @@ interface CharacterVisualState {
 ### 7.5. 머티리얼·성능 예산
 - Three.js의 표준 PBR 경로에서 읽히는 `baseColor`, `normal`(선택), 결합 `occlusion/roughness/metallic`, `emissive` 텍스처를 사용한다. Blender 전용 셰이더 노드는 런타임 계약에 포함하지 않는다.
 - MVP 텍스처는 맵당 최대 `1024 x 1024`로 제한한다. 투명 재질은 머리카락·천 가장자리처럼 필요한 곳에만 사용하고 alpha blend보다 alpha mask를 우선한다.
-- 캐릭터 GLB는 기본형·화염형 파츠를 합쳐 `20,000 triangles 이하`, 변형 본 `75개 이하`, 머티리얼 `6개 이하`, 런타임 파일 `8MB 이하`를 1차 예산으로 둔다.
+- 캐릭터 GLB는 단일 몸체 기준 `20,000 triangles 이하`, 변형 본 `75개 이하`, 머티리얼 `6개 이하`, 런타임 파일 `8MB 이하`를 1차 예산으로 둔다.
 - 대검 GLB는 `5,000 triangles 이하`, 머티리얼 `2개 이하`, 런타임 파일 `2MB 이하`를 1차 예산으로 둔다.
 - 위 수치는 절대 품질 기준이 아니라 웹 수직 슬라이스의 초기 예산이다. 고정 아이소메트릭 카메라에서 차이가 보이지 않는 세부 형상과 2K~4K 텍스처는 제거한다.
 
@@ -322,15 +320,15 @@ interface CharacterVisualState {
 - `modelKey`, `rigKey`, `weaponModelKey`는 서버가 파일 경로를 직접 보내는 값이 아니라 클라이언트의 검증된 에셋 매니페스트 키다.
 - 클라이언트는 각 GLB를 URL당 한 번만 로드·파싱해 캐시하고 플레이어별로 스킨드 메시 인스턴스를 복제한다. 상태별 머티리얼 변경이 필요한 경우에만 해당 머티리얼을 복제한다.
 - 캐릭터 또는 대검 로드가 실패해도 월드 상태와 네트워크 세션을 중단하지 않는다. 캐릭터는 기존 플레이스홀더, 대검은 단순 저폴리 대검으로 대체하고 개발 로그에 매니페스트 키와 원인을 남긴다.
-- 기본형·화염형 전환은 새 GLB 네트워크 요청 없이 이미 로드한 선택 메시·머티리얼·VFX 상태를 전환한다.
+- 기본형·화염 변신형 전환은 새 GLB 네트워크 요청이나 메시 교체 없이 이미 로드한 머티리얼·VFX 상태만 전환한다.
 
 ### 7.7. 에셋 인수 검증
 - Khronos glTF Validator에서 오류가 없어야 하며, 경고는 원인과 수용 이유를 `docs/assets/characters.md`에 기록한다.
 - 자동 검사로 파일 존재, GLB 파싱, 필수 노드, 본 계층, 클립 이름, 클립 수, 삼각형·본·머티리얼 수, 파일 크기 예산을 확인한다.
-- 실제 고정 아이소메트릭 카메라의 최소·기본·최대 줌에서 얼굴보다 실루엣·대검·기본형/화염형 구분을 우선 승인한다.
+- 실제 고정 아이소메트릭 카메라의 최소·기본·최대 줌에서 얼굴보다 실루엣·대검·기본형/화염 변신형의 발광 상태 구분을 우선 승인한다.
 - `idle -> walk -> attack -> idle`, 이동 중 공격, 변신 on/off, 네 플레이어 동시 표시를 검증한다.
-- 팔꿈치·손목·무릎의 가중치 붕괴, 대검 손잡이 이탈, 발 미끄러짐, 의상 관통, 화염 파츠의 깊이 충돌이 없어야 한다.
-- 무료 AI 3D 결과물은 위 검증을 모두 통과시킨 뒤 품질을 평가한다. 기준 미달 시 Blender 재작업 또는 재생성을 먼저 시도하고, 유료 AI 3D 전환은 별도 승인한다.
+- 팔꿈치·손목·무릎의 가중치 붕괴, 대검 손잡이 이탈, 발 미끄러짐, 의상 관통, 화염 오라의 깊이 충돌이 없어야 한다.
+- Blender 직접 제작 결과물은 위 검증을 모두 통과시킨 뒤 품질을 평가한다. 기준 미달 시 고정 아이소메트릭 화면에서 읽히는 단순 형상부터 재작업한다.
 
 ## 8. MVP 기술 범위
 - 첫 수직 슬라이스는 `플레이어 1종`, `무기 1종`, `속성 1종`, `기본 변신 1종`, `필드 1`, `던전 1`, `보스 1`까지만 다룬다.
