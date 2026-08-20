@@ -85,13 +85,13 @@ local function createSwordPart(name: string, size: Vector3, cframe: CFrame, colo
 	return part
 end
 
-local function addSwordEffects(blade: BasePart)
+local function addSwordEffects(blade: BasePart, isTransformed: boolean)
 	local light = Instance.new("PointLight")
 	light.Name = "FireTransformLight"
 	light.Color = FIRE
 	light.Brightness = 2.2
 	light.Range = 13
-	light.Enabled = false
+	light.Enabled = isTransformed
 	light.Parent = blade
 
 	local particles = Instance.new("ParticleEmitter")
@@ -103,11 +103,11 @@ local function addSwordEffects(blade: BasePart)
 	particles.Speed = NumberRange.new(0.5, 1.6)
 	particles.SpreadAngle = Vector2.new(12, 12)
 	particles.Texture = "rbxasset://textures/particles/fire_main.dds"
-	particles.Enabled = false
+	particles.Enabled = isTransformed
 	particles.Parent = blade
 end
 
-local function createGreatsword(character: Model, rightHand: BasePart)
+local function createGreatsword(character: Model, rightHand: BasePart, isTransformed: boolean)
 	local previousSword = character:FindFirstChild("Greatsword")
 	if previousSword then
 		previousSword:Destroy()
@@ -123,7 +123,13 @@ local function createGreatsword(character: Model, rightHand: BasePart)
 	local grip = createSwordPart("Grip", Vector3.new(0.38, 2.15, 0.38), rightHand.CFrame, BLACK, Enum.Material.Fabric)
 	grip.Parent = sword
 
-	local blade = createSwordPart("Blade", Vector3.new(0.72, 6.3, 0.3), grip.CFrame * CFrame.new(0, 4.15, 0), DARK_METAL, Enum.Material.Metal)
+	local blade = createSwordPart(
+		"Blade",
+		Vector3.new(0.72, 6.3, 0.3),
+		grip.CFrame * CFrame.new(0, 4.15, 0),
+		if isTransformed then FIRE else DARK_METAL,
+		if isTransformed then Enum.Material.Neon else Enum.Material.Metal
+	)
 	blade.Parent = sword
 	createWeld(grip, blade, blade)
 
@@ -154,7 +160,7 @@ local function createGreatsword(character: Model, rightHand: BasePart)
 	pommel.Parent = sword
 	createWeld(grip, pommel, pommel)
 
-	addSwordEffects(blade)
+	addSwordEffects(blade, isTransformed)
 	sword.PrimaryPart = grip
 	sword.Parent = character
 
@@ -167,7 +173,7 @@ local function createGreatsword(character: Model, rightHand: BasePart)
 	motor.Parent = rightHand
 end
 
-local function createTransformEffects(character: Model, upperTorso: BasePart)
+local function createTransformEffects(character: Model, upperTorso: BasePart, isTransformed: boolean)
 	local previousHighlight = character:FindFirstChild("FireTransformHighlight")
 	if previousHighlight then
 		previousHighlight:Destroy()
@@ -185,7 +191,7 @@ local function createTransformEffects(character: Model, upperTorso: BasePart)
 	highlight.FillTransparency = 0.72
 	highlight.OutlineColor = FIRE
 	highlight.OutlineTransparency = 0.05
-	highlight.Enabled = false
+	highlight.Enabled = isTransformed
 	highlight.Parent = character
 
 	local particles = Instance.new("ParticleEmitter")
@@ -197,11 +203,11 @@ local function createTransformEffects(character: Model, upperTorso: BasePart)
 	particles.Speed = NumberRange.new(1.4, 3)
 	particles.SpreadAngle = Vector2.new(28, 28)
 	particles.Texture = "rbxasset://textures/particles/fire_main.dds"
-	particles.Enabled = false
+	particles.Enabled = isTransformed
 	particles.Parent = upperTorso
 end
 
-local function applyPresentation(character: Model)
+local function applyPresentation(character: Model, isTransformed: boolean)
 	local head = character:FindFirstChild("Head")
 	local rightHand = character:FindFirstChild("RightHand")
 	local upperTorso = character:FindFirstChild("UpperTorso")
@@ -212,8 +218,8 @@ local function applyPresentation(character: Model)
 	stripCostume(character)
 	recolorBody(character)
 	createHairCap(character, head)
-	createGreatsword(character, rightHand)
-	createTransformEffects(character, upperTorso)
+	createGreatsword(character, rightHand, isTransformed)
+	createTransformEffects(character, upperTorso, isTransformed)
 end
 
 local function schedulePresentation(player: Player, character: Model)
@@ -226,7 +232,7 @@ local function schedulePresentation(player: Player, character: Model)
 		if presentationTickets[character] ~= ticket or player.Character ~= character or character.Parent == nil then
 			return
 		end
-		applyPresentation(character)
+		applyPresentation(character, player:GetAttribute("IsTransformed") == true)
 	end)
 end
 
