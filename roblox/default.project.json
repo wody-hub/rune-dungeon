@@ -1,0 +1,16 @@
+{
+  "name": "RuneDungeonSample",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": { "RuneDungeon": { "$className": "Folder" } },
+    "ServerScriptService": { "RuneDungeonServer": { "$path": "src/server" } },
+    "StarterPlayer": {
+      "$properties": {
+        "CameraMaxZoomDistance": 32,
+        "CameraMinZoomDistance": 32
+      },
+      "StarterPlayerScripts": { "RuneDungeonClient": { "$path": "src/client" } }
+    },
+    "Workspace": { "$properties": { "StreamingEnabled": false } }
+  }
+}
