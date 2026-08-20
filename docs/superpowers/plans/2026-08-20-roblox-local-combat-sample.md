@@ -22,7 +22,7 @@
 - Show transformation through HUD text, orange outline, particles, and sword glow; never rely on color alone.
 - Follow `DESIGN.md`: ink-dark environment, restrained saturation, cyan interaction glow, and fire glow close to `#FFAD42`.
 - Keep generated `roblox/build/*.rbxlx` files local and uncommitted.
-- Every Studio Play run must emit `[RuneDungeonTests] PASS 4` and no new Output errors.
+- The final completed Studio Play run must emit `[RuneDungeonTests] PASS 4` and no new Output errors. Intermediate TDD runs may show the specific planned missing-module or assertion failures and the planned `PASS 2`/`PASS 3` counts.
 
 ---
 
