@@ -1,0 +1,10 @@
+return function()
+	local CombatRules = require(game.ReplicatedStorage.RuneDungeon.Shared.CombatRules)
+	assert(CombatRules.canAttack(10, 9.1))
+	assert(not CombatRules.canAttack(10, 9.11))
+	assert(CombatRules.isInAttackArc(CFrame.new(), Vector3.new(0, 0, -9)))
+	assert(not CombatRules.isInAttackArc(CFrame.new(), Vector3.new(0, 0, -9.01)))
+	assert(not CombatRules.isInAttackArc(CFrame.new(), Vector3.new(0, 0, 4)))
+	assert(not CombatRules.canTransform(2))
+	assert(CombatRules.canTransform(3))
+end

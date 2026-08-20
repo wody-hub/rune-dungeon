@@ -2,7 +2,12 @@
   "name": "RuneDungeonSample",
   "tree": {
     "$className": "DataModel",
-    "ReplicatedStorage": { "RuneDungeon": { "$className": "Folder" } },
+    "ReplicatedStorage": {
+      "RuneDungeon": {
+        "$className": "Folder",
+        "Shared": { "$path": "src/shared" }
+      }
+    },
     "ServerScriptService": { "RuneDungeonServer": { "$path": "src/server" } },
     "StarterPlayer": {
       "$properties": {
