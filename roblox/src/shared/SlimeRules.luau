@@ -3,6 +3,10 @@ local Config = require(script.Parent.Config)
 local SlimeRules = {}
 
 function SlimeRules.nextState(context)
+	if context.state == "returning" and context.distanceFromSpawn > 0 then
+		return "returning"
+	end
+
 	if not context.hasLivingPlayer then
 		return "idle"
 	end

@@ -24,4 +24,22 @@ return function()
 		distanceFromSpawn = 55.01,
 		hasLivingPlayer = true,
 	}) == "returning")
+	assert(SlimeRules.nextState({
+		state = "returning",
+		distanceToPlayer = 1,
+		distanceFromSpawn = 20,
+		hasLivingPlayer = true,
+	}) == "returning")
+	assert(SlimeRules.nextState({
+		state = "returning",
+		distanceToPlayer = math.huge,
+		distanceFromSpawn = 20,
+		hasLivingPlayer = false,
+	}) == "returning")
+	assert(SlimeRules.nextState({
+		state = "returning",
+		distanceToPlayer = math.huge,
+		distanceFromSpawn = 0,
+		hasLivingPlayer = false,
+	}) == "idle")
 end
