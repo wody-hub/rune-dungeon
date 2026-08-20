@@ -2,6 +2,10 @@
 
 This directory contains the reproducible Roblox place scaffold for the local combat sample. It uses [Rojo](https://rojo.space/) to build a place file that can be opened in Roblox Studio.
 
+## Prerequisites
+
+Use Roblox Studio **0.735.0.7351131 or newer**. Player characters must use the R15 rig; the server enforces this at runtime and reports a clear error if a character has another rig type.
+
 ## Install
 
 Install the official Rojo CLI with Homebrew:
