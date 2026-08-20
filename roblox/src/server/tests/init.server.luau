@@ -6,7 +6,7 @@ end
 
 local testsRun = 0
 
-for _, child in ipairs(script.Parent:GetChildren()) do
+for _, child in ipairs(script:GetChildren()) do
 	if child:IsA("ModuleScript") and child.Name:match("%.spec$") then
 		local spec = require(child)
 		spec()
