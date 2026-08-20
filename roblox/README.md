@@ -4,7 +4,7 @@ This directory contains the reproducible Roblox place scaffold for the local com
 
 ## Prerequisites
 
-Use Roblox Studio **0.735.0.7351131 or newer**. Player characters must use the R15 rig; the server enforces this at runtime and reports a clear error if a character has another rig type.
+Use Roblox Studio **0.735.0.7351131 or newer**. Before pressing Play, select **File > Game Settings > Avatar > Avatar Type: R15**. Player characters must use the R15 rig; the server enforces this at runtime, destroys non-R15 characters, and stops those sessions with a clear R15-required message.
 
 ## Install
 

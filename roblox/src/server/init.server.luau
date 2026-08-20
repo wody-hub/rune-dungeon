@@ -8,17 +8,20 @@ local actionRequested = Instance.new("RemoteEvent")
 actionRequested.Name = "ActionRequested"
 actionRequested.Parent = remotes
 
-local function enforceR15(character)
+local function enforceR15(player, character)
 	local humanoid = character:WaitForChild("Humanoid")
 	if humanoid.RigType ~= Enum.HumanoidRigType.R15 then
-		error(("[RuneDungeon] R15 rig required; received %s"):format(humanoid.RigType.Name))
+		character:Destroy()
+		player:Kick(("[RuneDungeon] R15 rig required; received %s"):format(humanoid.RigType.Name))
 	end
 end
 
 local function watchPlayer(player)
-	player.CharacterAdded:Connect(enforceR15)
+	player.CharacterAdded:Connect(function(character)
+		enforceR15(player, character)
+	end)
 	if player.Character then
-		task.spawn(enforceR15, player.Character)
+		task.spawn(enforceR15, player, player.Character)
 	end
 end
 
