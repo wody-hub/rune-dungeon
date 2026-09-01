@@ -1,10 +1,16 @@
 # Rune Dungeon Roblox sample
 
+> **Paused and archived (2026-09-01).** This prototype is preserved on
+> `archive/roblox-local-combat-sample` and is no longer the active Rune Dungeon
+> direction. Do not delete the worktree or treat the WIP combat probe as
+> production-ready. See [the pause decision](../docs/decisions/0001-pause-roblox-prototype.md)
+> for completed work, known unfinished work, and resume instructions.
+
 This directory contains the reproducible Roblox place scaffold for the local combat sample. It uses [Rojo](https://rojo.space/) to build a place file that can be opened in Roblox Studio.
 
 ## Prerequisites
 
-Use Roblox Studio **0.735.0.7351131 or newer**. Before pressing Play, select **File > Game Settings > Avatar > Avatar Type: R15**. Player characters must use the R15 rig; the server enforces this at runtime, destroys non-R15 characters, and stops those sessions with a clear R15-required message.
+Use Roblox Studio **0.735.0.7351131 or newer**. Before pressing Play, open **File > Avatar Settings** and select the R15 avatar type. Player characters must use the R15 rig; the server enforces this at runtime, destroys non-R15 characters, and stops those sessions with a clear R15-required message.
 
 ## Install
 
